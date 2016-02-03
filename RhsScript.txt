@@ -1,0 +1,15 @@
+# sample commands
+#MODE <block number>
+#DEBUG <debug level>
+#MESSAGE message text to end of line
+#BEGIN
+#END
+#DELAY <seconds>
+#MOVE <left speed> <right speed>
+#MMOVE <speed> <distance:inches> <timeout>
+#TURN <degrees> <timeout>
+#STRAIGHT <speed> <duration>
+#----------------------------------------------------------------
+BEGIN
+#STRAIGHT 0.5 3.0
+END
