@@ -66,8 +66,8 @@ Drivetrain::Drivetrain() :
 	//bUnderServoControl = false;
 	bUnderServoControl = true;
 
-	//pGyro = new ADXRS453Z;
-	//wpi_assert(pGyro);
+	pGyro = new ADXRS453Z;
+	wpi_assert(pGyro);
 
 	pCamera = new PixyCam();
 	wpi_assert(pCamera);
