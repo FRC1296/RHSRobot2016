@@ -38,8 +38,6 @@ void PixyCam::Run(PixyCam *pInstance)
 		 pCamera->Read(false, uPixiData, 2);
 		 uPixiWord = (((uint16_t)uPixiData[0] << 8) & 0xFF00) | ((uint16_t)uPixiData[1] & 0x00FF);   // convert to big endian
 
-		 //printf("data = %04X state %d\n", uPixiWord, ePixyComState);
-
 		 switch (ePixyComState)
 		 {
 			 case  PIXYCOM_UNSYNCHED:
@@ -86,89 +84,30 @@ void PixyCam::Run(PixyCam *pInstance)
 				 }
 				 break;
 
-			 case  PIXYCOM_STARTOFRAME:
-				 ePixyComState = PIXYCOM_STARTOFBLOCK;
-				 uBlockByteCount = 0;
-				 break;
-
-			 case  PIXYCOM_STARTOFBLOCK:
-				 ePixyComState = PIXYCOM_GETBLOCKDATA;
-				 uBlockByteCount = 0;
-				 break;
-
 			 case  PIXYCOM_GETBLOCKDATA:
 				 pInstance->uCurrentBlock[uBlockByteCount++] = uPixiWord;
 
 				 if(uBlockByteCount >= 6)
 				 {
-					 ePixyComState = PIXYCOM_ENDOFBLOCK;
-				 }
-				 break;
-
-			 case  PIXYCOM_ENDOFBLOCK:
-				 if(uPixiWord == PIXICOM_FRAMESYNCWORD)
-				 {
-					 // is this the last block?
-					 uBlockByteCount = 0;
-					 ePixyComState = PIXYCOM_ENDOFFRAME;
-
-					 // calibrate on known image, verify x,y,w,h make sense
-					 // TODO verify checksum
-					 // TODO should we only follow the largest match?
-					 // TODO convert x and y to % of full view? - what would help servo math the best
-					 // TODO is the first signature labeled 0 or 1?
-
 					 {
-						    std::lock_guard<priority_recursive_mutex> sync(pInstance->mutexData);
-
-						    if(pInstance->uCurrentBlock[1] == 1)
-						    {
-						    	// centroid of the largest block (the first signature)
-
-						    	pInstance->bBlockFound = true;
-						    	pInstance->fCentroid = (float)((int)pInstance->uCurrentBlock[2] - 115) / 115.0;
-						    }
-					 }
-
-					 //printf("%d: x = %u, y = %u, w = %u, h = %u\n",
-					 //		 pInstance->uCurrentBlock[1],
-					 //		 pInstance->uCurrentBlock[2],
-					 //		 pInstance->uCurrentBlock[3],
-					 //		 pInstance->uCurrentBlock[4],
-					 //		 pInstance->uCurrentBlock[5]);
-				 }
-				 else
-				 {
-					 ePixyComState = PIXYCOM_UNSYNCHED;
-				 }
-				 break;
-
-			 case  PIXYCOM_ENDOFFRAME:
-				 if(uPixiWord == PIXICOM_FRAMESYNCWORD)
-				 {
-					 // new frame and new block
-
-					 uBlockByteCount = 0;
-					 ePixyComState = PIXYCOM_GETBLOCKDATA;
-				 }
-				 else if(uPixiWord == 0)
-				 {
-					 // new frame but there are no queued objects
-
-					 {
+						// centroid of the largest block (the first signature)
 						std::lock_guard<priority_recursive_mutex> sync(pInstance->mutexData);
-						pInstance->bBlockFound = false;
-						pInstance->fCentroid = 0.0;
-					 }
-					 ePixyComState = PIXYCOM_UNSYNCHED;
-				 }
-				 else
-				 {
-					 // new block, eat the first word
 
-					 pInstance->uCurrentBlock[0] = uPixiWord;
-					 uBlockByteCount = 1;
-					 ePixyComState = PIXYCOM_GETBLOCKDATA;
+						pInstance->fCentroid = (float)((int)pInstance->uCurrentBlock[2] - 160) / 160.0;
+
+						if((pInstance->fCentroid < 1.0) && (pInstance->fCentroid > -1.0))
+						{
+							pInstance->bBlockFound = true;
+						}
+						else
+						{
+							pInstance->bBlockFound = false;
+						}
+					 }
+
+				    // ignore the other blocks
+					ePixyComState = PIXYCOM_UNSYNCHED;
+					Wait(0.02);
 				 }
 				 break;
 
@@ -180,7 +119,7 @@ void PixyCam::Run(PixyCam *pInstance)
 	 }
 }
 
-float PixyCam::GetCentroid(float &fNewCentroid)
+bool PixyCam::GetCentroid(float &fNewCentroid)
 {
 	std::lock_guard<priority_recursive_mutex> sync(mutexData);
 

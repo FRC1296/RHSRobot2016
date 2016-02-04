@@ -160,9 +160,7 @@ bool Autonomous::Finish()
 
 bool Autonomous::Begin(char *pCurrLinePos)
 {
-	//tell all the components who may need to know that auto is beginning
-	Message.command = COMMAND_AUTONOMOUS_RUN;
-	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+	return(true);
 }
 
 bool Autonomous::End(char *pCurrLinePos)
@@ -257,7 +255,7 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 		return (false);
 	}
 
-	fSpeed = atof(pToken);
+	fSpeed = -atof(pToken);
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 
 	if(pToken == NULL)

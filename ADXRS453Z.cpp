@@ -27,6 +27,8 @@ ADXRS453Z::ADXRS453Z() {
 	current_rate = 0.0;
 	accumulated_offset = 0.0;
 	rate_offset = 0.0;
+	lastTime = 0.0;
+	thisTime = 0.0;
 	update_timer = new Timer();
 	update_timer->Start();
 	calibration_timer = new Timer();

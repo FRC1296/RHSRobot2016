@@ -20,8 +20,8 @@
 using namespace std;
 
 const char *szTokens[] = {
-		"START"
-		"FINISH"
+		"START",
+		"FINISH",
 		"MODE",
 		"DEBUG",
 		"MESSAGE",
@@ -83,6 +83,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			break;
 		}
 	}
+	printf("Evaluate: %d\n", 1);
 
 	if(iCommand == AUTO_TOKEN_LAST) {
 		// no valid token found
@@ -90,6 +91,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		printf("%0.3lf %s\n", pDebugTimer->Get(), rStatement.c_str());
 		return (true);
 	}
+	printf("Evaluate: %d\n", 2);
 
 	// if we are paused wait here before executing a real command
 
@@ -104,6 +106,8 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	{
 		printf("%0.3lf %s %s\n", pDebugTimer->Get(), pToken, pCurrLinePos);
 	}
+
+	printf("Execute Command: %d\n", iCommand);
 
 	switch (iCommand)
 	{

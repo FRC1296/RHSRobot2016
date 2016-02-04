@@ -39,7 +39,7 @@ public:
 	~PixyCam();
 	static void Run(PixyCam *);
 
-	float GetCentroid(float &fNewCentroid);   // -1.0 to 1.0
+	bool GetCentroid(float &fNewCentroid);   // -1.0 to 1.0
 
 private:
 	static SPI* pixyCam;

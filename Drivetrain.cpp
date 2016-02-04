@@ -44,6 +44,7 @@ Drivetrain::Drivetrain() :
 	pLeftMotor->SetIzone(TALON_IZONE);
 	pLeftMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pLeftMotor->SetInverted(false);
+	pLeftMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
 	pLeftMotor->SetControlMode(CANTalon::kSpeed);
 	//pLeftMotor->SetControlMode(CANTalon::kPercentVbus);
 
@@ -56,6 +57,7 @@ Drivetrain::Drivetrain() :
 	pRightMotor->SetIzone(TALON_IZONE);
 	pRightMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pRightMotor->SetInverted(false);
+	pRightMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
 	pRightMotor->SetControlMode(CANTalon::kSpeed);
 	//pRightMotor->SetControlMode(CANTalon::kPercentVbus);
 
@@ -64,8 +66,8 @@ Drivetrain::Drivetrain() :
 	//bUnderServoControl = false;
 	bUnderServoControl = true;
 
-	pGyro = new ADXRS453Z;
-	wpi_assert(pGyro);
+	//pGyro = new ADXRS453Z;
+	//wpi_assert(pGyro);
 
 	pCamera = new PixyCam();
 	wpi_assert(pCamera);
@@ -169,8 +171,13 @@ void Drivetrain::OnStateChange()			//Handles state changes
 	}
 }
 
-///fNextLeft + , fNextRight -
 void Drivetrain::Run() {
+
+	float fCentroid;
+
+	SmartDashboard::PutBoolean("On Target", pCamera->GetCentroid(fCentroid));
+	SmartDashboard::PutNumber("Centroid", fCentroid);
+
 	switch(localMessage.command) {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
 		bDrivingStraight = false;
@@ -332,16 +339,8 @@ void Drivetrain::IterateStraightDrive(void)
 		bDrivingStraight = false;
 		fNextLeft = 0.0;
 		fNextRight = 0.0;
-		if(bUnderServoControl)
-		{
-			pLeftMotor->Set(0.0);
-			pRightMotor->Set(0.0);
-		}
-		else
-		{
-			pLeftMotor->Set(0.0);
-			pRightMotor->Set(0.0);
-		}
+		pLeftMotor->Set(0.0);
+		pRightMotor->Set(0.0);
 	}
 }
 
@@ -431,6 +430,9 @@ void Drivetrain::StraightDrive(float speed, float time) {
 
 void Drivetrain::StraightDriveLoop(float speed) {
 	float adjustment = pGyro->GetAngle() * recoverStrength;
+
+printf("StraightDriveLoop: %0.3f %0.3f\n", speed, adjustment);
+
 	//glorified arcade drive
 	if (speed > 0.0)
 	{
@@ -506,7 +508,6 @@ void Drivetrain::RunCheezyDrive(float fWheel, float fThrottle, float fSpin)
 		fSpinQ = 0.0;
 	}
 
-
 	if(fSpinQ)
 	{
 		// spin in place modes
@@ -518,7 +519,8 @@ void Drivetrain::RunCheezyDrive(float fWheel, float fThrottle, float fSpin)
 	{
 		// larger delta at lower speeds
 
-		fScale  = (float)sin(3.141519 / 2.0 * fabs((double)fWheelQ));
+		//fScale  = (float)sin(3.141519 / 2.0 * fabs((double)fWheelQ));
+		fScale = 1;
 
 		// which quadrant are we operating in?
 
