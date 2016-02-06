@@ -29,8 +29,6 @@ Autonomous::Autonomous()
 	pDebugTimer = new Timer();
 	pDebugTimer->Start();
 
-	printf("In auto constructor\n");
-
 	pTask = new Task(AUTONOMOUS_TASKNAME, &Autonomous::StartTask, this);
 	wpi_assert(pTask);
 
@@ -102,8 +100,6 @@ bool Autonomous::LoadScriptFile()
 	ifstream scriptStream;
 	scriptStream.open(AUTONOMOUS_SCRIPT_FILEPATH);
 	
-	printf("Auto Script Filepath: [%s]\n", AUTONOMOUS_SCRIPT_FILEPATH);
-
 	if(scriptStream.is_open())//not working
 	{
 		for(int i = 0; i < AUTONOMOUS_SCRIPT_LINES; ++i)
@@ -119,12 +115,10 @@ bool Autonomous::LoadScriptFile()
 			}
 		}
 
-		printf("Autonomous script loaded\n");
 		scriptStream.close();
 	}	
 	else
 	{
-		printf("No auto file found\n");
 		bReturn = false;
 	}
 
@@ -156,13 +150,11 @@ void Autonomous::DoScript()
 		else
 		{
 			SmartDashboard::PutBoolean("Script File Loaded", true);
-printf("Script File Loaded\n");
 			// if there is a script we will execute it some heck or high water!
 
 			while (bInAutoMode)
 			{
 				SmartDashboard::PutNumber("Script Line Number", lineNumber);
-printf("Script Line Number: %d\n", lineNumber);
 
 				if (!bPauseAutoMode)
 				{
@@ -176,11 +168,9 @@ printf("Script Line Number: %d\n", lineNumber);
 
 							SmartDashboard::PutString("Script Line",
 									script[lineNumber].c_str());
-printf("Script Line: %s\n", script[lineNumber].c_str());
 
 							if (Evaluate(script[lineNumber]))
 							{
-printf("Script Line: %s\n", "<NOT RUNNING>");
 								SmartDashboard::PutString("Script Line", "<NOT RUNNING>");
 								break;
 							}

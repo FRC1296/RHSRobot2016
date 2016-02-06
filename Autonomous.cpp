@@ -195,6 +195,7 @@ bool Autonomous::Move(char *pCurrLinePos) {
 	{
 		return (false);
 	}
+
 	Message.command = COMMAND_DRIVETRAIN_AUTO_MOVE;
 	Message.params.tankDrive.left = fLeft;
 	Message.params.tankDrive.right = fRight;
@@ -232,7 +233,7 @@ bool Autonomous::MeasuredMove(char *pCurrLinePos) {
 
 	// send the message to the drive train
 
-	Message.command = COMMAND_DRIVETRAIN_STRAIGHT;
+	Message.command = COMMAND_DRIVETRAIN_MSTRAIGHT;
 	Message.params.autonomous.driveSpeed = fSpeed;
 	Message.params.autonomous.driveDistance = fDistance;
 
@@ -272,31 +273,6 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 	Message.params.autonomous.driveSpeed = fSpeed;
 	Message.params.autonomous.timeout = fTime;
 	return (CommandNoResponse(DRIVETRAIN_QUEUE));
-}
-
-bool Autonomous::TimedMove(char *pCurrLinePos) {
-	/*
-	 char *pToken;
-	 float fSpeed;
-	 float fTime;
-
-	 // parse remainder of line to get length to move
-
-	 pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-	 fSpeed = atof(pToken);
-
-	 pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
-	 fTime = atof(pToken);
-
-	 // send the message to the drive train
-
-	 Message.command = COMMAND_DRIVETRAIN_DRIVE_TIMEDTANK;
-	 Message.params.timedDrive.speed = fSpeed;
-	 Message.params.timedDrive.time = fTime;
-
-	 return(CommandResponse(DRIVETRAIN_QUEUE));
-	 */
-	return false;
 }
 
 bool Autonomous::Turn(char *pCurrLinePos) {

@@ -31,14 +31,12 @@ public:
 
 	static void *StartTask(void *pThis)
 	{
-		printf("In StartTask\n");
 		((Autonomous *)pThis)->DoWork();
 		return(NULL);
 	}
 
 	static void *StartScript(void *pThis)
 	{
-		printf("In StartScript\n");
 		((Autonomous *)pThis)->DoScript();
 		return(NULL);
 	}
@@ -68,7 +66,6 @@ private:
 	bool Move(char *);
 	bool Stop(char *);
 	bool MeasuredMove(char *);
-	bool TimedMove(char *);
 	bool Turn(char *);
 	bool Straight(char *);
 

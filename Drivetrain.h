@@ -18,15 +18,17 @@
 #include "PixyCam.h"
 
 // constants used to tune TALONS
-const float FULLSPEED_FROMTALONS = 	3700.00;							// measured on the robot
+
+const float FULLSPEED_FROMTALONS = 	2800.00;							// measured on the robot
 const float TALON_PTERM = 			0.05;
 const float TALON_ITERM = 			0.0;
 const float TALON_DTERM = 			0.0;
 const float TALON_FTERM = 			(1023.0/FULLSPEED_FROMTALONS);		// full scale divided by measured max speed
 const float TALON_MAXRAMP =			60;									// 200ms
 const float TALON_IZONE	=			128;
-const float TALON_COUNTSPERREV =	1024;								// form CTRE docs
+const float TALON_COUNTSPERREV =	1024;								// from CTRE docs
 
+const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);						// pi x d / 12 inch per foot, d for 6" tires
 
 class Drivetrain : public ComponentBase
 {
@@ -54,6 +56,7 @@ private:
 	float fNextRight = 0.0;
 	float fStraightDriveSpeed = 0.0;
 	float fStraightDriveTime = 0.0;
+	float fStraightDriveDistance = 0.0;
 	float fTurnAngle = 0.0;
 	float fTurnTime = 0.0;
 
@@ -61,6 +64,7 @@ private:
 	bool bDrivingStraight = false;
 	bool bTurning = false;
 	bool bUnderServoControl = false;
+	bool bMeasuredMove = false;
 
 	///how strong direction recovery is in straight drive, higher = stronger
 	const float recoverStrength = .09;
@@ -84,14 +88,12 @@ private:
 	void StraightDrive(float, float);
 	void RunCheezyDrive(float, float, float);
 
-	void StartStraightDrive(float, float);
+	void StartStraightDrive(float, float, float);
 	void IterateStraightDrive(void);
 	void StraightDriveLoop(float);
 
 	void StartTurn(float, float);
 	void IterateTurn(void);
-
-	void MeasuredMove(float,float);
 };
 
 #endif			//DRIVETRAIN_H

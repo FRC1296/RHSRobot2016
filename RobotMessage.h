@@ -66,6 +66,7 @@ enum MessageCommand {
 	COMMAND_DRIVETRAIN_DRIVE_ARCADE,	//!< Tells Drivetrain to use arcade drive
 	COMMAND_DRIVETRAIN_AUTO_MOVE,		//!< Tells Drivetrain to move motors, used by Autonomous
 	COMMAND_DRIVETRAIN_STRAIGHT,		//!< Tells Drivetrain to drive straight, used by Autonomous
+	COMMAND_DRIVETRAIN_MSTRAIGHT,		//!< Tells Drivetrain to drive straight for a fixed distance, used by Autonomous
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
 	COMMAND_DRIVETRAIN_DRIVE_CHEEZY,	//!< Tells Drivetrain to use Cheezy drive
 

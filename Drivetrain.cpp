@@ -178,16 +178,13 @@ void Drivetrain::Run() {
 	SmartDashboard::PutBoolean("On Target", pCamera->GetCentroid(fCentroid));
 	SmartDashboard::PutNumber("Centroid", fCentroid);
 
+	SmartDashboard::PutNumber("travelenc", pRightMotor->GetEncPosition());
+	SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
+
 	switch(localMessage.command) {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
 		bDrivingStraight = false;
 		bTurning = false;
-
-		if((iLoop++ % 100) == 0)
-		{
-			SmartDashboard::PutNumber("Left Velocity", pLeftMotor->GetEncVel());
-			SmartDashboard::PutNumber("Right Velocity", pRightMotor->GetEncVel());
-		}
 
 		if(bUnderServoControl)
 		{
@@ -201,6 +198,23 @@ void Drivetrain::Run() {
 		}
 		break;
 
+	case COMMAND_DRIVETRAIN_AUTO_MOVE:
+		bDrivingStraight = false;
+		bTurning = false;
+
+		if(bUnderServoControl)
+		{
+			pLeftMotor->Set(localMessage.params.tankDrive.left * FULLSPEED_FROMTALONS);
+			pRightMotor->Set(localMessage.params.tankDrive.right * FULLSPEED_FROMTALONS);
+		}
+		else
+		{
+			pLeftMotor->Set(localMessage.params.tankDrive.left);
+			pRightMotor->Set(localMessage.params.tankDrive.right);
+		}
+		break;
+
+
 	case COMMAND_DRIVETRAIN_DRIVE_CHEEZY:
 		bTurning = false;
 		bDrivingStraight = false;
@@ -209,9 +223,18 @@ void Drivetrain::Run() {
 				localMessage.params.cheezyDrive.spin);
 		break;
 
-	case COMMAND_DRIVETRAIN_STRAIGHT:
+	case COMMAND_DRIVETRAIN_MSTRAIGHT:
+		bMeasuredMove = true;
 		bTurning = false;
-		StartStraightDrive(localMessage.params.autonomous.driveSpeed, localMessage.params.autonomous.timeout);
+		StartStraightDrive(localMessage.params.autonomous.driveSpeed,
+				15.0, localMessage.params.autonomous.driveDistance);
+		break;
+
+	case COMMAND_DRIVETRAIN_STRAIGHT:
+		bMeasuredMove = false;
+		bTurning = false;
+		StartStraightDrive(localMessage.params.autonomous.driveSpeed,
+				localMessage.params.autonomous.timeout, 54.0);
 		break;
 
 	case COMMAND_DRIVETRAIN_TURN:
@@ -265,82 +288,68 @@ void Drivetrain::ArcadeDrive(float x, float y) {
 		pRightMotor->Set(-(y - x / 2));
 	}
 }
-void Drivetrain::MeasuredMove(float speed, float targetDist) {
-#if 0
-	pGyro->Zero();
-	encoder->Reset();
-	bool isFinished = false;
-	while(!isFinished)
-	{
-		float coveredDist = encoder->GetDistance();
-		float remainingDist = targetDist - coveredDist;
-		float adjustment = pGyro->GetAngle() / recoverStrength;
-		//glorified arcade drive
-		if(targetDist > 0 && remainingDist > distError)
-		{
-			//if headed in positive direction
-			fNextLeft = (1.0 + adjustment) * speed;
-			fNextRight = (-1.0 + adjustment) * speed;
-		}
-		else if(targetDist < 0 && remainingDist < -distError)
-		{
-			//if headed in negative direction
-			fNextLeft = (-1.0 + adjustment) * speed;
-			fNextRight = (1.0 + adjustment) * speed;
-		}
-		else
-		{
-			fNextLeft = 0.0;
-			fNextRight = 0.0;
-			isFinished = true;
-		}
-		if(bUnderServoControl)
-		{
-			pLeftMotor->Set(fNextLeft * FULLSPEED_FROMTALONS);
-			pRightMotor->Set(fNextRight * FULLSPEED_FROMTALONS);
-		}
-		else
-		{
-			pLeftMotor->Set(fNextLeft);
-			pRightMotor->Set(fNextRight);
-		}
 
-		SmartDashboard::PutNumber("Covered Distance", coveredDist);
-		SmartDashboard::PutNumber("Remaining Distance", remainingDist);
-		SmartDashboard::PutNumber("Angle Adjustment", adjustment);
-	}
-
-	SmartDashboard::PutString("Covered Distance", "Not operating");
-	SmartDashboard::PutString("Remaining Distance", "Not operating");
-	SmartDashboard::PutString("Angle Adjustment", "Not operating");
-	printf("Finished moving %f inches", targetDist);
-#endif
-}
-void Drivetrain::StartStraightDrive(float speed, float time)
+void Drivetrain::StartStraightDrive(float speed, float time, float distance)
 {
 	pAutoTimer->Reset();
-	//DO NOT RESET THE GYRO EVER. only zeroing.
-	pGyro->Zero();
+	pGyro->Zero();		//DO NOT RESET THE GYRO EVER. only zeroing.
+	pLeftMotor->SetEncPosition(0);
+	pRightMotor->SetEncPosition(0);
 
 	fStraightDriveSpeed = speed;
 	fStraightDriveTime = time;
+	fStraightDriveDistance = distance - 1.0;  //TODO need to calculate the stop distance more carefully
 	bDrivingStraight = true;
 	bTurning = false;
 }
 
 void Drivetrain::IterateStraightDrive(void)
 {
-	if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
+	if(bMeasuredMove)
 	{
-		StraightDriveLoop(fStraightDriveSpeed);
+		if ((pAutoTimer->Get() < fStraightDriveDistance) && ISAUTO)
+		{
+			SmartDashboard::PutNumber("travelenc", pRightMotor->GetEncPosition());
+			SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
+
+			if(pRightMotor->GetEncPosition() < (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)))
+			{
+				StraightDriveLoop(fStraightDriveSpeed);
+			}
+			else
+			{
+				bDrivingStraight = false;
+				bMeasuredMove = false;
+				fNextLeft = 0.0;
+				fNextRight = 0.0;
+				pLeftMotor->Set(0.0);
+				pRightMotor->Set(0.0);
+			}
+		}
+		else
+		{
+			bDrivingStraight = false;
+			bMeasuredMove = false;
+			fNextLeft = 0.0;
+			fNextRight = 0.0;
+			pLeftMotor->Set(0.0);
+			pRightMotor->Set(0.0);
+		}
 	}
 	else
 	{
-		bDrivingStraight = false;
-		fNextLeft = 0.0;
-		fNextRight = 0.0;
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+		if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
+		{
+			StraightDriveLoop(fStraightDriveSpeed);
+		}
+		else
+		{
+			bDrivingStraight = false;
+			fNextLeft = 0.0;
+			fNextRight = 0.0;
+			pLeftMotor->Set(0.0);
+			pRightMotor->Set(0.0);
+		}
 	}
 }
 
@@ -431,8 +440,6 @@ void Drivetrain::StraightDrive(float speed, float time) {
 void Drivetrain::StraightDriveLoop(float speed) {
 	float adjustment = pGyro->GetAngle() * recoverStrength;
 
-printf("StraightDriveLoop: %0.3f %0.3f\n", speed, adjustment);
-
 	//glorified arcade drive
 	if (speed > 0.0)
 	{
@@ -519,8 +526,8 @@ void Drivetrain::RunCheezyDrive(float fWheel, float fThrottle, float fSpin)
 	{
 		// larger delta at lower speeds
 
-		//fScale  = (float)sin(3.141519 / 2.0 * fabs((double)fWheelQ));
-		fScale = 1;
+		fScale  = (float)sin(3.141519 / 2.0 * fabs((double)fWheelQ));
+		//fScale = 1;
 
 		// which quadrant are we operating in?
 
