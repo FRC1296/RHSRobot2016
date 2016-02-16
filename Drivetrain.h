@@ -17,10 +17,14 @@
 #include "ADXRS453Z.h"
 #include "PixyCam.h"
 
+using namespace std;
+
+#include "../cheezy/frc1296.h"
+
 // constants used to tune TALONS
 
 const float FULLSPEED_FROMTALONS = 	2800.00;							// measured on the robot
-const float TALON_PTERM = 			0.05;
+const float TALON_PTERM = 			0.15;
 const float TALON_ITERM = 			0.0;
 const float TALON_DTERM = 			0.0;
 const float TALON_FTERM = 			(1023.0/FULLSPEED_FROMTALONS);		// full scale divided by measured max speed
@@ -29,6 +33,8 @@ const float TALON_IZONE	=			128;
 const float TALON_COUNTSPERREV =	1024;								// from CTRE docs
 
 const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);						// pi x d / 12 inch per foot, d for 6" tires
+
+const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / (double)TALON_COUNTSPERREV);
 
 class Drivetrain : public ComponentBase
 {
@@ -45,7 +51,9 @@ public:
 private:
 
 	CANTalon* pLeftMotor;
+	CANTalon* pLeftMotorFollow;
 	CANTalon* pRightMotor;
+	CANTalon* pRightMotorFollow;
 	ADXRS453Z *pGyro;
 	PixyCam *pCamera;
 	Timer *pAutoTimer;
@@ -86,6 +94,7 @@ private:
 	void Run();
 	void ArcadeDrive(float, float);
 	void StraightDrive(float, float);
+	void RunSplitArcade(float, float, float);
 	void RunCheezyDrive(float, float, float);
 
 	void StartStraightDrive(float, float, float);

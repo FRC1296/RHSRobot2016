@@ -68,6 +68,7 @@ enum MessageCommand {
 	COMMAND_DRIVETRAIN_STRAIGHT,		//!< Tells Drivetrain to drive straight, used by Autonomous
 	COMMAND_DRIVETRAIN_MSTRAIGHT,		//!< Tells Drivetrain to drive straight for a fixed distance, used by Autonomous
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
+	COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE,	//!< Tells Drivetrain to use split arcade
 	COMMAND_DRIVETRAIN_DRIVE_CHEEZY,	//!< Tells Drivetrain to use Cheezy drive
 
 	COMMAND_COMPONENT_TEST,				//!< COMMAND_COMPONENT_TEST
@@ -82,6 +83,13 @@ struct TankDriveParams {
 
 ///Used to deliver joystick readings to Drivetrain
 struct CheezyDriveParams {
+	float wheel;
+	float throttle;
+	float spin;
+};
+
+///Used to deliver joystick readings to Drivetrain
+struct SplitArcadeDriveParams {
 	float wheel;
 	float throttle;
 	float spin;
@@ -113,6 +121,7 @@ struct AutonomousParams {
 union MessageParams {
 	TankDriveParams tankDrive;
 	CheezyDriveParams cheezyDrive;
+	CheezyDriveParams splitArcadeDrive;
 	ArcadeDriveParams arcadeDrive;
 	AutonomousParams autonomous;
 };

@@ -90,11 +90,17 @@ void RhsRobot::Run() {
 		//	robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
 		//drivetrain->SendMessage(&robotMessage);
 
-		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
-			robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
-			robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
-			robotMessage.params.cheezyDrive.spin = CHEEZY_DRIVE_SPIN;
+		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE;
+			robotMessage.params.splitArcadeDrive.wheel = CHEEZY_DRIVE_WHEEL;
+			robotMessage.params.splitArcadeDrive.throttle = CHEEZY_DRIVE_THROTTLE;
+			robotMessage.params.splitArcadeDrive.spin = CHEEZY_DRIVE_SPIN;
 		drivetrain->SendMessage(&robotMessage);
+
+		//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
+		//	robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
+		//	robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
+		//	robotMessage.params.cheezyDrive.spin = CHEEZY_DRIVE_SPIN;
+		//drivetrain->SendMessage(&robotMessage);
 	}
 
 	iLoop++;

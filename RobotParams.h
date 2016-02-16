@@ -72,8 +72,10 @@ Add more as needed.
  \endverbatim
  */
 const int CAN_PDB = 0;
-const int CAN_DRIVETRAIN_LEFT_MOTOR = 19;
-const int CAN_DRIVETRAIN_RIGHT_MOTOR = 21;
+const int CAN_DRIVETRAIN_LEFT_MOTOR = 1;
+const int CAN_DRIVETRAIN_LEFT_MOTOR_FOLLOW = 2;
+const int CAN_DRIVETRAIN_RIGHT_MOTOR = 3;
+const int CAN_DRIVETRAIN_RIGHT_MOTOR_FOLLOW = 4;
 
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;
