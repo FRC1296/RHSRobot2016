@@ -34,7 +34,7 @@ const float TALON_COUNTSPERREV =	1024;								// from CTRE docs
 
 const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);						// pi x d / 12 inch per foot, d for 6" tires
 
-const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / (double)TALON_COUNTSPERREV);
+const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / 4096.0);
 
 class Drivetrain : public ComponentBase
 {
@@ -67,7 +67,7 @@ private:
 	float fStraightDriveDistance = 0.0;
 	float fTurnAngle = 0.0;
 	float fTurnTime = 0.0;
-
+	float fBatteryVoltage = 12.0;
 
 	bool bDrivingStraight = false;
 	bool bTurning = false;
@@ -95,7 +95,7 @@ private:
 	void ArcadeDrive(float, float);
 	void StraightDrive(float, float);
 	void RunSplitArcade(float, float, float);
-	void RunCheezyDrive(float, float, float);
+	void RunCheezyDrive(bool, float, float, bool);
 
 	void StartStraightDrive(float, float, float);
 	void IterateStraightDrive(void);

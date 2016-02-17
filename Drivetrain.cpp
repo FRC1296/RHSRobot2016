@@ -79,7 +79,7 @@ Drivetrain::Drivetrain() :
 	wpi_assert(pAutoTimer);
 	pAutoTimer->Start();
 
-	CheezyInit1296();
+	CheezyInit1296();  // initialize the cheexy drive code base
 
 	pTask = new Task(DRIVETRAIN_TASKNAME, &Drivetrain::StartTask, this);
 	wpi_assert(pTask);
@@ -189,14 +189,29 @@ void Drivetrain::Run() {
 		RunSplitArcade(localMessage.params.splitArcadeDrive.wheel,
 				localMessage.params.splitArcadeDrive.throttle,
 				localMessage.params.splitArcadeDrive.spin);
+
+		// contribute to the cheezy Kalmanfilter
+
+		if(fabs(localMessage.params.splitArcadeDrive.spin) > 0.05)
+		{
+			RunCheezyDrive(false, localMessage.params.splitArcadeDrive.wheel, 0.0, false);
+		}
+		else
+		{
+			RunCheezyDrive(false, localMessage.params.splitArcadeDrive.wheel,
+					localMessage.params.splitArcadeDrive.throttle, false);
+		}
 		break;
 
 	case COMMAND_DRIVETRAIN_DRIVE_CHEEZY:
 		bTurning = false;
 		bDrivingStraight = false;
-		RunCheezyDrive(localMessage.params.cheezyDrive.wheel,
+
+		// contribute to the cheezy Kalmanfilter
+
+		RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
 				localMessage.params.cheezyDrive.throttle,
-				localMessage.params.cheezyDrive.spin);
+				localMessage.params.cheezyDrive.bQuickturn);
 		break;
 
 	case COMMAND_DRIVETRAIN_MSTRAIGHT:
@@ -204,6 +219,10 @@ void Drivetrain::Run() {
 		bTurning = false;
 		StartStraightDrive(localMessage.params.autonomous.driveSpeed,
 				15.0, localMessage.params.autonomous.driveDistance);
+
+		// contribute to the cheezy Kalmanfilter
+
+		RunCheezyDrive(false, 0.0, localMessage.params.autonomous.driveSpeed, false);
 		break;
 
 	case COMMAND_DRIVETRAIN_STRAIGHT:
@@ -211,11 +230,27 @@ void Drivetrain::Run() {
 		bTurning = false;
 		StartStraightDrive(localMessage.params.autonomous.driveSpeed,
 				localMessage.params.autonomous.timeout, 54.0);
+
+		// contribute to the cheezy Kalmanfilter
+
+		RunCheezyDrive(false, 0.0, localMessage.params.autonomous.driveSpeed, false);
 		break;
 
 	case COMMAND_DRIVETRAIN_TURN:
 		bDrivingStraight = false;
 		StartTurn(localMessage.params.autonomous.turnAngle,localMessage.params.autonomous.timeout);
+
+		// contribute to the cheezy Kalmanfilter
+
+		if(localMessage.params.autonomous.turnAngle > 0.0)
+		{
+			RunCheezyDrive(false, 0.5, 0.0, false);
+		}
+		else
+		{
+			RunCheezyDrive(false, -0.5, 0.0, false);
+		}
+
 		break;
 
 	case COMMAND_DRIVETRAIN_STOP:
@@ -233,6 +268,14 @@ void Drivetrain::Run() {
 			pLeftMotor->Set(fNextLeft);
 			pRightMotor->Set(fNextRight);
 		}
+
+		// contribute to the cheezy Kalmanfilter
+
+		RunCheezyDrive(false, 0.0, 0.0, false);
+		break;
+
+	case COMMAND_SYSTEM_CONSTANTS:
+		fBatteryVoltage = localMessage.params.system.fBattery;
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
@@ -555,30 +598,50 @@ void Drivetrain::RunSplitArcade(float fWheel, float fThrottle, float fSpin)
 	}
 }
 
-void Drivetrain::RunCheezyDrive(float fWheel, float fThrottle, float fSpin)
+void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bool bQuickturn)
 {
     struct DrivetrainGoal Goal;
     struct DrivetrainPosition Position;
     struct DrivetrainOutput Output;
     struct DrivetrainStatus Status;
 
-    // TODO - feed battery voltage to cheezy math
-    // TODO - encoder reference directions?
     // TODO - select a quickturn button or do the normal spin
-    // TODO - reset cheezy servo when necessary
-    // TODO - gyro angle in degrees or radians?
 
-    Goal.steering = fWheel;
+    Goal.steering = -fWheel;   // not sure why
     Goal.throttle = fThrottle;
-    Goal.quickturn = false;
+    Goal.quickturn = bQuickturn;
     Goal.control_loop_driving = false;
+    Goal.highgear = false;
+    Goal.left_velocity_goal = 0.0;
+    Goal.right_velocity_goal = 0.0;
+    Goal.left_goal = 0.0;
+    Goal.right_goal = 0.0;
 
     Position.left_encoder = -pLeftMotor->GetEncPosition() * METERS_PER_COUNT;
     Position.right_encoder = pRightMotor->GetEncPosition() * METERS_PER_COUNT;
-    Position.gyro_angle = pGyro->GetAngle();
+    Position.gyro_angle = pGyro->GetAngle() * 3.141519 / 180.0;
+    Position.gyro_velocity = pGyro->GetRate() * 3.141519 / 180.0;
+    Position.battery_voltage = fBatteryVoltage;
+    Position.left_shifter_position = true;
+    Position.right_shifter_position = false;
 
-    CheezyIterate1296(&Goal, &Position, &Output, &Status);
+	SmartDashboard::PutNumber("Battery", fBatteryVoltage);
+	SmartDashboard::PutNumber("angle rate", Position.gyro_velocity);
+	SmartDashboard::PutNumber("angle", Position.gyro_angle);
 
-    pLeftMotor->Set(-Output.left_voltage);
-    pRightMotor->Set(Output.right_voltage);
+
+    if(bEnabled)
+    {
+    	// if enabled and normal operation
+
+    	CheezyIterate1296(&Goal, &Position, &Output, &Status);
+        pLeftMotor->Set(-Output.left_voltage);
+        pRightMotor->Set(Output.right_voltage);
+    }
+    else
+    {
+        // if the robot is not running
+
+    	//CheezyIterate1296(&Goal, &Position, NULL, &Status);
+    }
 }

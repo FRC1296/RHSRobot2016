@@ -48,6 +48,7 @@ enum MessageCommand {
 	COMMAND_SYSTEM_MSGTIMEOUT,			//!< COMMAND_SYSTEM_MSGTIMEOUT
 	COMMAND_SYSTEM_OK,					//!< COMMAND_SYSTEM_OK
 	COMMAND_SYSTEM_ERROR,				//!< COMMAND_SYSTEM_ERROR
+	COMMAND_SYSTEM_CONSTANTS,			//!< Provide current system status info
 
 	COMMAND_ROBOT_STATE_DISABLED,		//!< Tells all components that the robot is disabled
 	COMMAND_ROBOT_STATE_AUTONOMOUS,		//!< Tells all components that the robot is in auto
@@ -85,7 +86,7 @@ struct TankDriveParams {
 struct CheezyDriveParams {
 	float wheel;
 	float throttle;
-	float spin;
+	bool bQuickturn;
 };
 
 ///Used to deliver joystick readings to Drivetrain
@@ -99,6 +100,11 @@ struct SplitArcadeDriveParams {
 struct ArcadeDriveParams {
 	float x;
 	float y;
+};
+
+/// Used to deliver system constants tointerested subsystems
+struct SystemParams {
+	float fBattery;
 };
 
 ///Used to deliver autonomous values to Drivetrain
@@ -121,9 +127,10 @@ struct AutonomousParams {
 union MessageParams {
 	TankDriveParams tankDrive;
 	CheezyDriveParams cheezyDrive;
-	CheezyDriveParams splitArcadeDrive;
+	SplitArcadeDriveParams splitArcadeDrive;
 	ArcadeDriveParams arcadeDrive;
 	AutonomousParams autonomous;
+	SystemParams system;
 };
 
 ///A structure containing a command, a set of parameters, and a reply id, sent between components
