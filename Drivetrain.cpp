@@ -563,10 +563,10 @@ void Drivetrain::RunCheezyDrive(float fWheel, float fThrottle, float fSpin)
     struct DrivetrainStatus Status;
 
     // TODO - feed battery voltage to cheezy math
-    // TODO - encoder reference directions?
-    // TODO - select a quickturn button or do the normal spin
+    // TODO - encoder reference directions
+    // TODO - select a quickturn button
     // TODO - reset cheezy servo when necessary
-    // TODO - gyro angle in degrees or radians?
+    // TODO - gyro angle in radians
 
     Goal.steering = fWheel;
     Goal.throttle = fThrottle;
@@ -576,6 +576,7 @@ void Drivetrain::RunCheezyDrive(float fWheel, float fThrottle, float fSpin)
     Position.left_encoder = -pLeftMotor->GetEncPosition() * METERS_PER_COUNT;
     Position.right_encoder = pRightMotor->GetEncPosition() * METERS_PER_COUNT;
     Position.gyro_angle = pGyro->GetAngle();
+    Position.gyro_velocity = pGyro->GetRate();
 
     CheezyIterate1296(&Goal, &Position, &Output, &Status);
 
