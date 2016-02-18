@@ -608,7 +608,7 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     // TODO - select a quickturn button or do the normal spin
 
     Goal.steering = -fWheel;   // not sure why
-    Goal.throttle = fThrottle / 5.0;
+    Goal.throttle = fThrottle;
     Goal.quickturn = bQuickturn;
     Goal.control_loop_driving = false;
     Goal.highgear = false;
@@ -628,15 +628,16 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
 	SmartDashboard::PutNumber("Battery", fBatteryVoltage);
 	SmartDashboard::PutNumber("angle rate", Position.gyro_velocity);
 	SmartDashboard::PutNumber("angle", Position.gyro_angle);
-
+	SmartDashboard::PutNumber("left encoder", Position.left_encoder);
+	SmartDashboard::PutNumber("right encoder", Position.right_encoder);
 
     if(bEnabled)
     {
     	// if enabled and normal operation
 
     	pCheezy->Update(Goal, Position, Output, Status, true);
-        pLeftMotor->Set(-Output.left_voltage);
-        pRightMotor->Set(Output.right_voltage);
+        pLeftMotor->Set(-Output.left_voltage / 12.0);
+        pRightMotor->Set(Output.right_voltage / 12.0);
     }
     else
     {
