@@ -36,6 +36,37 @@ const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);						// pi x d / 12 inch per 
 
 const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / 4096.0);
 
+class CheezyLoop {
+
+public:
+
+	CheezyLoop();
+	~CheezyLoop();
+	static void Run(CheezyLoop *);
+
+	bool bOutputEnabled;
+
+	void Update(const DrivetrainGoal &goal,
+	    const DrivetrainPosition &position,
+	    DrivetrainOutput &output,
+	    DrivetrainStatus &status,
+		bool bEnabled);
+private:
+	struct DrivetrainGoal currentGoal;
+	struct DrivetrainPosition currentPosition;
+	struct DrivetrainOutput currentOutput;
+	struct DrivetrainStatus currentStatus;
+	Task* pTask;
+
+	mutable priority_recursive_mutex mutexData;
+
+	void Iterate(const DrivetrainGoal *goal,
+				 const DrivetrainPosition *position,
+		         DrivetrainOutput *output,
+		         DrivetrainStatus *status);
+};
+
+
 class Drivetrain : public ComponentBase
 {
 public:
@@ -57,6 +88,7 @@ private:
 	ADXRS453Z *pGyro;
 	PixyCam *pCamera;
 	Timer *pAutoTimer;
+	CheezyLoop *pCheezy;
 
 	//Timer *pAutoTimer; //watches autonomous time and disables it if needed.IN COMPONENT BASE
 	//stores motor values during autonomous
@@ -104,5 +136,7 @@ private:
 	void StartTurn(float, float);
 	void IterateTurn(void);
 };
+
+
 
 #endif			//DRIVETRAIN_H

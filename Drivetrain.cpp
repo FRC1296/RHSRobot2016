@@ -79,7 +79,7 @@ Drivetrain::Drivetrain() :
 	wpi_assert(pAutoTimer);
 	pAutoTimer->Start();
 
-	CheezyInit1296();  // initialize the cheexy drive code base
+	pCheezy = new CheezyLoop();
 
 	pTask = new Task(DRIVETRAIN_TASKNAME, &Drivetrain::StartTask, this);
 	wpi_assert(pTask);
@@ -608,7 +608,7 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     // TODO - select a quickturn button or do the normal spin
 
     Goal.steering = -fWheel;   // not sure why
-    Goal.throttle = fThrottle;
+    Goal.throttle = fThrottle / 5.0;
     Goal.quickturn = bQuickturn;
     Goal.control_loop_driving = false;
     Goal.highgear = false;
@@ -634,7 +634,7 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     {
     	// if enabled and normal operation
 
-    	CheezyIterate1296(&Goal, &Position, &Output, &Status);
+    	pCheezy->Update(Goal, Position, Output, Status, true);
         pLeftMotor->Set(-Output.left_voltage);
         pRightMotor->Set(Output.right_voltage);
     }
@@ -642,6 +642,59 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     {
         // if the robot is not running
 
-    	//CheezyIterate1296(&Goal, &Position, NULL, &Status);
+    	pCheezy->Update(Goal, Position, Output, Status, false);
     }
+}
+
+
+CheezyLoop::CheezyLoop()
+{
+	bOutputEnabled = false;
+	CheezyInit1296();  // initialize the cheezy drive code base
+
+	pTask = new Task("tCheezy", &CheezyLoop::Run, this);
+}
+
+void CheezyLoop::Run(CheezyLoop *pInstance)
+{
+	 while(true)
+	 {
+		 Wait(0.005);
+
+		 if(pInstance->bOutputEnabled)
+		{
+			 std::lock_guard<priority_recursive_mutex> sync(pInstance->mutexData);
+			 CheezyIterate1296(&pInstance->currentGoal,
+					 &pInstance->currentPosition,
+					 &pInstance->currentOutput,
+					 &pInstance->currentStatus);
+		}
+		else
+		{
+			 std::lock_guard<priority_recursive_mutex> sync(pInstance->mutexData);
+			 CheezyIterate1296(&pInstance->currentGoal,
+					 &pInstance->currentPosition,
+					 NULL,
+					 &pInstance->currentStatus);
+		}
+	 }
+}
+
+void CheezyLoop::Update(const DrivetrainGoal &goal,
+    const DrivetrainPosition &position,
+    DrivetrainOutput &output,
+    DrivetrainStatus &status,
+	bool bEnabled)
+{
+	std::lock_guard<priority_recursive_mutex> sync(mutexData);
+
+	bOutputEnabled = bEnabled;
+	currentGoal = goal;
+	currentPosition = position;
+	output = currentOutput;
+	status = currentStatus;
+}
+
+CheezyLoop::~CheezyLoop(){
+	delete pTask;
 }

@@ -165,6 +165,7 @@ const int POV_STILL = -1;
 #define CHEEZY_DRIVE_WHEEL			(Controller_1->GetRawAxis(L310_THUMBSTICK_RIGHT_X))
 #define CHEEZY_DRIVE_THROTTLE		(-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y))
 #define CHEEZY_DRIVE_SPIN		    (-Controller_1->GetRawAxis(L310_TRIGGER_LEFT) + Controller_1->GetRawAxis(L310_TRIGGER_RIGHT))
+#define CHEEZY_DRIVE_QUICKTURN		(Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT))
 #define ARCADE_DRIVE_X				(Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X))
 #define ARCADE_DRIVE_Y				(-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y))
 #endif // USE_L310_FOR_CONTROLLER_1

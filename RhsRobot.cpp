@@ -99,7 +99,7 @@ void RhsRobot::Run() {
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
 			robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
 			robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
-			robotMessage.params.cheezyDrive.bQuickturn = false;
+			robotMessage.params.cheezyDrive.bQuickturn = CHEEZY_DRIVE_QUICKTURN;
 
 			// TODO:  what button engages quick turn mode?
 		drivetrain->SendMessage(&robotMessage);
