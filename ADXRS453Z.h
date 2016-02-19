@@ -12,16 +12,19 @@ const float CALIBRATE_PERIOD = 15.0; //seconds
 
 int ADXRS453ZUpdateFunction(int pointer_val);
 
-class ADXRS453Z {
+class ADXRS453Z : public PIDSource{
 	public:
 		ADXRS453Z();
+		virtual ~ADXRS453Z();
 		static void StartTask(ADXRS453Z *pThis);
 		float GetRate();
 		float GetAngle();
+		void SetAngle(float angle);
 		void Reset();
 		void Zero(); //added by Taylor Smith
 		void Update();
 		float Offset();
+		double PIDGet();
 	private:
 		void UpdateData();
 		void Calibrate();
@@ -43,9 +46,9 @@ class ADXRS453Z {
 		unsigned char data[4];
 		SPI * spi;
 		Task * pTask;
+		bool task_started;
 		char sensor_output_1[9];
 		char sensor_output_2[9];
-
 		char sensor_output_3[9];
 		char sensor_output_4[9];
 

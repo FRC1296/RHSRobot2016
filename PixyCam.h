@@ -23,7 +23,7 @@ typedef enum {
 	PIXYCOM_LAST
 } PIXICOM_STATES;
 
-class PixyCam {
+class PixyCam : public PIDSource{
 	struct Block{
 		uint16_t checksum;
 		uint16_t signature;
@@ -38,7 +38,7 @@ public:
 	PixyCam();
 	~PixyCam();
 	static void Run(PixyCam *);
-
+	double PIDGet();
 	bool GetCentroid(float &fNewCentroid);   // -1.0 to 1.0
 
 private:

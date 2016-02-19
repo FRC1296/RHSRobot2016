@@ -32,6 +32,8 @@ const char *szTokens[] = {
 		"MMOVE",			//!<(speed) (distance:inches) (timeout)
 		"TURN",				//!<(degrees) (timeout)
 		"STRAIGHT",			//!<(speed) (duration)
+		"SEARCH",
+		//DRIVETRAIN
 		"STARTDRIVEFWD",	//!<(drive speed)
 		"STARTDRIVEBCK",	//!<(drive speed)
 		"STOPDRIVE",
@@ -196,7 +198,17 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("straight");
 		}
 		break;
-
+	case AUTO_TOKEN_SEARCH:
+		printf("search token\n");
+		if (!Search())
+		{
+			rStatus.append("search error");
+		}
+		else
+		{
+			rStatus.append("search");
+		}
+		break;
 	case AUTO_TOKEN_START_DRIVE_FWD:
 		//Get speed and timeout
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);

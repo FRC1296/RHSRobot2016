@@ -19,10 +19,7 @@ Autonomous::Autonomous()
 {
 	lineNumber = 0;
 	bInAutoMode = false;
-	bPauseAutoMode = false;
-	bScriptLoaded = false;
 	iAutoDebugMode = 0;
-	uResponseCount = 0;
 	bReceivedCommandResponse = false;
 	ReceivedCommand = COMMAND_UNKNOWN;
 
@@ -97,6 +94,7 @@ void Autonomous::Run()
 bool Autonomous::LoadScriptFile()
 {
 	bool bReturn = true;
+	//printf("Auto Script Filepath: [%s]\n", AUTONOMOUS_SCRIPT_FILEPATH);
 	ifstream scriptStream;
 	scriptStream.open(AUTONOMOUS_SCRIPT_FILEPATH);
 	
@@ -107,7 +105,7 @@ bool Autonomous::LoadScriptFile()
 			if(!scriptStream.eof())
 			{
 				getline(scriptStream, script[i]);
-				cout << script[i] << endl;
+				//cout << script[i] << endl;
 			}
 			else
 			{
@@ -115,10 +113,12 @@ bool Autonomous::LoadScriptFile()
 			}
 		}
 
+		//printf("Autonomous script loaded\n");
 		scriptStream.close();
 	}	
 	else
 	{
+		//printf("No auto file found\n");
 		bReturn = false;
 	}
 
@@ -150,6 +150,7 @@ void Autonomous::DoScript()
 		else
 		{
 			SmartDashboard::PutBoolean("Script File Loaded", true);
+
 			// if there is a script we will execute it some heck or high water!
 
 			while (bInAutoMode)

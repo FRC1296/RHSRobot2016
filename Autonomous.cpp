@@ -160,7 +160,9 @@ bool Autonomous::Finish()
 
 bool Autonomous::Begin(char *pCurrLinePos)
 {
-	return(true);
+	//tell all the components who may need to know that auto is beginning
+	Message.command = COMMAND_AUTONOMOUS_RUN;
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
 
 bool Autonomous::End(char *pCurrLinePos)
@@ -195,7 +197,6 @@ bool Autonomous::Move(char *pCurrLinePos) {
 	{
 		return (false);
 	}
-
 	Message.command = COMMAND_DRIVETRAIN_AUTO_MOVE;
 	Message.params.tankDrive.left = fLeft;
 	Message.params.tankDrive.right = fRight;
@@ -256,7 +257,7 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 		return (false);
 	}
 
-	fSpeed = -atof(pToken);
+	fSpeed = atof(pToken);
 	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
 
 	if(pToken == NULL)
@@ -274,6 +275,13 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 	Message.params.autonomous.timeout = fTime;
 	return (CommandNoResponse(DRIVETRAIN_QUEUE));
 }
+
+bool Autonomous::Search(){
+	printf("auto search\n");
+	Message.command = COMMAND_AUTONOMOUS_SEARCH;
+	return (CommandResponse(DRIVETRAIN_QUEUE));
+}
+
 
 bool Autonomous::Turn(char *pCurrLinePos) {
 	char *pToken;
@@ -305,5 +313,5 @@ bool Autonomous::Turn(char *pCurrLinePos) {
 	Message.command = COMMAND_DRIVETRAIN_TURN;
 	Message.params.autonomous.turnAngle = fAngle;
 	Message.params.autonomous.timeout = fTimeout;
-	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+	return (CommandResponse(DRIVETRAIN_QUEUE));
 }

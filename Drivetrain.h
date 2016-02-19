@@ -16,13 +16,10 @@
 
 #include "ADXRS453Z.h"
 #include "PixyCam.h"
-
-using namespace std;
-
+#include "PIDSearchOutput.h"
 #include "../cheezy/frc1296.h"
 
 // constants used to tune TALONS
-
 const float FULLSPEED_FROMTALONS = 	2800.00;							// measured on the robot
 const float TALON_PTERM = 			0.15;
 const float TALON_ITERM = 			0.0;
@@ -31,40 +28,39 @@ const float TALON_FTERM = 			(1023.0/FULLSPEED_FROMTALONS);		// full scale divid
 const float TALON_MAXRAMP =			60;									// 200ms
 const float TALON_IZONE	=			128;
 const float TALON_COUNTSPERREV =	1024;								// from CTRE docs
-
-const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);						// pi x d / 12 inch per foot, d for 6" tires
-
-const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / 4096.0);
+const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);
+const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / (double)TALON_COUNTSPERREV);
 
 class CheezyLoop {
 
-public:
+ public:
 
-	CheezyLoop();
-	~CheezyLoop();
-	static void Run(CheezyLoop *);
+ 	CheezyLoop();
+ 	~CheezyLoop();
+ 	static void Run(CheezyLoop *);
 
-	bool bOutputEnabled;
+ 	bool bOutputEnabled;
 
-	void Update(const DrivetrainGoal &goal,
-	    const DrivetrainPosition &position,
-	    DrivetrainOutput &output,
-	    DrivetrainStatus &status,
-		bool bEnabled);
-private:
-	struct DrivetrainGoal currentGoal;
-	struct DrivetrainPosition currentPosition;
-	struct DrivetrainOutput currentOutput;
-	struct DrivetrainStatus currentStatus;
-	Task* pTask;
+ 	void Update(const DrivetrainGoal &goal,
+ 	    const DrivetrainPosition &position,
+ 	    DrivetrainOutput &output,
+ 	    DrivetrainStatus &status,
+ 		bool bEnabled);
+ private:
+ 	struct DrivetrainGoal currentGoal;
+ 	struct DrivetrainPosition currentPosition;
+ 	struct DrivetrainOutput currentOutput;
+ 	struct DrivetrainStatus currentStatus;
+ 	Task* pTask;
 
-	mutable priority_recursive_mutex mutexData;
+ 	mutable priority_recursive_mutex mutexData;
 
-	void Iterate(const DrivetrainGoal *goal,
-				 const DrivetrainPosition *position,
-		         DrivetrainOutput *output,
-		         DrivetrainStatus *status);
-};
+ 	void Iterate(const DrivetrainGoal *goal,
+ 				 const DrivetrainPosition *position,
+ 		         DrivetrainOutput *output,
+ 		         DrivetrainStatus *status);
+ };
+
 
 
 class Drivetrain : public ComponentBase
@@ -81,14 +77,19 @@ public:
 	bool GetGyroAngle();
 private:
 
-	CANTalon* pLeftMotor;
-	CANTalon* pLeftMotorFollow;
-	CANTalon* pRightMotor;
-	CANTalon* pRightMotorFollow;
+	CANTalon* pLeftOneMotor;
+	CANTalon* pLeftTwoMotor;
+	CANTalon* pRightOneMotor;
+	CANTalon* pRightTwoMotor;
 	ADXRS453Z *pGyro;
 	PixyCam *pCamera;
 	Timer *pAutoTimer;
 	CheezyLoop *pCheezy;
+	PIDController* pSearchPID;
+	PIDController* pTurnPID;
+	PIDSearchOutput* pSearchPIDOutput;
+	PIDSearchOutput* pTurnPIDOutput;
+	float fStraightDriveDistance = 0.0;
 
 	//Timer *pAutoTimer; //watches autonomous time and disables it if needed.IN COMPONENT BASE
 	//stores motor values during autonomous
@@ -96,30 +97,35 @@ private:
 	float fNextRight = 0.0;
 	float fStraightDriveSpeed = 0.0;
 	float fStraightDriveTime = 0.0;
-	float fStraightDriveDistance = 0.0;
 	float fTurnAngle = 0.0;
 	float fTurnTime = 0.0;
-	float fBatteryVoltage = 12.0;
 
+	float fBatteryVoltage = 12.0;
 	bool bDrivingStraight = false;
 	bool bTurning = false;
 	bool bUnderServoControl = false;
 	bool bMeasuredMove = false;
 
 	///how strong direction recovery is in straight drive, higher = stronger
-	const float recoverStrength = .09;
+	const float recoverStrength = .03;
 	const float fMaxRecoverSpeed = .35;
 	const float fMaxRecoverAngle = 30.0; 		//used to keep straight drive recovery from becoming to violent
 
 	///how far from goal the robot can be before stopping
 	const float distError = 1.0;				//inches
 	const float angleError = 2.0;				//degrees
-	const float turnAngleSpeedMultiplyer = .05;
+	const float turnAngleSpeedMultiplyer = .002;
 
 	//angle * mult = speed to be reduced by limit
-	const float turnSpeedLimit = .50;
+	const float turnSpeedLimit = .20;
 	const float fEncoderRatio = 0.023009;
 
+	//Auto search variables
+	const float fSearchAccuracy = 0.02f;
+	const float fSearchMotorSpeed = .055f;
+	const float fSearchTimeout = 10; //in seconds
+
+	float fMaxVel = 0;
 	//diameter*pi/encoder_resolution : 1.875 * 3.14 / 256
 
 	void OnStateChange();
@@ -128,6 +134,7 @@ private:
 	void StraightDrive(float, float);
 	void RunSplitArcade(float, float, float);
 	void RunCheezyDrive(bool, float, float, bool);
+	void Search();
 
 	void StartStraightDrive(float, float, float);
 	void IterateStraightDrive(void);
@@ -135,8 +142,7 @@ private:
 
 	void StartTurn(float, float);
 	void IterateTurn(void);
+	void ZeroGyro();
 };
-
-
 
 #endif			//DRIVETRAIN_H

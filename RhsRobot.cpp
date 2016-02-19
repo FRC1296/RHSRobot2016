@@ -90,30 +90,24 @@ void RhsRobot::Run() {
 		//	robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
 		//drivetrain->SendMessage(&robotMessage);
 
-		//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE;
-		//	robotMessage.params.splitArcadeDrive.wheel = CHEEZY_DRIVE_WHEEL;
-		//	robotMessage.params.splitArcadeDrive.throttle = CHEEZY_DRIVE_THROTTLE;
-		//	robotMessage.params.splitArcadeDrive.spin = CHEEZY_DRIVE_SPIN;
-		//drivetrain->SendMessage(&robotMessage);
-
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
-			robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
-			robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
-			robotMessage.params.cheezyDrive.bQuickturn = CHEEZY_DRIVE_QUICKTURN;
+		 			robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
+		 			robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
+		 			robotMessage.params.cheezyDrive.bQuickturn = CHEEZY_DRIVE_QUICKTURN;
 
-			// TODO:  what button engages quick turn mode?
-		drivetrain->SendMessage(&robotMessage);
+		 			// TODO:  what button engages quick turn mode?
+		 		drivetrain->SendMessage(&robotMessage);
 	}
 
 	if((iLoop++ % 50) == 0)
-	{
-		robotMessage.command = COMMAND_SYSTEM_CONSTANTS;
-		robotMessage.params.system.fBattery = DriverStation::GetInstance().GetBatteryVoltage();
+	 	{
+	 		robotMessage.command = COMMAND_SYSTEM_CONSTANTS;
+	 		robotMessage.params.system.fBattery = DriverStation::GetInstance().GetBatteryVoltage();
 
-		// send to interested subsystems
+	 		// send to interested subsystems
 
-		drivetrain->SendMessage(&robotMessage);
-	}
+	 		drivetrain->SendMessage(&robotMessage);
+	 	}
 }
 
 START_ROBOT_CLASS(RhsRobot)

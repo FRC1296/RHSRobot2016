@@ -25,6 +25,7 @@ typedef enum AUTO_COMMAND_TOKENS
 	AUTO_TOKEN_MMOVE,				//!<R	mmove (speed) (inches - float)
 	AUTO_TOKEN_TURN,				//!<R	turn (degrees - float) (timeout)
 	AUTO_TOKEN_STRAIGHT,			//!<R	straight drive (speed) (duration)
+	AUTO_TOKEN_SEARCH,
 	AUTO_TOKEN_START_DRIVE_FWD,
 	AUTO_TOKEN_START_DRIVE_BCK,
 	AUTO_TOKEN_STOP_DRIVE,

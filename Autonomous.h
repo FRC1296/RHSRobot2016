@@ -68,6 +68,7 @@ private:
 	bool MeasuredMove(char *);
 	bool Turn(char *);
 	bool Straight(char *);
+	bool Search();
 
 	bool CommandResponse(const char *szQueueName);
 	bool CommandNoResponse(const char *szQueueName);

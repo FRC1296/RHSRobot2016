@@ -21,59 +21,65 @@
 #include <iostream>
 #include <algorithm>
 
+#include "Drivetrain.h"			//For the local header file
 #include "RobotParams.h"
-#include "Drivetrain.h"
+
+
+using namespace std;
 
 Drivetrain::Drivetrain() :
 		ComponentBase(DRIVETRAIN_TASKNAME, DRIVETRAIN_QUEUE,
 				DRIVETRAIN_PRIORITY) {
 
-	pLeftMotor = new CANTalon(CAN_DRIVETRAIN_LEFT_MOTOR);
-	pLeftMotorFollow = new CANTalon(CAN_DRIVETRAIN_LEFT_MOTOR_FOLLOW);
-	pRightMotor = new CANTalon(CAN_DRIVETRAIN_RIGHT_MOTOR);
-	pRightMotorFollow = new CANTalon(CAN_DRIVETRAIN_RIGHT_MOTOR_FOLLOW);
-
-	wpi_assert(pLeftMotor && pRightMotor && pLeftMotorFollow && pRightMotorFollow);
-
-	// setup for closed loop operation with VP encoders
-
-	pLeftMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	pLeftMotor->ConfigEncoderCodesPerRev(TALON_COUNTSPERREV);
-	pLeftMotor->SelectProfileSlot(0);
-	pLeftMotor->SetPID(TALON_PTERM, TALON_ITERM, TALON_DTERM, TALON_FTERM);		// PIDF
-	pLeftMotor->SetIzone(TALON_IZONE);
-	pLeftMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
-	pLeftMotor->SetInverted(false);
-	pLeftMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
-	pLeftMotor->SetControlMode(CANTalon::kPercentVbus);
-
-	// setup for closed loop operation with VP encoders
-
-	pRightMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	pRightMotor->ConfigEncoderCodesPerRev(TALON_COUNTSPERREV);
-	pRightMotor->SelectProfileSlot(0);
-	pRightMotor->SetPID(TALON_PTERM, TALON_ITERM, TALON_DTERM, TALON_FTERM);	// PIDF
-	pRightMotor->SetIzone(TALON_IZONE);
-	pRightMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
-	pRightMotor->SetInverted(false);
-	pRightMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
-	pRightMotor->SetControlMode(CANTalon::kPercentVbus);
-
-	wpi_assert(pLeftMotor->IsAlive());
-	wpi_assert(pRightMotor->IsAlive());
-
-	pLeftMotorFollow->SetControlMode(CANTalon::kFollower);
-	pLeftMotorFollow->Set(CAN_DRIVETRAIN_LEFT_MOTOR);
-	pRightMotorFollow->SetControlMode(CANTalon::kFollower);
-	pRightMotorFollow->Set(CAN_DRIVETRAIN_RIGHT_MOTOR);
-
-	bUnderServoControl = false;
-
-	pGyro = new ADXRS453Z;
-	wpi_assert(pGyro);
+	pLeftOneMotor = new CANTalon(CAN_DRIVETRAIN_LEFTONE_MOTOR);
+	pRightOneMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTONE_MOTOR);
+	pLeftTwoMotor = new CANTalon(CAN_DRIVETRAIN_LEFTTWO_MOTOR);
+	pRightTwoMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTTWO_MOTOR);
+	wpi_assert(pLeftOneMotor && pRightOneMotor && pLeftTwoMotor && pRightTwoMotor);
 
 	pCamera = new PixyCam();
 	wpi_assert(pCamera);
+
+	// setup for closed loop operation with VP encoders
+	pLeftOneMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	pLeftOneMotor->ConfigEncoderCodesPerRev(TALON_COUNTSPERREV);
+	pLeftOneMotor->SelectProfileSlot(0);
+	//pLeftMotor->SetPID(TALON_PTERM, TALON_ITERM, TALON_DTERM, TALON_FTERM);		// PIDF
+	pLeftOneMotor->SetPID(.25, TALON_ITERM, .8, .3);
+	pLeftOneMotor->SetIzone(TALON_IZONE);
+	pLeftOneMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
+	pLeftOneMotor->SetInverted(false);
+	//pLeftOneMotor->SetControlMode(CANTalon::kSpeed);
+	pLeftOneMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
+	pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
+	pLeftTwoMotor->SetControlMode(CANSpeedController::kFollower);
+	pLeftTwoMotor->Set(CAN_DRIVETRAIN_LEFTONE_MOTOR);
+
+	// setup for closed loop operation with VP encoders
+
+	pRightOneMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	pRightOneMotor->ConfigEncoderCodesPerRev(TALON_COUNTSPERREV);
+	pRightOneMotor->SelectProfileSlot(0);
+	//pRightMotor->SetPID(TALON_PTERM, TALON_ITERM, TALON_DTERM, TALON_FTERM);
+	pRightOneMotor->SetPID(.25, TALON_ITERM, .8, .3);// PIDF
+	pRightOneMotor->SetIzone(TALON_IZONE);
+	pRightOneMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
+	pRightOneMotor->SetInverted(false);
+	//pRightOneMotor->SetControlMode(CANTalon::kSpeed);
+	pRightOneMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
+	pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
+	pRightTwoMotor->SetControlMode(CANSpeedController::kFollower);
+	pRightTwoMotor->Set(CAN_DRIVETRAIN_RIGHTONE_MOTOR);
+
+	wpi_assert(pLeftOneMotor->IsAlive());
+	wpi_assert(pRightOneMotor->IsAlive());
+	wpi_assert(pLeftTwoMotor->IsAlive());
+	wpi_assert(pRightTwoMotor->IsAlive());
+	bUnderServoControl = false;
+	//bUnderServoControl = true;
+
+	pGyro = new ADXRS453Z;
+	wpi_assert(pGyro);
 
 	pAutoTimer = new Timer();
 	wpi_assert(pAutoTimer);
@@ -83,174 +89,187 @@ Drivetrain::Drivetrain() :
 
 	pTask = new Task(DRIVETRAIN_TASKNAME, &Drivetrain::StartTask, this);
 	wpi_assert(pTask);
+
+	pSearchPIDOutput = new PIDSearchOutput(pLeftOneMotor,
+			pRightOneMotor, bUnderServoControl);
+	pTurnPIDOutput = new PIDSearchOutput(pLeftOneMotor,
+			pRightOneMotor, bUnderServoControl);
+	wpi_assert(pSearchPIDOutput);
+	//pSearchPID = new PIDController(.15, 0.005, .4,pCamera, pSearchPIDOutput, .05f);
+	pSearchPID = new PIDController(.075, 0.001, .025,pCamera, pSearchPIDOutput, .05f);
+	pTurnPID = new PIDController(.12, 0.0, .05, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
+	//pSearchPID = new PIDController(.18,0,.7, pCamera, pSearchPIDOutput, .05f);
+	wpi_assert(pSearchPID);
+
 }
 
 Drivetrain::~Drivetrain()			//Destructor
 {
 	delete (pTask);
-	delete pLeftMotor;
-	delete pRightMotor;
+	delete pLeftOneMotor;
+	delete pRightOneMotor;
+	delete pLeftTwoMotor;
+	delete pRightTwoMotor;
 	delete pGyro;
+	delete pSearchPID;
+	delete pSearchPIDOutput;
+	delete pTurnPID;
+	delete pTurnPIDOutput;
 }
 
 void Drivetrain::OnStateChange()			//Handles state changes
 {
+	fMaxVel = 0;
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
-		bUnderServoControl = true;
-		pLeftMotor->SetControlMode(CANTalon::kSpeed);
-		pRightMotor->SetControlMode(CANTalon::kSpeed);
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+				bUnderServoControl = true;
+				pLeftOneMotor->SetControlMode(CANTalon::kSpeed);
+		 		pRightOneMotor->SetControlMode(CANTalon::kSpeed);
+		 		pLeftOneMotor->Set(0.0);
+		 		pRightOneMotor->Set(0.0);
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
 		bUnderServoControl = false;
-		pLeftMotor->SetControlMode(CANTalon::kPercentVbus);
-		pRightMotor->SetControlMode(CANTalon::kPercentVbus);
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+		pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		 		pLeftOneMotor->Set(0.0);
+		 		pRightOneMotor->Set(0.0);
 		break;
 
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
 		bUnderServoControl = false;
-		pLeftMotor->SetControlMode(CANTalon::kPercentVbus);
-		pRightMotor->SetControlMode(CANTalon::kPercentVbus);
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+		pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		 pLeftOneMotor->Set(0.0);
+		 pRightOneMotor->Set(0.0);
 		break;
 
 	case COMMAND_ROBOT_STATE_DISABLED:
 		bUnderServoControl = false;
-		pLeftMotor->SetControlMode(CANTalon::kPercentVbus);
-		pRightMotor->SetControlMode(CANTalon::kPercentVbus);
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+		pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		 pLeftOneMotor->Set(0.0);
+		 pRightOneMotor->Set(0.0);
 		break;
 
 	case COMMAND_ROBOT_STATE_UNKNOWN:
+		break;
+
 	default:
-		bUnderServoControl = false;
-		pLeftMotor->SetControlMode(CANTalon::kPercentVbus);
-		pRightMotor->SetControlMode(CANTalon::kPercentVbus);
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+				bUnderServoControl = false;
+				pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
+				pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		 		pLeftOneMotor->Set(0.0);
+		 		pRightOneMotor->Set(0.0);
 		break;
 	}
 }
 
+///fNextLeft + , fNextRight -
 void Drivetrain::Run() {
+	//float fCentroid;
+ 	//SmartDashboard::PutBoolean("On Target", pCamera->GetCentroid(fCentroid));
+  	//SmartDashboard::PutNumber("Centroid", fCentroid);
 
-	float fCentroid;
+ 	SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
+ 	SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
 
-	SmartDashboard::PutBoolean("On Target", pCamera->GetCentroid(fCentroid));
-	SmartDashboard::PutNumber("Centroid", fCentroid);
+ 	SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
+ 	SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
+	SmartDashboard::PutNumber("Gyro", pGyro->GetAngle());
+ 	if(abs(pRightOneMotor->GetSpeed())>abs(fMaxVel))
+ 		fMaxVel = pRightOneMotor->GetSpeed();
+ 	if(abs(pLeftOneMotor->GetSpeed())>abs(fMaxVel))
+ 		fMaxVel = pLeftOneMotor->GetSpeed();
+ 	SmartDashboard::PutNumber("Max velocity", fMaxVel);
 
-	SmartDashboard::PutNumber("travelenc", pRightMotor->GetEncPosition());
-	SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
-
-	switch(localMessage.command) {
+ 	switch(localMessage.command) {
 	case COMMAND_DRIVETRAIN_DRIVE_TANK:
 		bDrivingStraight = false;
 		bTurning = false;
 
-		if(bUnderServoControl)
-		{
-			pLeftMotor->Set(-pow(localMessage.params.tankDrive.left, 3.0) * FULLSPEED_FROMTALONS);
-			pRightMotor->Set(pow(localMessage.params.tankDrive.right, 3.0) * FULLSPEED_FROMTALONS);
-		}
-		else
-		{
-			pLeftMotor->Set(-pow(localMessage.params.tankDrive.left,3.0));
-			pRightMotor->Set(pow(localMessage.params.tankDrive.right, 3.0));
-		}
-		break;
-
-	case COMMAND_DRIVETRAIN_AUTO_MOVE:
-		bDrivingStraight = false;
-		bTurning = false;
 
 		if(bUnderServoControl)
 		{
-			pLeftMotor->Set(localMessage.params.tankDrive.left * FULLSPEED_FROMTALONS);
-			pRightMotor->Set(localMessage.params.tankDrive.right * FULLSPEED_FROMTALONS);
+			pLeftOneMotor->Set(-pow(localMessage.params.tankDrive.left, 3.0) * FULLSPEED_FROMTALONS);
+			pRightOneMotor->Set(pow(localMessage.params.tankDrive.right, 3.0) * FULLSPEED_FROMTALONS);
 		}
 		else
 		{
-			pLeftMotor->Set(localMessage.params.tankDrive.left);
-			pRightMotor->Set(localMessage.params.tankDrive.right);
+			pLeftOneMotor->Set(-pow(localMessage.params.tankDrive.left,3.0));
+			pRightOneMotor->Set(pow(localMessage.params.tankDrive.right, 3.0));
 		}
 		break;
+			case COMMAND_DRIVETRAIN_AUTO_MOVE:
+		 		bDrivingStraight = false;
+		 		bTurning = false;
 
+		 		if(bUnderServoControl)
+		 		{
+		 			pLeftOneMotor->Set(localMessage.params.tankDrive.left * FULLSPEED_FROMTALONS);
+		 			pRightOneMotor->Set(localMessage.params.tankDrive.right * FULLSPEED_FROMTALONS);
+		 		}
+		 		else
+		 		{
+		 			pLeftOneMotor->Set(localMessage.params.tankDrive.left);
+		 			pRightOneMotor->Set(localMessage.params.tankDrive.right);
+		 		}
+		 		break;
 
-	case COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE:
-		bTurning = false;
-		bDrivingStraight = false;
-		RunSplitArcade(localMessage.params.splitArcadeDrive.wheel,
-				localMessage.params.splitArcadeDrive.throttle,
-				localMessage.params.splitArcadeDrive.spin);
+		 			case COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE:
+		 		 		bTurning = false;
+		 		 		bDrivingStraight = false;
+		 		 		RunSplitArcade(localMessage.params.splitArcadeDrive.wheel,
+		 		 				localMessage.params.splitArcadeDrive.throttle,
+		 		 				localMessage.params.splitArcadeDrive.spin);
+		 		 		// contribute to the cheezy Kalmanfilter
 
-		// contribute to the cheezy Kalmanfilter
-
-		if(fabs(localMessage.params.splitArcadeDrive.spin) > 0.05)
-		{
-			RunCheezyDrive(false, localMessage.params.splitArcadeDrive.wheel, 0.0, false);
-		}
-		else
-		{
-			RunCheezyDrive(false, localMessage.params.splitArcadeDrive.wheel,
-					localMessage.params.splitArcadeDrive.throttle, false);
-		}
-		break;
+		 		 		 		if(fabs(localMessage.params.splitArcadeDrive.spin) > 0.05)
+		 		 		 		{
+		 		 		 			RunCheezyDrive(false, localMessage.params.splitArcadeDrive.wheel, 0.0, false);
+		 		 		 		}
+		 		 		 		else
+		 		 		 		{
+		 		 		 			RunCheezyDrive(false, localMessage.params.splitArcadeDrive.wheel,
+		 		 		 					localMessage.params.splitArcadeDrive.throttle, false);
+		 		 		 		}
+		 		 		break;
 
 	case COMMAND_DRIVETRAIN_DRIVE_CHEEZY:
 		bTurning = false;
 		bDrivingStraight = false;
-
-		// contribute to the cheezy Kalmanfilter
-
 		RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
-				localMessage.params.cheezyDrive.throttle,
-				localMessage.params.cheezyDrive.bQuickturn);
-		break;
+				localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
 
+		break;
 	case COMMAND_DRIVETRAIN_MSTRAIGHT:
-		bMeasuredMove = true;
-		bTurning = false;
-		StartStraightDrive(localMessage.params.autonomous.driveSpeed,
-				15.0, localMessage.params.autonomous.driveDistance);
-
-		// contribute to the cheezy Kalmanfilter
-
-		RunCheezyDrive(false, 0.0, localMessage.params.autonomous.driveSpeed, false);
-		break;
+ 		bMeasuredMove = true;
+ 		bTurning = false;
+ 		StartStraightDrive(localMessage.params.autonomous.driveSpeed,
+ 				15.0, localMessage.params.autonomous.driveDistance);
+ 		RunCheezyDrive(false, 0.0, localMessage.params.autonomous.driveSpeed, false);
+ 		break;
 
 	case COMMAND_DRIVETRAIN_STRAIGHT:
 		bMeasuredMove = false;
 		bTurning = false;
 		StartStraightDrive(localMessage.params.autonomous.driveSpeed,
-				localMessage.params.autonomous.timeout, 54.0);
-
-		// contribute to the cheezy Kalmanfilter
-
+		 				localMessage.params.autonomous.timeout, 54.0);
 		RunCheezyDrive(false, 0.0, localMessage.params.autonomous.driveSpeed, false);
 		break;
 
 	case COMMAND_DRIVETRAIN_TURN:
 		bDrivingStraight = false;
 		StartTurn(localMessage.params.autonomous.turnAngle,localMessage.params.autonomous.timeout);
-
-		// contribute to the cheezy Kalmanfilter
-
 		if(localMessage.params.autonomous.turnAngle > 0.0)
-		{
-			RunCheezyDrive(false, 0.5, 0.0, false);
-		}
-		else
-		{
-			RunCheezyDrive(false, -0.5, 0.0, false);
-		}
-
+		 		{
+		 			RunCheezyDrive(false, 0.5, 0.0, false);
+		 		}
+		 		else
+				{
+		 			RunCheezyDrive(false, -0.5, 0.0, false);
+		 		}
 		break;
 
 	case COMMAND_DRIVETRAIN_STOP:
@@ -260,33 +279,28 @@ void Drivetrain::Run() {
 		fNextRight = 0.0;
 		if(bUnderServoControl)
 		{
-			pLeftMotor->Set(fNextLeft * FULLSPEED_FROMTALONS);
-			pRightMotor->Set(fNextRight * FULLSPEED_FROMTALONS);
+			pLeftOneMotor->Set(fNextLeft * FULLSPEED_FROMTALONS);
+			pRightOneMotor->Set(fNextRight * FULLSPEED_FROMTALONS);
 		}
 		else
 		{
-			pLeftMotor->Set(fNextLeft);
-			pRightMotor->Set(fNextRight);
+			pLeftOneMotor->Set(fNextLeft);
+			pRightOneMotor->Set(fNextRight);
 		}
-
-		// contribute to the cheezy Kalmanfilter
-
 		RunCheezyDrive(false, 0.0, 0.0, false);
-		break;
+		 		break;
 
-	case COMMAND_SYSTEM_CONSTANTS:
-		fBatteryVoltage = localMessage.params.system.fBattery;
+		 	case COMMAND_SYSTEM_CONSTANTS:
+		 		fBatteryVoltage = localMessage.params.system.fBattery;
 		break;
-
+	case COMMAND_AUTONOMOUS_SEARCH:
+		Search();
+		break;
 	case COMMAND_SYSTEM_MSGTIMEOUT:
 	default:
 		break;
 	}
 
-	if(bDrivingStraight)
-	{
-		IterateStraightDrive();
-	}
 
 	if(bTurning)
 	{
@@ -298,90 +312,186 @@ void Drivetrain::ArcadeDrive(float x, float y) {
 	//TODO: add speed reduction
 	if(bUnderServoControl)
 	{
-		pLeftMotor->Set(-(y + x / 2 * FULLSPEED_FROMTALONS));
-		pRightMotor->Set(-y - x / 2 * FULLSPEED_FROMTALONS);
+		pLeftOneMotor->Set(-(y + x / 2 * FULLSPEED_FROMTALONS));
+		pRightOneMotor->Set((y - x / 2 * FULLSPEED_FROMTALONS));
 	}
 	else
 	{
-		pLeftMotor->Set(-(y + x / 2));
-		pRightMotor->Set(-y - x / 2);
+		pLeftOneMotor->Set(-(y + x / 2));
+		pRightOneMotor->Set((y - x / 2));
 	}
 }
 
 void Drivetrain::StartStraightDrive(float speed, float time, float distance)
 {
 	pAutoTimer->Reset();
+	pAutoTimer->Start();
+	//DO NOT RESET THE GYRO EVER. only zeroing.
 	pGyro->Zero();		//DO NOT RESET THE GYRO EVER. only zeroing.
-	pLeftMotor->SetEncPosition(0);
-	pRightMotor->SetEncPosition(0);
-
+	pLeftOneMotor->SetEncPosition(0);
+	while(pRightOneMotor->GetEncPosition()!=0){
+		pRightOneMotor->SetEncPosition(0);
+	}
 	fStraightDriveSpeed = speed;
 	fStraightDriveTime = time;
-	fStraightDriveDistance = distance - 1.0;  //TODO need to calculate the stop distance more carefully
 	bDrivingStraight = true;
+	fStraightDriveDistance = (distance-.928)/7.22;  //TODO need to calculate the stop distance more carefully
 	bTurning = false;
+	IterateStraightDrive();
 }
 
 void Drivetrain::IterateStraightDrive(void)
 {
 	if(bMeasuredMove)
 	{
-		if ((pAutoTimer->Get() < fStraightDriveDistance) && ISAUTO)
-		{
-			SmartDashboard::PutNumber("travelenc", pRightMotor->GetEncPosition());
-			SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
+		while(true){
+				if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
+		 		{
+		 			SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
+		 			SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
 
-			if(pRightMotor->GetEncPosition() < (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)))
-			{
-				StraightDriveLoop(fStraightDriveSpeed);
-			}
-			else
-			{
-				bDrivingStraight = false;
-				bMeasuredMove = false;
-				fNextLeft = 0.0;
-				fNextRight = 0.0;
-				pLeftMotor->Set(0.0);
-				pRightMotor->Set(0.0);
-			}
-		}
-		else
-		{
-			bDrivingStraight = false;
-			bMeasuredMove = false;
-			fNextLeft = 0.0;
-			fNextRight = 0.0;
-			pLeftMotor->Set(0.0);
-			pRightMotor->Set(0.0);
-		}
+		 			if(pRightOneMotor->GetEncPosition() < (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT))
+		 					&& pRightOneMotor->GetEncPosition() > -(int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)))
+		 			{
+		 				StraightDriveLoop(fStraightDriveSpeed);
+		 			}
+		 			else
+		 			{
+		 				printf("reached limit travled %d , needed %d \n", pRightOneMotor->GetEncPosition(), (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)));
+		 				bDrivingStraight = false;
+		 				bMeasuredMove = false;
+		 				fNextLeft = 0.0;
+		 				fNextRight = 0.0;
+		 				pLeftOneMotor->Set(0);
+		 				pRightOneMotor->Set(0);
+		 				break;
+		 			}
+		 		}
+		 		else
+		 		{
+		 			printf("not auto or timed out \n");
+		 			bDrivingStraight = false;
+		 			bMeasuredMove = false;
+		 			fNextLeft = 0.0;
+		 			fNextRight = 0.0;
+	 				pLeftOneMotor->Set(0);
+	 				pRightOneMotor->Set(0);
+		 			break;
+		 		}
+	}
+		SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 	}
 	else
 	{
-		if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
+				if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
+		 		{
+		 			StraightDriveLoop(fStraightDriveSpeed);
+		 		}
+		 		else
+		 		{
+		 			bDrivingStraight = false;
+		 			fNextLeft = 0.0;
+		 			fNextRight = 0.0;
+	 				pLeftOneMotor->Set(0);
+	 				pRightOneMotor->Set(0);
+		 		}
+	}
+}
+void Drivetrain::Search(){
+
+	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
+	printf("Started searching\n");
+	Timer* t = new Timer();
+	float fCentroid = 0;
+	bool bBlockFound=false;
+	bBlockFound = pCamera->GetCentroid(fCentroid);
+	printf("bSearch loop\n");
+	printf("%s %f \n",(bBlockFound ? "true":"false"),fCentroid);
+
+	if(!bBlockFound){
+		command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
+		printf("no block found\n");
+		if(ISAUTO){
+		SendCommandResponse(command);
+		}
+		return;
+	}
+
+	pSearchPID->SetSetpoint(0);
+	pSearchPID->Enable();
+
+	while(t->Get() < 2 && ISAUTO){
+		/*
+		if(!bBlockFound){
+			command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
+			printf("block disappeared\n");
+			if(ISAUTO){
+			SendCommandResponse(command);
+			}
+			return;
+		}
+
+			fLeftQ = fSearchMotorSpeed*pow(fCentroid,3);
+			fRightQ = -fSearchMotorSpeed*pow(fCentroid,3);
+
+		if(bUnderServoControl)
 		{
-			StraightDriveLoop(fStraightDriveSpeed);
+			pLeftMotor->SetSetpoint(fLeftQ * FULLSPEED_FROMTALONS);
+			pRightMotor->SetSetpoint(-fRightQ * FULLSPEED_FROMTALONS);
 		}
 		else
 		{
-			bDrivingStraight = false;
-			fNextLeft = 0.0;
-			fNextRight = 0.0;
-			pLeftMotor->Set(0.0);
-			pRightMotor->Set(0.0);
+			pLeftMotor->SetSetpoint(fLeftQ);
+			pRightMotor->SetSetpoint(-fRightQ);
 		}
+
+
+*/
+
+		Wait(.0001);
+		//bBlockFound = pCamera->GetCentroid(fCentroid);
 	}
+
+	delete t;
+	pSearchPID->Disable();
+
+	//float fCentroid = 0;
+	//bool bBlockFound=false;
+	//bBlockFound = pCamera->GetCentroid(fCentroid);
+	//StartTurn(fCentroid*37.5,2);
+printf("done\n");
+	pLeftOneMotor->Set(0);
+	pRightOneMotor->Set(0);
+	if(ISAUTO){
+		SendCommandResponse(command);
+	}
+
 }
+
+//void Drivetrain::
 
 void Drivetrain::StartTurn(float angle, float time)
 {
 	pAutoTimer->Reset();
-	//DO NOT RESET THE GYRO EVER. only zeroing.
-	pGyro->Zero();
-
-	fTurnAngle = angle + pGyro->GetAngle();
+	pAutoTimer->Start();
+	if(pGyro->GetAngle()>0){
+		while(pGyro->GetAngle()>180){
+			pGyro->SetAngle(pGyro->GetAngle()-360);
+		}
+	}else{
+		while(pGyro->GetAngle()<-180){
+			pGyro->SetAngle(pGyro->GetAngle()+360);
+		}
+	}
+	fTurnAngle = angle;
+	pTurnPID->SetSetpoint(fTurnAngle/60.0);
+	//pGyro->Zero();
 	fTurnTime = time;
 	bDrivingStraight = false;
 	bTurning = true;
+	pTurnPID->Enable();
+	printf("setpoint %lf \n", fTurnAngle/60.0);
+
 }
 
 void Drivetrain::IterateTurn(void)
@@ -391,39 +501,54 @@ void Drivetrain::IterateTurn(void)
 
 	if ((pAutoTimer->Get() < fTurnTime) && ISAUTO)
 	{
-		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
-		degreesLeft = fTurnAngle - pGyro->GetAngle();
+		float gyroAngle = pGyro->GetAngle();
 
-		if ((degreesLeft < angleError) && (degreesLeft > -angleError))
+		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
+		degreesLeft = fTurnAngle - gyroAngle;
+		printf("turnangle %f , gyro angle %f \n", fTurnAngle/60.0, gyroAngle);
+		SmartDashboard::PutNumber("Angle Error", degreesLeft);
+		printf("setpoint %lf , error %lf \n", fTurnAngle/60.0, pTurnPID->GetAvgError());
+		if ((degreesLeft < angleError) && (degreesLeft > -angleError)
+				&& pGyro->GetRate()<5 && pGyro->GetRate()>-5)
 		{
 			bTurning = false;
 			motorValue = 0.0;
+			pTurnPID->Disable();
+			pLeftOneMotor->Set(0);
+			pRightOneMotor->Set(0);
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 		}
 		else
 		{
-			motorValue = degreesLeft * turnAngleSpeedMultiplyer;
+			motorValue = degreesLeft * -turnAngleSpeedMultiplyer;
 			ABLIMIT(motorValue, turnSpeedLimit);
 		}
+
+
+
 	}
 	else
 	{
 		bTurning = false;
 		motorValue = 0.0;
+		pTurnPID->Disable();
+		pLeftOneMotor->Set(0);
+		pRightOneMotor->Set(0);
+		SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 	}
-
+/*
 	if(bUnderServoControl)
 	{
-		pLeftMotor->Set(motorValue * FULLSPEED_FROMTALONS);
-		pRightMotor->Set(motorValue * FULLSPEED_FROMTALONS);
+		pLeftOneMotor->Set(motorValue * FULLSPEED_FROMTALONS);
+		pRightOneMotor->Set(motorValue * FULLSPEED_FROMTALONS);
 	}
 	else
 	{
-		pLeftMotor->Set(motorValue);
-		pRightMotor->Set(motorValue);
-	}
+		pLeftOneMotor->Set(motorValue);
+		pRightOneMotor->Set(motorValue);
+	}*/
 
-	SmartDashboard::PutNumber("Angle Error", 0.0);
-	SmartDashboard::PutNumber("Turn Speed", 0.0);
+
 }
 
 void Drivetrain::StraightDrive(float speed, float time) {
@@ -443,13 +568,13 @@ void Drivetrain::StraightDrive(float speed, float time) {
 	fNextRight = 0.0;
 	if(bUnderServoControl)
 	{
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+		pLeftOneMotor->Set(0.0);
+		pRightOneMotor->Set(0.0);
 	}
 	else
 	{
-		pLeftMotor->Set(0.0);
-		pRightMotor->Set(0.0);
+		pLeftOneMotor->Set(0.0);
+		pRightOneMotor->Set(0.0);
 	}
 
 	SendCommandResponse(command);
@@ -457,8 +582,11 @@ void Drivetrain::StraightDrive(float speed, float time) {
 
 
 void Drivetrain::StraightDriveLoop(float speed) {
-	float adjustment = pGyro->GetAngle() * recoverStrength;
+	float adjustment = 0;
 
+	adjustment = pGyro->GetAngle() * -recoverStrength;
+	//adjustment = (-pRightMotor->GetSpeed() - pLeftMotor->GetSpeed())/40;
+	SmartDashboard::PutNumber("Adjustment", adjustment);
 	//glorified arcade drive
 	if (speed > 0.0)
 	{
@@ -489,13 +617,13 @@ void Drivetrain::StraightDriveLoop(float speed) {
 
 	if(bUnderServoControl)
 	{
-		pLeftMotor->Set(fNextLeft * FULLSPEED_FROMTALONS);
-		pRightMotor->Set(fNextRight * FULLSPEED_FROMTALONS);
+		pLeftOneMotor->Set(fNextLeft * FULLSPEED_FROMTALONS);
+		pRightOneMotor->Set(fNextRight * FULLSPEED_FROMTALONS);
 	}
 	else
 	{
-		pLeftMotor->Set(fNextLeft);
-		pRightMotor->Set(fNextRight);
+		pLeftOneMotor->Set(fNextLeft);
+		pRightOneMotor->Set(fNextRight);
 	}
 }
 
@@ -521,7 +649,7 @@ void Drivetrain::RunSplitArcade(float fWheel, float fThrottle, float fSpin)
 	}
 	else
 	{
-		fThrottleQ = pow(fThrottleQ, 3.0);
+		fThrottleQ = pow(fThrottleQ, 5.0);
 	}
 
 	if(fabs(fWheelQ) < 0.05)
@@ -533,6 +661,7 @@ void Drivetrain::RunSplitArcade(float fWheel, float fThrottle, float fSpin)
 	{
 		fSpinQ = 0.0;
 	}
+
 
 	if(fSpinQ)
 	{
@@ -546,7 +675,6 @@ void Drivetrain::RunSplitArcade(float fWheel, float fThrottle, float fSpin)
 		// larger delta at lower speeds
 
 		fScale  = (float)sin(3.141519 / 2.0 * fabs((double)fWheelQ));
-		//fScale = 1;
 
 		// which quadrant are we operating in?
 
@@ -588,16 +716,17 @@ void Drivetrain::RunSplitArcade(float fWheel, float fThrottle, float fSpin)
 
 	if(bUnderServoControl)
 	{
-		pLeftMotor->Set(-fLeftQ * FULLSPEED_FROMTALONS);
-		pRightMotor->Set(fRightQ * FULLSPEED_FROMTALONS);
+		pLeftOneMotor->Set(-fLeftQ * FULLSPEED_FROMTALONS);
+		pRightOneMotor->Set(fRightQ * FULLSPEED_FROMTALONS);
 	}
 	else
 	{
-		pLeftMotor->Set(-fLeftQ);
-		pRightMotor->Set(fRightQ);
+		pLeftOneMotor->Set(-fLeftQ);
+		pRightOneMotor->Set(fRightQ);
 	}
-}
 
+
+}
 void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bool bQuickturn)
 {
     struct DrivetrainGoal Goal;
@@ -617,8 +746,8 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     Goal.left_goal = 0.0;
     Goal.right_goal = 0.0;
 
-    Position.left_encoder = -pLeftMotor->GetEncPosition() * METERS_PER_COUNT;
-    Position.right_encoder = pRightMotor->GetEncPosition() * METERS_PER_COUNT;
+    Position.left_encoder = -pLeftOneMotor->GetEncPosition() * METERS_PER_COUNT;
+    Position.right_encoder = pRightOneMotor->GetEncPosition() * METERS_PER_COUNT;
     Position.gyro_angle = pGyro->GetAngle() * 3.141519 / 180.0;
     Position.gyro_velocity = pGyro->GetRate() * 3.141519 / 180.0;
     Position.battery_voltage = fBatteryVoltage;
@@ -636,17 +765,17 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     	// if enabled and normal operation
 
     	pCheezy->Update(Goal, Position, Output, Status, true);
-        pLeftMotor->Set(-Output.left_voltage / 12.0);
-        pRightMotor->Set(Output.right_voltage / 12.0);
+        pLeftOneMotor->Set(-Output.left_voltage / 12.0);
+        pRightOneMotor->Set(Output.right_voltage / 12.0);
     }
     else
     {
         // if the robot is not running
 
+    	//CheezyIterate1296(&Goal, &Position, NULL, &Status);
     	pCheezy->Update(Goal, Position, Output, Status, false);
     }
 }
-
 
 CheezyLoop::CheezyLoop()
 {

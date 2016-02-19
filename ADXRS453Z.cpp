@@ -27,8 +27,6 @@ ADXRS453Z::ADXRS453Z() {
 	current_rate = 0.0;
 	accumulated_offset = 0.0;
 	rate_offset = 0.0;
-	lastTime = 0.0;
-	thisTime = 0.0;
 	update_timer = new Timer();
 	update_timer->Start();
 	calibration_timer = new Timer();
@@ -36,7 +34,9 @@ ADXRS453Z::ADXRS453Z() {
 
 	pTask = new Task("tADSRX543Z", &ADXRS453Z::StartTask, this);
 }
+ADXRS453Z::~ADXRS453Z() {
 
+}
 
 void ADXRS453Z::StartTask(ADXRS453Z *pThis)
 {
@@ -100,6 +100,12 @@ float ADXRS453Z::GetRate() {
 
 float ADXRS453Z::GetAngle() {
 	return accumulated_angle;
+}
+void ADXRS453Z::SetAngle(float angle){
+	accumulated_angle = angle;
+}
+double ADXRS453Z::PIDGet() {
+	return -GetAngle()/60;
 }
 
 float ADXRS453Z::Offset() {

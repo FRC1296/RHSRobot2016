@@ -38,6 +38,7 @@ const int DRIVETRAIN_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTONOMOUS_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTOEXEC_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTOPARSER_PRIORITY 	= DEFAULT_PRIORITY;
+const int ARM_PRIORITY 			= DEFAULT_PRIORITY;
 
 //Task Names - Used when you view the task list but used by the operating system
 //EXAMPLE: const char* DRIVETRAIN_TASKNAME = "tDrive";
@@ -46,6 +47,7 @@ const char* const DRIVETRAIN_TASKNAME	= "tDrive";
 const char* const AUTONOMOUS_TASKNAME	= "tAuto";
 const char* const AUTOEXEC_TASKNAME		= "tAutoEx";
 const char* const AUTOPARSER_TASKNAME	= "tParse";
+const char* const ARM_TASKNAME			= "tArm";
 
 //TODO change these variables throughout the code to PIPE or whatever instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
@@ -55,6 +57,7 @@ const char* const COMPONENT_QUEUE 	= "/tmp/qComp";
 const char* const DRIVETRAIN_QUEUE 	= "/tmp/qDrive";
 const char* const AUTONOMOUS_QUEUE 	= "/tmp/qAuto";
 const char* const AUTOPARSER_QUEUE 	= "/tmp/qParse";
+const char* const ARM_QUEUE 	= "/tmp/qArm";
 
 //PWM Channels - Assigns names to PWM ports 1-10 on the Roborio
 //EXAMPLE: const int PWM_DRIVETRAIN_FRONT_LEFT_MOTOR = 1;
@@ -72,10 +75,14 @@ Add more as needed.
  \endverbatim
  */
 const int CAN_PDB = 0;
-const int CAN_DRIVETRAIN_LEFT_MOTOR = 1;
-const int CAN_DRIVETRAIN_LEFT_MOTOR_FOLLOW = 2;
-const int CAN_DRIVETRAIN_RIGHT_MOTOR = 3;
-const int CAN_DRIVETRAIN_RIGHT_MOTOR_FOLLOW = 4;
+const int CAN_DRIVETRAIN_LEFTONE_MOTOR = 1;
+const int CAN_DRIVETRAIN_LEFTTWO_MOTOR = 2;
+const int CAN_DRIVETRAIN_RIGHTONE_MOTOR = 3;
+const int CAN_DRIVETRAIN_RIGHTTWO_MOTOR = 4;
+
+const int CAN_ARM_LEVER_MOTOR = 5;
+const int CAN_ARM_CENTER_MOTOR = 6;
+const int CAN_ARM_INTAKE_MOTOR = 7;
 
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;
@@ -99,7 +106,7 @@ const int JOYSTICK_BUTTON_COUNT = 10;
 const int JOYSTICK_AXIS_COUNT = 5;
 
 //POV IDs - Assign names to the 9 POV positions: -1 to 7
-  //EXAMPLE: const int POV_STILL = -1;
+//EXAMPLE: const int POV_STILL = -1;
 const int POV_STILL = -1;
 
 //Primary Controller Mapping - Assigns action to buttons or axes on the first joystick

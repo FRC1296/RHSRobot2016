@@ -48,7 +48,7 @@ enum MessageCommand {
 	COMMAND_SYSTEM_MSGTIMEOUT,			//!< COMMAND_SYSTEM_MSGTIMEOUT
 	COMMAND_SYSTEM_OK,					//!< COMMAND_SYSTEM_OK
 	COMMAND_SYSTEM_ERROR,				//!< COMMAND_SYSTEM_ERROR
-	COMMAND_SYSTEM_CONSTANTS,			//!< Provide current system status info
+	COMMAND_SYSTEM_CONSTANTS,
 
 	COMMAND_ROBOT_STATE_DISABLED,		//!< Tells all components that the robot is disabled
 	COMMAND_ROBOT_STATE_AUTONOMOUS,		//!< Tells all components that the robot is in auto
@@ -62,15 +62,20 @@ enum MessageCommand {
 	COMMAND_AUTONOMOUS_RESPONSE_ERROR,	//!< Tells Autonomous that a command had a error while running
 	COMMAND_CHECKLIST_RUN,				//!< Tells CheckList to run
 
+	COMMAND_AUTONOMOUS_SEARCH,
 	COMMAND_DRIVETRAIN_STOP,			//!< Tells Drivetrain to stop moving
 	COMMAND_DRIVETRAIN_DRIVE_TANK,		//!< Tells Drivetrain to use tank drive
 	COMMAND_DRIVETRAIN_DRIVE_ARCADE,	//!< Tells Drivetrain to use arcade drive
 	COMMAND_DRIVETRAIN_AUTO_MOVE,		//!< Tells Drivetrain to move motors, used by Autonomous
 	COMMAND_DRIVETRAIN_STRAIGHT,		//!< Tells Drivetrain to drive straight, used by Autonomous
-	COMMAND_DRIVETRAIN_MSTRAIGHT,		//!< Tells Drivetrain to drive straight for a fixed distance, used by Autonomous
+	COMMAND_DRIVETRAIN_MSTRAIGHT,
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
-	COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE,	//!< Tells Drivetrain to use split arcade
+	COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE,
 	COMMAND_DRIVETRAIN_DRIVE_CHEEZY,	//!< Tells Drivetrain to use Cheezy drive
+
+	COMMAND_ARM_RAISE,
+	COMMAND_ARM_LOWER,
+	COMMAND_ARM_INTAKE,
 
 	COMMAND_COMPONENT_TEST,				//!< COMMAND_COMPONENT_TEST
 
@@ -90,22 +95,24 @@ struct CheezyDriveParams {
 };
 
 ///Used to deliver joystick readings to Drivetrain
-struct SplitArcadeDriveParams {
-	float wheel;
-	float throttle;
-	float spin;
-};
-
-///Used to deliver joystick readings to Drivetrain
 struct ArcadeDriveParams {
 	float x;
 	float y;
 };
 
-/// Used to deliver system constants tointerested subsystems
+struct ArmParams{
+	bool direction;
+};
+
 struct SystemParams {
 	float fBattery;
 };
+
+struct SplitArcadeDriveParams {
+ 	float wheel;
+ 	float throttle;
+ 	float spin;
+ };
 
 ///Used to deliver autonomous values to Drivetrain
 struct AutonomousParams {
@@ -128,8 +135,8 @@ union MessageParams {
 	TankDriveParams tankDrive;
 	CheezyDriveParams cheezyDrive;
 	SplitArcadeDriveParams splitArcadeDrive;
-	ArcadeDriveParams arcadeDrive;
 	AutonomousParams autonomous;
+	ArmParams armParams;
 	SystemParams system;
 };
 
