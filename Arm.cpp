@@ -86,11 +86,17 @@ void Arm::Raise(){
 	if(pArmLeverMotor->GetEncPosition() >= topEncoderPos){ // TODO check enc values
 		armState = ARM_TOP;
 		pArmLeverMotor->Set(0);
-		return;
 	}
-	pArmLeverMotor->Set(fArmSpeed); // TODO check direction
+	else
+	{
+		pArmLeverMotor->Set(fArmSpeed); // TODO check direction
+	}
 }
 
+
+// Hey Weaver, it is pretty unlikely that we'll hit the floor and/or bottom positions exactly.
+// Should you check for a range instead?
+// Should we consider running the arm lever Talon in position servo mode and let it do the work?
 
 void Arm::Lower(){
 	if(pArmLeverMotor->GetEncPosition() <= targetEncPos){ // TODO check enc values
@@ -108,6 +114,8 @@ void Arm::Lower(){
 	pArmLeverMotor->Set(-fArmSpeed); // TODO check direction
 }
 
+
+// do we want to let the drivers run the intake and decide when to lower the arm?
 
 void Arm::Intake(bool direction){
 

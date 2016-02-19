@@ -80,9 +80,13 @@ const int CAN_DRIVETRAIN_LEFTTWO_MOTOR = 2;
 const int CAN_DRIVETRAIN_RIGHTONE_MOTOR = 3;
 const int CAN_DRIVETRAIN_RIGHTTWO_MOTOR = 4;
 
-const int CAN_ARM_LEVER_MOTOR = 5;
+const int CAN_ARM_INTAKE_MOTOR = 5;
 const int CAN_ARM_CENTER_MOTOR = 6;
-const int CAN_ARM_INTAKE_MOTOR = 7;
+const int CAN_ARM_LEVER_MOTOR = 7;
+
+const int CAN_TAIL_MOTOR = 8;
+
+const int CAN_SPARE_MOTOR = 9;
 
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;

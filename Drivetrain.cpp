@@ -734,8 +734,6 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     struct DrivetrainOutput Output;
     struct DrivetrainStatus Status;
 
-    // TODO - select a quickturn button or do the normal spin
-
     Goal.steering = -fWheel;   // not sure why
     Goal.throttle = fThrottle;
     Goal.quickturn = bQuickturn;
