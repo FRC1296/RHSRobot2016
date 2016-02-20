@@ -39,6 +39,8 @@ const int AUTONOMOUS_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTOEXEC_PRIORITY 	= DEFAULT_PRIORITY;
 const int AUTOPARSER_PRIORITY 	= DEFAULT_PRIORITY;
 const int ARM_PRIORITY 			= DEFAULT_PRIORITY;
+const int TAIL_PRIORITY 		= DEFAULT_PRIORITY;
+const int SHOOTER_PRIORITY 		= DEFAULT_PRIORITY;
 
 //Task Names - Used when you view the task list but used by the operating system
 //EXAMPLE: const char* DRIVETRAIN_TASKNAME = "tDrive";
@@ -48,6 +50,8 @@ const char* const AUTONOMOUS_TASKNAME	= "tAuto";
 const char* const AUTOEXEC_TASKNAME		= "tAutoEx";
 const char* const AUTOPARSER_TASKNAME	= "tParse";
 const char* const ARM_TASKNAME			= "tArm";
+const char* const TAIL_TASKNAME			= "tTail";
+const char* const SHOOTER_TASKNAME		= "tShooter";
 
 //TODO change these variables throughout the code to PIPE or whatever instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
@@ -58,6 +62,8 @@ const char* const DRIVETRAIN_QUEUE 	= "/tmp/qDrive";
 const char* const AUTONOMOUS_QUEUE 	= "/tmp/qAuto";
 const char* const AUTOPARSER_QUEUE 	= "/tmp/qParse";
 const char* const ARM_QUEUE 	= "/tmp/qArm";
+const char* const TAIL_QUEUE 	= "/tmp/qTail";
+const char* const SHOOTER_QUEUE 	= "/tmp/qShooter";
 
 //PWM Channels - Assigns names to PWM ports 1-10 on the Roborio
 //EXAMPLE: const int PWM_DRIVETRAIN_FRONT_LEFT_MOTOR = 1;
@@ -97,6 +103,10 @@ const int CAN_SPARE_MOTOR = 9;
 
 //Solenoid - Assigns names to Solenoid ports 1-8 on the 9403
 //EXAMPLE: const int SOL_DRIVETRAIN_SOLENOID_SHIFT_IN = 1;
+const int SOL_SHOOTER_1 = 0;
+const int SOL_SHOOTER_2 = 1;
+const int SOL_SHOOTER_3 = 2;
+const int SOL_SHOOTER_4 = 3;
 
 //I2C - Assigns names to I2C ports 1-2 on the Roborio
 //EXAMPLE: const int IO2C_AUTO_ACCEL = 1;
@@ -179,6 +189,11 @@ const int POV_STILL = -1;
 #define CHEEZY_DRIVE_QUICKTURN		(Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT))
 #define ARCADE_DRIVE_X				(Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X))
 #define ARCADE_DRIVE_Y				(-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y))
+#define ARM_INTAKE_IN				(Controller_1->GetRawButton(L310_BUTTON_X))
+#define ARM_INTAKE_OUT				(Controller_1->GetRawButton(L310_BUTTON_Y))
+#define TAIL_UP						(Controller_1->GetRawButton(L310_BUTTON_THUMB_RIGHT))
+#define TAIL_DOWN					(Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT))
+#define	SHOOTER_SHOOT				(Controller_1->GetRawButton(L310_BUTTON_A))
 #endif // USE_L310_FOR_CONTROLLER_1
 
 #ifdef USE_X3D_FOR_CONTROLLER_2

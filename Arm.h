@@ -9,6 +9,7 @@
 #define ARM_H_
 #include "WPILib.h"
 #include <ComponentBase.h>
+#include <CanArmTalon.h>
 
 class Arm : public ComponentBase
 {
@@ -23,24 +24,18 @@ public:
 	}
 
 private:
-	enum ArmState{
-		ARM_LOWERING,
-		ARM_BOTTOM,
-		ARM_TOP,
-		ARM_RAISING,
-		ARM_FLOOR
-	};
-
-	ArmState armState;
-	CANTalon* pArmLeverMotor;
+	CanArmTalon* pArmLeverMotor;
 	CANTalon* pArmCenterMotor;
 	CANTalon* pArmIntakeMotor;
+	PIDController* pArmPID;
+	bool bIsIntaking = false;
 
-	const float fIntakeSpeed = .5f;
-	const float fArmSpeed = .1f;
-	const int topEncoderPos = 1024;
-	const int bottomEncoderPos = 0;
-	const int intakeEncoderPos = -100;
+	const float fIntakeInSpeed = .4f;
+	const float fIntakeOutSpeed = -1f;
+	const float fCenterSpeed = -.6f;
+	const int topEncoderPos = 1890;
+	const int bottomEncoderPos = -1000;
+	const int intakeEncoderPos = -1333;
 
 	int targetEncPos = 0; // Used when lowering the arm
 	void OnStateChange();

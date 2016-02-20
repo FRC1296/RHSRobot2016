@@ -17,6 +17,9 @@ RhsRobot::RhsRobot() {
 	Controller_1 = NULL;
 	drivetrain = NULL;
 	autonomous = NULL;
+	arm = NULL;
+	tail = NULL;
+	shooter = NULL;
 
 	iLoop = 0;
 }
@@ -40,7 +43,10 @@ void RhsRobot::Init() {
 	 */
 	Controller_1 = new Joystick(0);
 	drivetrain = new Drivetrain();
-	autonomous = new Autonomous();
+	//autonomous = new Autonomous();
+	arm = new Arm();
+	tail = new Tail();
+	//shooter = new Shooter();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
@@ -52,6 +58,21 @@ void RhsRobot::Init() {
 	if(autonomous)
 	{
 		nextComponent = ComponentSet.insert(nextComponent, autonomous);
+	}
+
+	if(arm)
+	{
+		nextComponent = ComponentSet.insert(nextComponent, arm);
+	}
+
+	if(tail)
+	{
+		nextComponent = ComponentSet.insert(nextComponent, tail);
+	}
+
+	if(shooter)
+	{
+		nextComponent = ComponentSet.insert(nextComponent, shooter);
 	}
 }
 
@@ -85,18 +106,54 @@ void RhsRobot::Run() {
 
 	if (drivetrain)
 	{
-		//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-		//	robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
-		//	robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
-		//drivetrain->SendMessage(&robotMessage);
+		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
+			robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
+			robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
+		drivetrain->SendMessage(&robotMessage);
 
-		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
-		 			robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
-		 			robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
-		 			robotMessage.params.cheezyDrive.bQuickturn = CHEEZY_DRIVE_QUICKTURN;
+		//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
+		 //			robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
+		 //			robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
+		 //			robotMessage.params.cheezyDrive.bQuickturn = CHEEZY_DRIVE_QUICKTURN;
 
 		 			// TODO:  what button engages quick turn mode?
-		 		drivetrain->SendMessage(&robotMessage);
+		 //		drivetrain->SendMessage(&robotMessage);
+	}
+
+	if(arm){
+		if(ARM_INTAKE_IN){
+			robotMessage.command = COMMAND_ARM_INTAKE;
+			robotMessage.params.armParams.direction = true;
+			arm->SendMessage(&robotMessage);
+		}else if (ARM_INTAKE_OUT){
+			robotMessage.command = COMMAND_ARM_INTAKE;
+			robotMessage.params.armParams.direction = false;
+			arm->SendMessage(&robotMessage);
+		}
+
+
+
+	}
+
+	if(tail){
+		if(TAIL_UP && TAIL_DOWN){
+
+		}else
+		if(TAIL_UP){
+			robotMessage.command = COMMAND_TAIL_RAISE;
+			tail->SendMessage(&robotMessage);
+		}else
+		if(TAIL_DOWN){
+			robotMessage.command = COMMAND_TAIL_LOWER;
+			tail->SendMessage(&robotMessage);
+		}
+	}
+
+	if(shooter){
+		if(SHOOTER_SHOOT){
+			robotMessage.command = COMMAND_SHOOTER_SHOOT;
+			shooter->SendMessage(&robotMessage);
+		}
 	}
 
 	if((iLoop++ % 50) == 0)

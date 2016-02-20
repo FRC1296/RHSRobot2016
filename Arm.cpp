@@ -6,12 +6,22 @@
  */
 
 #include "Arm.h"
+#include "Drivetrain.h"
 #include "RobotParams.h"
 Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 
-	pArmLeverMotor = new CANTalon(CAN_ARM_LEVER_MOTOR);
+	pArmLeverMotor = new CanArmTalon(CAN_ARM_LEVER_MOTOR);
 	pArmLeverMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
-	pArmLeverMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	pArmLeverMotor->SetFeedbackDevice(CANTalon::CtreMagEncoder_Absolute);
+	pArmPID = new PIDController(.0004,0,0,pArmLeverMotor, pArmLeverMotor, .05);
+	//pArmLeverMotor->SetPID(.0001,0,0);
+
+	pArmLeverMotor->SetInverted(true);
+	pArmLeverMotor->SetIzone(TALON_IZONE);
+	pArmLeverMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
+	pArmLeverMotor->SetControlMode(CANTalon::kPercentVbus);
+
+
 
 	pArmCenterMotor = new CANTalon(CAN_ARM_CENTER_MOTOR);
 	pArmCenterMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
@@ -22,6 +32,7 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	wpi_assert(pArmLeverMotor->IsAlive());
 	wpi_assert(pArmCenterMotor->IsAlive());
 	wpi_assert(pArmIntakeMotor->IsAlive());
+
 
 	pTask = new Task(ARM_TASKNAME, &Arm::StartTask, this);
 	wpi_assert(pTask);
@@ -37,81 +48,44 @@ Arm::~Arm() {
 }
 
 void Arm::Run(){
-	pArmIntakeMotor->Set(0); // This is how the intake motor stops
+	bIsIntaking = false;
+
+	printf("output error %f \n", pArmPID->GetAvgError());
+	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetPulseWidthPosition());
 
 	switch(localMessage.command) {
 	case COMMAND_ARM_RAISE:
-		armState = ARM_RAISING;
+		Raise();
 		break;
 	case COMMAND_ARM_LOWER:
-		armState = ARM_LOWERING;
+		Lower();
 		break;
 	case COMMAND_ARM_INTAKE:
+		bIsIntaking = true;
 		Intake(localMessage.params.armParams.direction);
 		break;
 	default:
 		break;
 	}
 
-	if(localMessage.command != COMMAND_ARM_INTAKE && armState == ARM_FLOOR){
-		armState = ARM_RAISING;
+	if(!bIsIntaking){
+		pArmIntakeMotor->Set(0); // This is how the intake motor stops
+		pArmCenterMotor->Set(0);
+		if(pArmLeverMotor->GetPulseWidthPosition()<bottomEncoderPos){
+			Lower();
+		}
 	}
-
-	switch(armState){
-	case ARM_RAISING:
-		Raise();
-		break;
-	case ARM_LOWERING:
-		targetEncPos = bottomEncoderPos;
-		Lower();
-		break;
-	case ARM_TOP:
-
-		break;
-	case ARM_BOTTOM:
-
-		break;
-	case ARM_FLOOR:
-
-		break;
-	default:
-		break;
-	}
-
 
 
 }
 
 void Arm::Raise(){
-	if(pArmLeverMotor->GetEncPosition() >= topEncoderPos){ // TODO check enc values
-		armState = ARM_TOP;
-		pArmLeverMotor->Set(0);
-	}
-	else
-	{
-		pArmLeverMotor->Set(fArmSpeed); // TODO check direction
-	}
+	pArmPID->SetSetpoint(topEncoderPos);
 }
 
 
-// Hey Weaver, it is pretty unlikely that we'll hit the floor and/or bottom positions exactly.
-// Should you check for a range instead?
-// Should we consider running the arm lever Talon in position servo mode and let it do the work?
-
 void Arm::Lower(){
-	if(pArmLeverMotor->GetEncPosition() <= targetEncPos){ // TODO check enc values
-		if(targetEncPos == intakeEncoderPos){
-			armState = ARM_FLOOR;
-		}else if(targetEncPos == bottomEncoderPos){
-			armState = ARM_BOTTOM;
-		}else{
-			// Should never get here
-		}
-
-		pArmLeverMotor->Set(0);
-		return;
-	}
-	pArmLeverMotor->Set(-fArmSpeed); // TODO check direction
+	pArmPID->SetSetpoint(bottomEncoderPos);
 }
 
 
@@ -119,43 +93,41 @@ void Arm::Lower(){
 
 void Arm::Intake(bool direction){
 
-	if(direction){
-		pArmIntakeMotor->Set(-fIntakeSpeed); // TODO check direction
-	}else{
-		pArmIntakeMotor->Set(fIntakeSpeed); // TODO check direction
-	} // TODO Ask aren about the lower part, whether the intake rolls if in ARM_TOP
+	if(direction){ // intaking
+		pArmIntakeMotor->Set(fIntakeInSpeed);
+		pArmCenterMotor->Set(fCenterSpeed);
 
-	if(armState == ARM_BOTTOM || armState == ARM_LOWERING){
-		targetEncPos = intakeEncoderPos;
-		armState = ARM_LOWERING; // TODO do more lower code
-
+		pArmPID->SetSetpoint(intakeEncoderPos);
+	}else{ // throwing up
+		pArmIntakeMotor->Set(fIntakeOutSpeed);
 	}
+
 }
 
 void Arm::OnStateChange(){
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
-
+		pArmPID->Disable();
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
-
+		pArmPID->Disable();
 		break;
 
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
-
+		pArmPID->Enable();
 		break;
 
 	case COMMAND_ROBOT_STATE_DISABLED:
-
+		pArmPID->Disable();
 		break;
 
 	case COMMAND_ROBOT_STATE_UNKNOWN:
-
+		pArmPID->Disable();
 		break;
 
 	default:
-
+		pArmPID->Disable();
 		break;
 	}
 }

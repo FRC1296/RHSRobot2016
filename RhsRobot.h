@@ -11,7 +11,9 @@
 #include <Drivetrain.h>
 #include <RhsRobotBase.h>
 #include "WPILib.h"
-
+#include <Arm.h>
+#include <Tail.h>
+#include <Shooter.h>
 
 class RhsRobot : public RhsRobotBase
 {
@@ -23,6 +25,9 @@ private:
 	Joystick* Controller_1;
 	Drivetrain* drivetrain;
 	Autonomous* autonomous;
+	Arm* arm;
+	Tail* tail;
+	Shooter* shooter;
 
 	std::vector <ComponentBase *> ComponentSet;
 	
