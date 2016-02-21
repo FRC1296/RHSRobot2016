@@ -31,11 +31,11 @@ private:
 	bool bIsIntaking = false;
 
 	const float fIntakeInSpeed = .4f;
-	const float fIntakeOutSpeed = -1f;
+	const float fIntakeOutSpeed = -1.0f;
 	const float fCenterSpeed = -.6f;
-	const int topEncoderPos = 1890;
-	const int bottomEncoderPos = -1000;
-	const int intakeEncoderPos = -1333;
+	const int topEncoderPos = 2320;
+	const int bottomEncoderPos = -450;
+	const int intakeEncoderPos = -930;
 
 	int targetEncPos = 0; // Used when lowering the arm
 	void OnStateChange();

@@ -194,6 +194,9 @@ const int POV_STILL = -1;
 #define TAIL_UP						(Controller_1->GetRawButton(L310_BUTTON_THUMB_RIGHT))
 #define TAIL_DOWN					(Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT))
 #define	SHOOTER_SHOOT				(Controller_1->GetRawButton(L310_BUTTON_A))
+#define ARM_RAISE					(Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT))
+#define ARM_LOWER					(Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)!=0)
+
 #endif // USE_L310_FOR_CONTROLLER_1
 
 #ifdef USE_X3D_FOR_CONTROLLER_2

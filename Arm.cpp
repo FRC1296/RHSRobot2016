@@ -36,6 +36,8 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 
 	pTask = new Task(ARM_TASKNAME, &Arm::StartTask, this);
 	wpi_assert(pTask);
+
+	Raise();
 }
 
 Arm::~Arm() {
@@ -69,9 +71,9 @@ void Arm::Run(){
 	}
 
 	if(!bIsIntaking){
-		pArmIntakeMotor->Set(0); // This is how the intake motor stops
-		pArmCenterMotor->Set(0);
-		if(pArmLeverMotor->GetPulseWidthPosition()<bottomEncoderPos){
+		if(pArmIntakeMotor->GetOutputVoltage()!=0){
+			pArmIntakeMotor->Set(0); // This is how the intake motor stops
+			pArmCenterMotor->Set(0);
 			Lower();
 		}
 	}

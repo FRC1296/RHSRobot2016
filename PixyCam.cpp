@@ -23,7 +23,7 @@ void PixyCam::Run(PixyCam *pInstance)
 	 PIXICOM_STATES ePixyComState = PIXYCOM_UNSYNCHED;
 	 SPI* pCamera;
 
-	pCamera = new SPI(SPI::kOnboardCS1);
+	pCamera = new SPI(SPI::kOnboardCS0);
 	pCamera->SetMSBFirst();
 	pCamera->SetSampleDataOnRising();
 	pCamera->SetClockActiveHigh();
