@@ -118,14 +118,18 @@ void RhsRobot::Run() {
 
 		 			// TODO:  what button engages quick turn mode?
 		 		drivetrain->SendMessage(&robotMessage);
+
+		 		if(DRIVE_SEARCH){
+		 			robotMessage.command = COMMAND_AUTONOMOUS_SEARCH;
+		 		}
 	}
 
 	if(arm){
-		if(ARM_RAISE){
-			robotMessage.command = COMMAND_ARM_RAISE;
+		if(ARM_FAR){
+			robotMessage.command = COMMAND_ARM_FAR;
 			arm->SendMessage(&robotMessage);
-		}else if(ARM_LOWER){
-			robotMessage.command = COMMAND_ARM_LOWER;
+		}else if(ARM_CLOSE){
+			robotMessage.command = COMMAND_ARM_CLOSE;
 			arm->SendMessage(&robotMessage);
 		}
 

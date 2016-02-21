@@ -420,7 +420,7 @@ void Drivetrain::Search(){
 	pSearchPID->SetSetpoint(0);
 	pSearchPID->Enable();
 
-	while(t->Get() < 2 && ISAUTO){
+	while(t->Get() < 1){
 		/*
 		if(!bBlockFound){
 			command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;

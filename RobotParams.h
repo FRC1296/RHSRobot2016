@@ -80,6 +80,8 @@ const int PWM_DRIVETRAIN_RIGHT_MOTOR = 0;
 Add more as needed.
  \endverbatim
  */
+
+const int CAN_PCM = 10;
 const int CAN_PDB = 0;
 const int CAN_DRIVETRAIN_LEFTONE_MOTOR = 1;
 const int CAN_DRIVETRAIN_LEFTTWO_MOTOR = 2;
@@ -107,6 +109,7 @@ const int SOL_SHOOTER_1 = 0;
 const int SOL_SHOOTER_2 = 1;
 const int SOL_SHOOTER_3 = 2;
 const int SOL_SHOOTER_4 = 3;
+const int SOL_SHOOTER_CLAW = 4;
 
 //I2C - Assigns names to I2C ports 1-2 on the Roborio
 //EXAMPLE: const int IO2C_AUTO_ACCEL = 1;
@@ -189,13 +192,14 @@ const int POV_STILL = -1;
 #define CHEEZY_DRIVE_QUICKTURN		(Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT))
 #define ARCADE_DRIVE_X				(Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X))
 #define ARCADE_DRIVE_Y				(-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y))
-#define ARM_INTAKE_IN				(Controller_1->GetRawButton(L310_BUTTON_X))
-#define ARM_INTAKE_OUT				(Controller_1->GetRawButton(L310_BUTTON_Y))
+#define ARM_INTAKE_IN				(Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT))
+#define ARM_INTAKE_OUT				(Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)!=0)
 #define TAIL_UP						(Controller_1->GetRawButton(L310_BUTTON_THUMB_RIGHT))
 #define TAIL_DOWN					(Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT))
 #define	SHOOTER_SHOOT				(Controller_1->GetRawButton(L310_BUTTON_A))
-#define ARM_RAISE					(Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT))
-#define ARM_LOWER					(Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)!=0)
+#define ARM_FAR						(Controller_1->GetPOV(L310_POV)==0)
+#define ARM_CLOSE					(Controller_1->GetPOV(L310_POV)==180)
+#define DRIVE_SEARCH				(Controller_1->GetRawButton(L310_BUTTON_Y))
 
 #endif // USE_L310_FOR_CONTROLLER_1
 

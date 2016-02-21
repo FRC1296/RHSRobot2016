@@ -69,6 +69,9 @@ private:
 	bool Turn(char *);
 	bool Straight(char *);
 	bool Search();
+	bool Intake();
+	bool Throwup();
+	bool Shoot();
 
 	bool CommandResponse(const char *szQueueName);
 	bool CommandNoResponse(const char *szQueueName);

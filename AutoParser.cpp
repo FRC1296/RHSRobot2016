@@ -33,6 +33,9 @@ const char *szTokens[] = {
 		"TURN",				//!<(degrees) (timeout)
 		"STRAIGHT",			//!<(speed) (duration)
 		"SEARCH",
+		"INTAKE",
+		"THROWUP",
+		"SHOOT",
 		//DRIVETRAIN
 		"STARTDRIVEFWD",	//!<(drive speed)
 		"STARTDRIVEBCK",	//!<(drive speed)
@@ -209,6 +212,40 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("search");
 		}
 		break;
+
+	case AUTO_TOKEN_INTAKE:
+		if(Intake())
+		{
+			rStatus.append("intake error");
+		}
+		else
+		{
+			rStatus.append("intaking");
+		}
+		break;
+
+	case AUTO_TOKEN_THROWUP:
+		if(Throwup())
+		{
+			rStatus.append("throwup error");
+		}
+		else
+		{
+			rStatus.append("throwing up");
+		}
+		break;
+
+	case AUTO_TOKEN_SHOOT:
+		if(Shoot())
+		{
+			rStatus.append("shoot error");
+		}
+		else
+		{
+			rStatus.append("shooting");
+		}
+		break;
+
 	case AUTO_TOKEN_START_DRIVE_FWD:
 		//Get speed and timeout
 		pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);

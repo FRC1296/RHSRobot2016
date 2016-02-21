@@ -282,6 +282,22 @@ bool Autonomous::Search(){
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 
+bool Autonomous::Intake(){
+	Message.command = COMMAND_AUTONOMOUS_INTAKE;
+	return (CommandResponse(ARM_QUEUE));
+}
+
+bool Autonomous::Throwup(){
+	Message.command = COMMAND_AUTONOMOUS_THROWUP;
+	return (CommandResponse(ARM_QUEUE));
+}
+
+bool Autonomous::Shoot(){
+	Message.command = COMMAND_AUTONOMOUS_SHOOT;
+	CommandResponse(ARM_QUEUE);
+	Message.command = COMMAND_AUTONOMOUS_SHOOT;
+	return(CommandResponse(SHOOTER_QUEUE));
+}
 
 bool Autonomous::Turn(char *pCurrLinePos) {
 	char *pToken;
