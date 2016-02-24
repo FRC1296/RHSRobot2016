@@ -24,16 +24,9 @@ public:
 	}
 
 private:
-	Timer* pTimer;
 	Compressor* pCompressor;
-	//Solenoid* pSolenoid1;
-	//Solenoid* pSolenoid2;
-	//Solenoid* pSolenoid3;
-	//Solenoid* pSolenoid4;
 
 	ShooterSolenoid* shooters;
-	Solenoid* claw;
-	const float fOpenTime = .5f;
 
 
 	void OnStateChange();

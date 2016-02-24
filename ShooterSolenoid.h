@@ -17,8 +17,9 @@ public:
 	void Close();
 
 private:
-	const uint8_t mask = (0x1 << SOL_SHOOTER_1) | (0x1 << SOL_SHOOTER_2) | (0x1 << SOL_SHOOTER_3) | (0x1 << SOL_SHOOTER_4);
-	const uint8_t value = 0xf;
+	const uint8_t farMask = (0x1 << SOL_SHOOTER_1) | (0x1 << SOL_SHOOTER_2) | (0x1 << SOL_SHOOTER_3) | (0x1 << SOL_SHOOTER_4);
+	const uint8_t closeMask = (0x1 << SOL_SHOOTER_1) | (0x1 << SOL_SHOOTER_3);
+	const uint8_t shootValue = 0xf;
 };
 
 #endif /* SRC_SHOOTERSOLENOID_H_ */

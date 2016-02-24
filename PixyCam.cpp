@@ -12,6 +12,9 @@ PixyCam::PixyCam() {
 	bBlockFound = false;
 	fCentroid = 0.0;
 
+	 led = new Relay(0,Relay::kForwardOnly);
+	 led->Set(Relay::kOn);
+
 	pTask = new Task("tPixy", &PixyCam::Run, this);
 }
 
@@ -23,12 +26,13 @@ void PixyCam::Run(PixyCam *pInstance)
 	 PIXICOM_STATES ePixyComState = PIXYCOM_UNSYNCHED;
 	 SPI* pCamera;
 
+
 	pCamera = new SPI(SPI::kOnboardCS0);
 	pCamera->SetMSBFirst();
 	pCamera->SetSampleDataOnRising();
 	pCamera->SetClockActiveHigh();
 	//TODO do the math, is this fast enough?
-	pCamera->SetClockRate(4000000);
+	pCamera->SetClockRate(2000000);
 
 	 while(true){
 		// TODO this is a lot of data, do we need it?  fewer max blocks?
@@ -190,6 +194,10 @@ double PixyCam::PIDGet(){
 	//std::lock_guard<priority_recursive_mutex> sync(mutexData);
 	SmartDashboard::PutNumber("fCentroid", fCentroid);
 	return fCentroid;
+}
+
+void PixyCam::SetLED(bool on){
+	led->Set((on?Relay::kOn:Relay::kOff));
 }
 
 PixyCam::~PixyCam(){

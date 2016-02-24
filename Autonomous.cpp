@@ -299,6 +299,12 @@ bool Autonomous::Shoot(){
 	return(CommandResponse(SHOOTER_QUEUE));
 }
 
+bool Autonomous::Lower(){
+	Message.command = COMMAND_ARM_INTAKE;
+	Message.params.armParams.direction = true;
+	return(CommandNoResponse(ARM_QUEUE));
+}
+
 bool Autonomous::Turn(char *pCurrLinePos) {
 	char *pToken;
 	float fAngle;

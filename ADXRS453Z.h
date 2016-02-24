@@ -46,7 +46,7 @@ class ADXRS453Z : public PIDSource{
 		unsigned char data[4];
 		SPI * spi;
 		Task * pTask;
-		bool task_started;
+		//bool task_started;
 		char sensor_output_1[9];
 		char sensor_output_2[9];
 		char sensor_output_3[9];

@@ -36,6 +36,7 @@ const char *szTokens[] = {
 		"INTAKE",
 		"THROWUP",
 		"SHOOT",
+		"LOWER",
 		//DRIVETRAIN
 		"STARTDRIVEFWD",	//!<(drive speed)
 		"STARTDRIVEBCK",	//!<(drive speed)
@@ -214,7 +215,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_INTAKE:
-		if(Intake())
+		if(!Intake())
 		{
 			rStatus.append("intake error");
 		}
@@ -225,7 +226,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_THROWUP:
-		if(Throwup())
+		if(!Throwup())
 		{
 			rStatus.append("throwup error");
 		}
@@ -236,13 +237,24 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_SHOOT:
-		if(Shoot())
+		if(!Shoot())
 		{
 			rStatus.append("shoot error");
 		}
 		else
 		{
 			rStatus.append("shooting");
+		}
+		break;
+
+	case AUTO_TOKEN_LOWER:
+		if(!Lower())
+		{
+			rStatus.append("lower error");
+		}
+		else
+		{
+			rStatus.append("lowering");
 		}
 		break;
 

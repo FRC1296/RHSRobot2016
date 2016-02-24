@@ -9,6 +9,8 @@
 #include <RobotParams.h>
 
 Tail::Tail() : ComponentBase(TAIL_TASKNAME, TAIL_QUEUE, TAIL_PRIORITY){
+	pTailTimer = new Timer();
+
 	pTailMotor = new CANTalon(CAN_TAIL_MOTOR);
 	pTailMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 	pTailMotor->SetControlMode(CANTalon::kPercentVbus);
@@ -18,7 +20,8 @@ Tail::Tail() : ComponentBase(TAIL_TASKNAME, TAIL_QUEUE, TAIL_PRIORITY){
 }
 
 Tail::~Tail() {
-
+	delete pTailMotor;
+	delete pTask;
 }
 
 void Tail::Run(){
@@ -30,17 +33,30 @@ void Tail::Run(){
 		Lower();
 		break;
 	default:
-		pTailMotor->Set(fIdleVoltage);
+		pTailMotor->Set(fIdlePower);
 		break;
+	}
+
+	if(pTailTimer->Get()>fTailMotorTime){
+		pTailMotor->Set(fIdlePower);
+	}
+	if(pTailTimer->Get()>fTailDownTime && !isRaising){
+		Raise();
 	}
 }
 
 void Tail::Raise(){
-	pTailMotor->Set(fRaiseVoltage); // TODO check direction
+	pTailTimer->Reset();
+	pTailTimer->Start();
+	isRaising = true;
+	pTailMotor->Set(fTailPower);
 }
 
 void Tail::Lower(){
-	pTailMotor->Set(-fLowerVoltage); // TODO check direction
+	pTailTimer->Reset();
+	pTailTimer->Start();
+	isRaising = false;
+	pTailMotor->Set(-fTailPower);
 }
 
 void Tail::OnStateChange(){

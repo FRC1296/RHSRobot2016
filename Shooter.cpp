@@ -9,17 +9,8 @@
 #include <RobotParams.h>
 #include "Arm.h"
 Shooter::Shooter() : ComponentBase(SHOOTER_TASKNAME, SHOOTER_QUEUE, SHOOTER_PRIORITY){
-	pTimer = new Timer();
-
-	/*
-	pSolenoid1 = new Solenoid(SOL_SHOOTER_1);
-	pSolenoid2 = new Solenoid(SOL_SHOOTER_2);
-	pSolenoid3 = new Solenoid(SOL_SHOOTER_3);
-	pSolenoid4 = new Solenoid(SOL_SHOOTER_4);
-	*/
 
 	shooters = new ShooterSolenoid(CAN_PCM);
-	claw = new Solenoid(SOL_SHOOTER_CLAW);
 
 	pCompressor = new Compressor();
 	pCompressor->Start();
@@ -30,7 +21,9 @@ Shooter::Shooter() : ComponentBase(SHOOTER_TASKNAME, SHOOTER_QUEUE, SHOOTER_PRIO
 }
 
 Shooter::~Shooter() {
-	delete pTimer;
+	delete pCompressor;
+	delete shooters;
+	delete pTask;
 }
 
 void Shooter::Run(){
@@ -47,28 +40,18 @@ void Shooter::Run(){
 
 		break;
 	}
-/*
-		pSolenoid1->Set(false);
-		pSolenoid2->Set(false);
-		pSolenoid3->Set(false);
-		pSolenoid4->Set(false);*/
+
 }
 
 void Shooter::Shoot(){
-	int pos = Arm::GetPulseWidthPosition();
+	int pos = Arm::GetEncTarget();
 	if(pos > bottomEncoderPos){
-		/*
-		pSolenoid1->Set(true);
-		pSolenoid2->Set(true);
-		pSolenoid3->Set(true);
-		pSolenoid4->Set(true);*/
-		claw->Set(true);
-		Wait(.3);
+
+		Wait(shootDelay);
 		shooters->Open();
-		Wait(.3);
+		Wait(clawDelay);
 		shooters->Close();
-		claw->Set(false);
-		ClearMessages(); // this is so that shoot command isnt send twice
+		ClearMessages(); // this is so that the shoot command isnt send twice
 	}
 
 }

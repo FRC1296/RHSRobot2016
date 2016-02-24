@@ -194,11 +194,11 @@ const int POV_STILL = -1;
 #define ARCADE_DRIVE_Y				(-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y))
 #define ARM_INTAKE_IN				(Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT))
 #define ARM_INTAKE_OUT				(Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)!=0)
-#define TAIL_UP						(Controller_1->GetRawButton(L310_BUTTON_THUMB_RIGHT))
-#define TAIL_DOWN					(Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT))
+#define TAIL_DOWN					(Controller_1->GetRawButton(L310_BUTTON_THUMB_RIGHT))
+#define TAIL_UP						(Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT))
 #define	SHOOTER_SHOOT				(Controller_1->GetRawButton(L310_BUTTON_A))
-#define ARM_FAR						(Controller_1->GetPOV(L310_POV)==0)
-#define ARM_CLOSE					(Controller_1->GetPOV(L310_POV)==180)
+#define ARM_FAR						(Controller_1->GetPOV(0)==0)
+#define ARM_CLOSE					(Controller_1->GetPOV(0)==180)
 #define DRIVE_SEARCH				(Controller_1->GetRawButton(L310_BUTTON_Y))
 
 #endif // USE_L310_FOR_CONTROLLER_1

@@ -6,6 +6,7 @@
  */
 
 #include <CanArmTalon.h>
+#include <RobotParams.h>
 
 CanArmTalon::CanArmTalon(int canid) : CANTalon(canid){
 }
@@ -14,13 +15,13 @@ CanArmTalon::~CanArmTalon() {
 }
 
 void CanArmTalon::PIDWrite(float p){ // -1, 1
-	double additive = cos((this->GetPulseWidthPosition()+zeroRadian)*countsToRadians)*maxAdditive;
-	printf("writing %f \n", p+additive);
-
-this->Set(p+additive);
+	//double additive = cos((this->GetEncPosition()+zeroRadian)*countsToRadians)*maxAdditive;
+	//double power = p+additive;
+	double power = p;
+	ABLIMIT(power,0.4);
+	this->Set(power);
 }
 
 double CanArmTalon::PIDGet(){
-	printf("getting %d \n", this->GetPulseWidthPosition() );
-	return (this->GetPulseWidthPosition())*1.0;
+	return (this->GetEncPosition());
 }

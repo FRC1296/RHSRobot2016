@@ -17,7 +17,8 @@ bUnderServoControl = servo;
 }
 
 PIDSearchOutput::~PIDSearchOutput() {
-	// TODO Auto-generated destructor stub
+	delete pLeftOneMotor;
+	delete pRightOneMotor;
 }
 
 void PIDSearchOutput::PIDWrite(float output){

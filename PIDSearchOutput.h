@@ -16,7 +16,6 @@ public:
 
 private:
 	CANTalon* pLeftOneMotor;
-
 	CANTalon* pRightOneMotor;
 
 	bool bUnderServoControl;

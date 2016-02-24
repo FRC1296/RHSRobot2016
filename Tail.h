@@ -24,10 +24,14 @@ public:
 
 private:
 	CANTalon* pTailMotor;
+	Timer* pTailTimer;
 
-	const float fIdleVoltage = .0f;
-	const float fRaiseVoltage = 1.0f;
-	const float fLowerVoltage = 1.0f;
+	const float fIdlePower = 0.0f;
+	const float fTailPower = 1.0f;
+	const float fTailDownTime = 3.0f;
+	const float fTailMotorTime = 2.0f;
+
+	bool isRaising = true;
 
 	void OnStateChange();
 	void Run();

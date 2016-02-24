@@ -72,6 +72,7 @@ private:
 	bool Intake();
 	bool Throwup();
 	bool Shoot();
+	bool Lower();
 
 	bool CommandResponse(const char *szQueueName);
 	bool CommandNoResponse(const char *szQueueName);

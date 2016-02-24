@@ -46,7 +46,7 @@ void RhsRobot::Init() {
 	//autonomous = new Autonomous();
 	arm = new Arm();
 	tail = new Tail();
-	//shooter = new Shooter();
+	shooter = new Shooter();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
@@ -163,8 +163,12 @@ void RhsRobot::Run() {
 
 	if(shooter){
 		if(SHOOTER_SHOOT){
+			if(arm){
+				robotMessage.command = COMMAND_ARM_SHOOT;
+				arm->SendMessage(&robotMessage);
 			robotMessage.command = COMMAND_SHOOTER_SHOOT;
 			shooter->SendMessage(&robotMessage);
+			}
 		}
 	}
 

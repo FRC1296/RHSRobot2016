@@ -398,7 +398,7 @@ void Drivetrain::IterateStraightDrive(void)
 	}
 }
 void Drivetrain::Search(){
-
+	pCamera->SetLED(true);
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 	printf("Started searching\n");
 	Timer* t = new Timer();
@@ -460,6 +460,7 @@ void Drivetrain::Search(){
 	//bBlockFound = pCamera->GetCentroid(fCentroid);
 	//StartTurn(fCentroid*37.5,2);
 printf("done\n");
+pCamera->SetLED(false);
 	pLeftOneMotor->Set(0);
 	pRightOneMotor->Set(0);
 	if(ISAUTO){
