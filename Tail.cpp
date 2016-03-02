@@ -10,6 +10,8 @@
 
 Tail::Tail() : ComponentBase(TAIL_TASKNAME, TAIL_QUEUE, TAIL_PRIORITY){
 	pTailTimer = new Timer();
+	pTailTimer->Stop();
+	pTailTimer->Reset();
 
 	pTailMotor = new CANTalon(CAN_TAIL_MOTOR);
 	pTailMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
@@ -33,19 +35,24 @@ void Tail::Run(){
 		Lower();
 		break;
 	default:
-		pTailMotor->Set(fIdlePower);
+		//pTailMotor->Set(fIdlePower);
 		break;
 	}
 
-	if(pTailTimer->Get()>fTailMotorTime){
+	if(pTailTimer->Get()>fTailUpMotorTime && isRaising){
 		pTailMotor->Set(fIdlePower);
 	}
+	if(pTailTimer->Get()>fTailDownMotorTime && isRaising){
+		pTailMotor->Set(0);
+	}
+
 	if(pTailTimer->Get()>fTailDownTime && !isRaising){
 		Raise();
 	}
 }
 
 void Tail::Raise(){
+	pTailTimer->Stop();
 	pTailTimer->Reset();
 	pTailTimer->Start();
 	isRaising = true;
@@ -53,6 +60,7 @@ void Tail::Raise(){
 }
 
 void Tail::Lower(){
+	pTailTimer->Stop();
 	pTailTimer->Reset();
 	pTailTimer->Start();
 	isRaising = false;
@@ -62,7 +70,7 @@ void Tail::Lower(){
 void Tail::OnStateChange(){
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
-
+		Raise();
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
@@ -70,7 +78,7 @@ void Tail::OnStateChange(){
 		break;
 
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
-
+		Lower();
 		break;
 
 	case COMMAND_ROBOT_STATE_DISABLED:

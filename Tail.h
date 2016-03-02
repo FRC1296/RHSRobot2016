@@ -26,10 +26,11 @@ private:
 	CANTalon* pTailMotor;
 	Timer* pTailTimer;
 
-	const float fIdlePower = 0.0f;
-	const float fTailPower = 1.0f;
-	const float fTailDownTime = 3.0f;
-	const float fTailMotorTime = 2.0f;
+	const float fIdlePower = 0.1f;
+	const float fTailPower = 0.25f;
+	const float fTailDownTime = 5.0f;
+	const float fTailDownMotorTime = 1.5f;
+	const float fTailUpMotorTime = 1.5f;
 
 	bool isRaising = true;
 

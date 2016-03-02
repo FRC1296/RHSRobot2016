@@ -41,6 +41,7 @@ const int AUTOPARSER_PRIORITY 	= DEFAULT_PRIORITY;
 const int ARM_PRIORITY 			= DEFAULT_PRIORITY;
 const int TAIL_PRIORITY 		= DEFAULT_PRIORITY;
 const int SHOOTER_PRIORITY 		= DEFAULT_PRIORITY;
+const int HANGER_PRIORITY 		= DEFAULT_PRIORITY;
 
 //Task Names - Used when you view the task list but used by the operating system
 //EXAMPLE: const char* DRIVETRAIN_TASKNAME = "tDrive";
@@ -52,6 +53,7 @@ const char* const AUTOPARSER_TASKNAME	= "tParse";
 const char* const ARM_TASKNAME			= "tArm";
 const char* const TAIL_TASKNAME			= "tTail";
 const char* const SHOOTER_TASKNAME		= "tShooter";
+const char* const HANGER_TASKNAME		= "tHanger";
 
 //TODO change these variables throughout the code to PIPE or whatever instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
@@ -64,6 +66,7 @@ const char* const AUTOPARSER_QUEUE 	= "/tmp/qParse";
 const char* const ARM_QUEUE 	= "/tmp/qArm";
 const char* const TAIL_QUEUE 	= "/tmp/qTail";
 const char* const SHOOTER_QUEUE 	= "/tmp/qShooter";
+const char* const HANGER_QUEUE 	= "/tmp/qHanger";
 
 //PWM Channels - Assigns names to PWM ports 1-10 on the Roborio
 //EXAMPLE: const int PWM_DRIVETRAIN_FRONT_LEFT_MOTOR = 1;
@@ -95,6 +98,8 @@ const int CAN_ARM_LEVER_MOTOR = 7;
 const int CAN_TAIL_MOTOR = 8;
 
 const int CAN_SPARE_MOTOR = 9;
+
+const int CAN_HANGER_MOTOR = 10;
 
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;
@@ -200,6 +205,8 @@ const int POV_STILL = -1;
 #define ARM_FAR						(Controller_1->GetPOV(0)==0)
 #define ARM_CLOSE					(Controller_1->GetPOV(0)==180)
 #define DRIVE_SEARCH				(Controller_1->GetRawButton(L310_BUTTON_Y))
+#define HANGER_HANG					(Controller_1->GetRawButton(L310_BUTTON_A))
+#define DRIVE_ZERO_GYRO				(Controller_1->GetRawButton(L310_BUTTON_B))
 
 #endif // USE_L310_FOR_CONTROLLER_1
 

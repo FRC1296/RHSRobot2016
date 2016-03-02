@@ -20,6 +20,7 @@ RhsRobot::RhsRobot() {
 	arm = NULL;
 	tail = NULL;
 	shooter = NULL;
+	hanger = NULL;
 
 	iLoop = 0;
 }
@@ -43,10 +44,11 @@ void RhsRobot::Init() {
 	 */
 	Controller_1 = new Joystick(0);
 	drivetrain = new Drivetrain();
-	//autonomous = new Autonomous();
+	autonomous = new Autonomous();
 	arm = new Arm();
 	tail = new Tail();
-	shooter = new Shooter();
+	//shooter = new Shooter();
+	//hanger = new Hanger();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
@@ -73,6 +75,10 @@ void RhsRobot::Init() {
 	if(shooter)
 	{
 		nextComponent = ComponentSet.insert(nextComponent, shooter);
+	}
+	if(hanger)
+	{
+		nextComponent = ComponentSet.insert(nextComponent, hanger);
 	}
 }
 
@@ -119,6 +125,10 @@ void RhsRobot::Run() {
 		 			// TODO:  what button engages quick turn mode?
 		 		drivetrain->SendMessage(&robotMessage);
 
+		 		if(DRIVE_ZERO_GYRO){
+		 			drivetrain->ZeroGyro();
+		 		}
+
 		 		if(DRIVE_SEARCH){
 		 			robotMessage.command = COMMAND_AUTONOMOUS_SEARCH;
 		 		}
@@ -128,9 +138,17 @@ void RhsRobot::Run() {
 		if(ARM_FAR){
 			robotMessage.command = COMMAND_ARM_FAR;
 			arm->SendMessage(&robotMessage);
+			if(tail){
+				robotMessage.command = COMMAND_TAIL_LOWER;
+				tail->SendMessage(&robotMessage);
+			}
 		}else if(ARM_CLOSE){
 			robotMessage.command = COMMAND_ARM_CLOSE;
 			arm->SendMessage(&robotMessage);
+			if(tail){
+				robotMessage.command = COMMAND_TAIL_LOWER;
+				tail->SendMessage(&robotMessage);
+			}
 		}
 
 		if(ARM_INTAKE_IN){
@@ -169,6 +187,13 @@ void RhsRobot::Run() {
 			robotMessage.command = COMMAND_SHOOTER_SHOOT;
 			shooter->SendMessage(&robotMessage);
 			}
+		}
+	}
+
+	if(hanger){
+		if(HANGER_HANG){
+			robotMessage.command = COMMAND_HANGER_HANG;
+			hanger->SendMessage(&robotMessage);
 		}
 	}
 

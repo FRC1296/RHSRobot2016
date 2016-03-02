@@ -37,8 +37,8 @@ Drivetrain::Drivetrain() :
 	pRightTwoMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTTWO_MOTOR);
 	wpi_assert(pLeftOneMotor && pRightOneMotor && pLeftTwoMotor && pRightTwoMotor);
 
-	pCamera = new PixyCam();
-	wpi_assert(pCamera);
+	//pCamera = new PixyCam();
+	//wpi_assert(pCamera);
 
 	// setup for closed loop operation with VP encoders
 	pLeftOneMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
@@ -95,8 +95,7 @@ Drivetrain::Drivetrain() :
 	pTurnPIDOutput = new PIDSearchOutput(pLeftOneMotor,
 			pRightOneMotor, bUnderServoControl);
 	wpi_assert(pSearchPIDOutput);
-	//pSearchPID = new PIDController(.15, 0.005, .4,pCamera, pSearchPIDOutput, .05f);
-	pSearchPID = new PIDController(.075, 0.001, .025,pCamera, pSearchPIDOutput, .05f);
+	//pSearchPID = new PIDController(.075, 0.001, .025,pCamera, pSearchPIDOutput, .05f);
 	pTurnPID = new PIDController(.12, 0.0, .05, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
 	//pSearchPID = new PIDController(.18,0,.7, pCamera, pSearchPIDOutput, .05f);
 	wpi_assert(pSearchPID);
@@ -178,6 +177,16 @@ void Drivetrain::Run() {
  	SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
  	SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
 	SmartDashboard::PutNumber("Gyro", pGyro->GetAngle());
+
+	float avgAmp = 0;
+	avgAmp+=pLeftOneMotor->GetOutputCurrent();
+	avgAmp+=pLeftTwoMotor->GetOutputCurrent();
+	avgAmp+=pRightOneMotor->GetOutputCurrent();
+	avgAmp+=pRightTwoMotor->GetOutputCurrent();
+	avgAmp/=4;
+	SmartDashboard::PutNumber("ave drivetrain Amps", avgAmp);
+
+
  	if(abs(pRightOneMotor->GetSpeed())>abs(fMaxVel))
  		fMaxVel = pRightOneMotor->GetSpeed();
  	if(abs(pLeftOneMotor->GetSpeed())>abs(fMaxVel))
@@ -294,7 +303,7 @@ void Drivetrain::Run() {
 		 		fBatteryVoltage = localMessage.params.system.fBattery;
 		break;
 	case COMMAND_AUTONOMOUS_SEARCH:
-		Search();
+		//Search();
 		break;
 	case COMMAND_SYSTEM_MSGTIMEOUT:
 	default:
@@ -398,13 +407,12 @@ void Drivetrain::IterateStraightDrive(void)
 	}
 }
 void Drivetrain::Search(){
-	pCamera->SetLED(true);
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 	printf("Started searching\n");
 	Timer* t = new Timer();
 	float fCentroid = 0;
 	bool bBlockFound=false;
-	bBlockFound = pCamera->GetCentroid(fCentroid);
+	//bBlockFound = pCamera->GetCentroid(fCentroid);
 	printf("bSearch loop\n");
 	printf("%s %f \n",(bBlockFound ? "true":"false"),fCentroid);
 
@@ -460,7 +468,6 @@ void Drivetrain::Search(){
 	//bBlockFound = pCamera->GetCentroid(fCentroid);
 	//StartTurn(fCentroid*37.5,2);
 printf("done\n");
-pCamera->SetLED(false);
 	pLeftOneMotor->Set(0);
 	pRightOneMotor->Set(0);
 	if(ISAUTO){
@@ -579,6 +586,10 @@ void Drivetrain::StraightDrive(float speed, float time) {
 	}
 
 	SendCommandResponse(command);
+}
+
+void Drivetrain::ZeroGyro(){
+	pGyro->Zero();
 }
 
 
@@ -808,6 +819,8 @@ void CheezyLoop::Run(CheezyLoop *pInstance)
 		}
 	 }
 }
+
+
 
 void CheezyLoop::Update(const DrivetrainGoal &goal,
     const DrivetrainPosition &position,

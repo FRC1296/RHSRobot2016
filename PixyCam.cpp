@@ -11,9 +11,7 @@ PixyCam::PixyCam() {
 
 	bBlockFound = false;
 	fCentroid = 0.0;
-
-	 led = new Relay(0,Relay::kForwardOnly);
-	 led->Set(Relay::kOn);
+	 //led->Set(Relay::kOn);
 
 	pTask = new Task("tPixy", &PixyCam::Run, this);
 }
@@ -196,9 +194,6 @@ double PixyCam::PIDGet(){
 	return fCentroid;
 }
 
-void PixyCam::SetLED(bool on){
-	led->Set((on?Relay::kOn:Relay::kOff));
-}
 
 PixyCam::~PixyCam(){
 	delete pTask;

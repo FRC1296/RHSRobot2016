@@ -40,10 +40,8 @@ public:
 	static void Run(PixyCam *);
 	double PIDGet();
 	bool GetCentroid(float &fNewCentroid);   // -1.0 to 1.0
-	void SetLED(bool);
 private:
 	Task* pTask;
-	Relay* led;
     uint16_t uCurrentBlock[12];
     uint16_t uCommands[12];
 	bool bBlockFound;

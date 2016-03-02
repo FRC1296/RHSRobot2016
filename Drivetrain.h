@@ -75,6 +75,7 @@ public:
 	}
 
 	bool GetGyroAngle();
+	void ZeroGyro();
 private:
 
 	CANTalon* pLeftOneMotor;
@@ -82,7 +83,7 @@ private:
 	CANTalon* pRightOneMotor;
 	CANTalon* pRightTwoMotor;
 	ADXRS453Z *pGyro;
-	PixyCam *pCamera;
+	//PixyCam *pCamera;
 	Timer *pAutoTimer;
 	CheezyLoop *pCheezy;
 	PIDController* pSearchPID;
@@ -142,7 +143,7 @@ private:
 
 	void StartTurn(float, float);
 	void IterateTurn(void);
-	void ZeroGyro();
+
 };
 
 #endif			//DRIVETRAIN_H

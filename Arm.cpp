@@ -15,12 +15,14 @@ Arm* Arm::pInstance;
 Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pShootTimer = new Timer();
 
+	 pLED = new Relay(1,Relay::kBothDirections);
+
 	pArmLeverMotor = new CanArmTalon(CAN_ARM_LEVER_MOTOR);
 	pArmLeverMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 	pArmLeverMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	pArmPID = new PIDController(.0015,0,0,pArmLeverMotor, pArmLeverMotor, .05);
 
-	claw = new Solenoid(SOL_SHOOTER_CLAW);
+	//claw = new Solenoid(SOL_SHOOTER_CLAW);
 
 	pArmLeverMotor->SetInverted(true);
 	pArmLeverMotor->SetIzone(TALON_IZONE);
@@ -41,7 +43,8 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pTask = new Task(ARM_TASKNAME, &Arm::StartTask, this);
 	wpi_assert(pTask);
 	pArmLeverMotor->SetEncPosition(0);
-	Far();
+	pArmPID->SetSetpoint(bottomEncoderPos);
+	//Far();
 }
 
 Arm::~Arm() {
@@ -52,6 +55,7 @@ Arm::~Arm() {
 	delete pArmPID;
 	delete pInstance;
 	delete pShootTimer;
+	delete pLED;
 }
 
 void Arm::Run(){
@@ -108,9 +112,15 @@ void Arm::Run(){
 		pArmCenterMotor->Set(0);
 	}
 	if(pShootTimer->Get()>shootDelay+clawDelay){
-		claw->Set(false);
+		//claw->Set(false);
 		pShootTimer->Stop();
 		pShootTimer->Reset();
+	}
+
+	if(pArmPID->GetSetpoint()==farEncoderPos){
+		pLED->Set(Relay::kForward);
+	}else{
+		pLED->Set(Relay::kOff);
 	}
 
 }
@@ -124,7 +134,7 @@ void Arm::Far(){
 }
 
 void Arm::IntakeShoot(){
-	claw->Set(true);
+	//claw->Set(true);
 	pArmCenterMotor->Set(fIntakeOutSpeed);
 	pShootTimer->Start();
 }
@@ -179,6 +189,7 @@ void Arm::OnStateChange(){
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
 		pArmPID->Enable();
+		pArmPID->SetSetpoint(bottomEncoderPos);
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
@@ -187,6 +198,7 @@ void Arm::OnStateChange(){
 
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
 		pArmPID->Enable();
+		pArmPID->SetSetpoint(bottomEncoderPos);
 		break;
 
 	case COMMAND_ROBOT_STATE_DISABLED:

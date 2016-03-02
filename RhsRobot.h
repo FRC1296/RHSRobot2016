@@ -14,6 +14,7 @@
 #include <Arm.h>
 #include <Tail.h>
 #include <Shooter.h>
+#include <Hanger.h>
 
 class RhsRobot : public RhsRobotBase
 {
@@ -28,6 +29,7 @@ private:
 	Arm* arm;
 	Tail* tail;
 	Shooter* shooter;
+	Hanger* hanger;
 
 	std::vector <ComponentBase *> ComponentSet;
 	
