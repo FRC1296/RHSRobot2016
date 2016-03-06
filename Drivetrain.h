@@ -18,6 +18,7 @@
 #include "PixyCam.h"
 #include "PIDSearchOutput.h"
 #include "../cheezy/frc1296.h"
+#include <DriveTalon.h>
 
 // constants used to tune TALONS
 const float FULLSPEED_FROMTALONS = 	2800.00;							// measured on the robot
@@ -78,9 +79,9 @@ public:
 	void ZeroGyro();
 private:
 
-	CANTalon* pLeftOneMotor;
+	DriveTalon* pLeftOneMotor;
 	CANTalon* pLeftTwoMotor;
-	CANTalon* pRightOneMotor;
+	DriveTalon* pRightOneMotor;
 	CANTalon* pRightTwoMotor;
 	ADXRS453Z *pGyro;
 	//PixyCam *pCamera;

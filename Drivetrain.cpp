@@ -31,8 +31,8 @@ Drivetrain::Drivetrain() :
 		ComponentBase(DRIVETRAIN_TASKNAME, DRIVETRAIN_QUEUE,
 				DRIVETRAIN_PRIORITY) {
 
-	pLeftOneMotor = new CANTalon(CAN_DRIVETRAIN_LEFTONE_MOTOR);
-	pRightOneMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTONE_MOTOR);
+	pLeftOneMotor = new DriveTalon(CAN_DRIVETRAIN_LEFTONE_MOTOR);
+	pRightOneMotor = new DriveTalon(CAN_DRIVETRAIN_RIGHTONE_MOTOR);
 	pLeftTwoMotor = new CANTalon(CAN_DRIVETRAIN_LEFTTWO_MOTOR);
 	pRightTwoMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTTWO_MOTOR);
 	wpi_assert(pLeftOneMotor && pRightOneMotor && pLeftTwoMotor && pRightTwoMotor);
@@ -248,6 +248,11 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_DRIVE_CHEEZY:
 		bTurning = false;
 		bDrivingStraight = false;
+		if(localMessage.params.cheezyDrive.throttle < 0.1 && localMessage.params.cheezyDrive.throttle > -0.1){
+
+			pLeftOneMotor->ResetCurrentTimeout();
+			pRightOneMotor->ResetCurrentTimeout();
+		}
 		RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
 				localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
 
