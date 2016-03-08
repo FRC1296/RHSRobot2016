@@ -106,6 +106,7 @@ const int CAN_HANGER_MOTOR = 10;
 
 //Digital I/O - Assigns names to Digital I/O ports 1-14 on the Roborio
 //EXAMPLE: const int DIO_DRIVETRAIN_BEAM_BREAK = 0;
+const int DIO_DRIVETRAIN_RED_SENSOR = 0;
 
 
 //Solenoid - Assigns names to Solenoid ports 1-8 on the 9403
@@ -204,7 +205,7 @@ const int POV_STILL = -1;
 #define	SHOOTER_SHOOT				(Controller_1->GetRawButton(L310_BUTTON_A))
 #define ARM_FAR						(Controller_1->GetPOV(0)==0)
 #define ARM_CLOSE					(Controller_1->GetPOV(0)==180)
-#define DRIVE_SEARCH				(Controller_1->GetRawButton(L310_BUTTON_Y))
+#define DRIVE_RED				(Controller_1->GetRawButton(L310_BUTTON_Y))
 #define HANGER_HANG					(Controller_1->GetRawButton(L310_BUTTON_A))
 #define DRIVE_ZERO_GYRO				(Controller_1->GetRawButton(L310_BUTTON_B))
 

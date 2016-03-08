@@ -37,6 +37,9 @@ const char *szTokens[] = {
 		"THROWUP",
 		"SHOOT",
 		"LOWER",
+		"TAILDOWN",
+		"TAILUP",
+		"REDSENSE",
 		//DRIVETRAIN
 		"STARTDRIVEFWD",	//!<(drive speed)
 		"STARTDRIVEBCK",	//!<(drive speed)
@@ -255,6 +258,39 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		else
 		{
 			rStatus.append("lowering");
+		}
+		break;
+
+	case AUTO_TOKEN_TAILDOWN:
+		if(!TailDown())
+		{
+			rStatus.append("tail down error");
+		}
+		else
+		{
+			rStatus.append("lowering tail");
+		}
+		break;
+
+	case AUTO_TOKEN_TAILUP:
+		if(!TailUp())
+		{
+			rStatus.append("raise tail error");
+		}
+		else
+		{
+			rStatus.append("raising tail");
+		}
+		break;
+
+	case AUTO_TOKEN_REDSENSE:
+		if(!RedSense())
+		{
+			rStatus.append("sensing error");
+		}
+		else
+		{
+			rStatus.append("finding goal with red");
 		}
 		break;
 

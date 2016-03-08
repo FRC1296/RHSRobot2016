@@ -87,6 +87,8 @@ Drivetrain::Drivetrain() :
 
 	pCheezy = new CheezyLoop();
 
+	pRedSensor = new DigitalInput(DIO_DRIVETRAIN_RED_SENSOR);
+
 	pTask = new Task(DRIVETRAIN_TASKNAME, &Drivetrain::StartTask, this);
 	wpi_assert(pTask);
 
@@ -252,6 +254,11 @@ void Drivetrain::Run() {
 
 			pLeftOneMotor->ResetCurrentTimeout();
 			pRightOneMotor->ResetCurrentTimeout();
+		}else{
+			bRedSensing = false;
+		}
+		if(localMessage.params.cheezyDrive.bQuickturn){
+			bRedSensing = false;
 		}
 		RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
 				localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
@@ -310,7 +317,13 @@ void Drivetrain::Run() {
 	case COMMAND_AUTONOMOUS_SEARCH:
 		//Search();
 		break;
+	case COMMAND_DRIVETRAIN_REDSENSE:
+		bRedSensing = true;
+		break;
 	case COMMAND_SYSTEM_MSGTIMEOUT:
+
+		break;
+
 	default:
 		break;
 	}
@@ -319,6 +332,10 @@ void Drivetrain::Run() {
 	if(bTurning)
 	{
 		IterateTurn();
+	}
+
+	if(bRedSensing){
+		RedSense();
 	}
 }
 
@@ -597,6 +614,17 @@ void Drivetrain::ZeroGyro(){
 	pGyro->Zero();
 }
 
+void Drivetrain::RedSense(){
+	if(pRedSensor->Get()){
+		bRedSensing = false;
+		if(ISAUTO){
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+		}
+	}else{
+		RunCheezyDrive(true, 0.1, 0.0, true);
+	}
+
+}
 
 void Drivetrain::StraightDriveLoop(float speed) {
 	float adjustment = 0;

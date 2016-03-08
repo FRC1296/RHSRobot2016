@@ -73,6 +73,9 @@ private:
 	bool Throwup();
 	bool Shoot();
 	bool Lower();
+	bool TailDown();
+	bool TailUp();
+	bool RedSense();
 
 	bool CommandResponse(const char *szQueueName);
 	bool CommandNoResponse(const char *szQueueName);

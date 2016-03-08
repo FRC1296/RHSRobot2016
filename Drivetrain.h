@@ -91,6 +91,8 @@ private:
 	PIDController* pTurnPID;
 	PIDSearchOutput* pSearchPIDOutput;
 	PIDSearchOutput* pTurnPIDOutput;
+	DigitalInput* pRedSensor;
+
 	float fStraightDriveDistance = 0.0;
 
 	//Timer *pAutoTimer; //watches autonomous time and disables it if needed.IN COMPONENT BASE
@@ -107,6 +109,7 @@ private:
 	bool bTurning = false;
 	bool bUnderServoControl = false;
 	bool bMeasuredMove = false;
+	bool bRedSensing = false;
 
 	///how strong direction recovery is in straight drive, higher = stronger
 	const float recoverStrength = .03;
@@ -137,6 +140,7 @@ private:
 	void RunSplitArcade(float, float, float);
 	void RunCheezyDrive(bool, float, float, bool);
 	void Search();
+	void RedSense();
 
 	void StartStraightDrive(float, float, float);
 	void IterateStraightDrive(void);

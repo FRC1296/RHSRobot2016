@@ -9,8 +9,10 @@
 #include <iostream>
 #include <fstream>
 
+
 DriveTalon::DriveTalon(int canid) : CANTalon(canid){
 	cand = canid;
+	path += std::to_string(cand)+".txt";
 	pCurrentTimer = new Timer();
 	pTask = new Task("drive"+canid, &DriveTalon::StartTask, this);
 	wpi_assert(pTask);
@@ -27,12 +29,12 @@ void DriveTalon::Run(){
 		if(currentCurrent != 0){
 			if(lastCurrent == 0){
 				std::ofstream file;
-				file.open("/home/lvuser/drive"+cand);
+				file.open(path.c_str());
 				file << currentCurrent<< std::endl;
 				file.close();
 			}else{
 				std::ofstream file;
-				file.open("/home/lvuser/drive"+cand, std::ios::out | std::ios::app);
+				file.open(path.c_str(), std::ios::out | std::ios::app);
 				file << currentCurrent<< std::endl;
 				file.close();
 			}

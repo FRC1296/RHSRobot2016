@@ -305,6 +305,21 @@ bool Autonomous::Lower(){
 	return(CommandNoResponse(ARM_QUEUE));
 }
 
+bool Autonomous::TailDown(){
+	Message.command = COMMAND_TAIL_LOWER;
+	return(CommandNoResponse(TAIL_QUEUE));
+}
+
+bool Autonomous::TailUp(){
+	Message.command = COMMAND_TAIL_RAISE;
+	return(CommandNoResponse(TAIL_QUEUE));
+}
+
+bool Autonomous::RedSense(){
+	Message.command = COMMAND_DRIVETRAIN_REDSENSE;
+	return(CommandResponse(DRIVETRAIN_QUEUE));
+}
+
 bool Autonomous::Turn(char *pCurrLinePos) {
 	char *pToken;
 	float fAngle;

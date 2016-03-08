@@ -76,6 +76,7 @@ enum MessageCommand {
 	COMMAND_DRIVETRAIN_TURN,			//!< Tells Drivetrain to turn, used by Autonomous
 	COMMAND_DRIVETRAIN_DRIVE_SPLITARCADE,
 	COMMAND_DRIVETRAIN_DRIVE_CHEEZY,	//!< Tells Drivetrain to use Cheezy drive
+	COMMAND_DRIVETRAIN_REDSENSE,
 
 	COMMAND_ARM_FAR,
 	COMMAND_ARM_CLOSE,

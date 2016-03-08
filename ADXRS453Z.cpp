@@ -8,7 +8,7 @@
 
 ADXRS453Z::ADXRS453Z() {
 	spi = new SPI(SPI::kOnboardCS1);
-	spi->SetClockRate(2000000); //4 MHz (rRIO max, gyro can go high)
+	spi->SetClockRate(4000000); //4 MHz (rRIO max, gyro can go high)
 	spi->SetClockActiveHigh();
 	spi->SetChipSelectActiveLow();
 	spi->SetMSBFirst();

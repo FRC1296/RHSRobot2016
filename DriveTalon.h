@@ -9,6 +9,7 @@
 #define SRC_DRIVETALON_H_
 
 #include "WPILib.h"
+#include <string>
 
 class DriveTalon : public CANTalon{
 public:
@@ -31,6 +32,7 @@ private:
 	const float maxCurrentTime = 0.5;
 	int cand;
 	float lastCurrent=0;
+	std::string path = "/home/lvuser/driveCurrent";
 };
 
 #endif /* SRC_DRIVETALON_H_ */

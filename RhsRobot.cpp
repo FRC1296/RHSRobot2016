@@ -129,8 +129,9 @@ void RhsRobot::Run() {
 		 			drivetrain->ZeroGyro();
 		 		}
 
-		 		if(DRIVE_SEARCH){
-		 			robotMessage.command = COMMAND_AUTONOMOUS_SEARCH;
+		 		if(DRIVE_RED){
+		 			robotMessage.command = COMMAND_DRIVETRAIN_REDSENSE;
+		 			drivetrain->SendMessage(&robotMessage);
 		 		}
 	}
 
