@@ -21,7 +21,7 @@
 #include <DriveTalon.h>
 
 // constants used to tune TALONS
-const float FULLSPEED_FROMTALONS = 	2800.00;							// measured on the robot
+const float FULLSPEED_FROMTALONS = 	300.00;	//2800					// measured on the robot
 const float TALON_PTERM = 			0.15;
 const float TALON_ITERM = 			0.0;
 const float TALON_DTERM = 			0.0;
@@ -87,9 +87,9 @@ private:
 	//PixyCam *pCamera;
 	Timer *pAutoTimer;
 	CheezyLoop *pCheezy;
-	PIDController* pSearchPID;
+	//PIDController* pSearchPID;
 	PIDController* pTurnPID;
-	PIDSearchOutput* pSearchPIDOutput;
+	//PIDSearchOutput* pSearchPIDOutput;
 	PIDSearchOutput* pTurnPIDOutput;
 	DigitalInput* pRedSensor;
 

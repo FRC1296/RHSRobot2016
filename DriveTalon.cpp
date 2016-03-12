@@ -8,7 +8,7 @@
 #include <DriveTalon.h>
 #include <iostream>
 #include <fstream>
-
+#include <RobotParams.h>
 
 DriveTalon::DriveTalon(int canid) : CANTalon(canid){
 	cand = canid;
@@ -40,10 +40,11 @@ void DriveTalon::Run(){
 			}
 		}
 
-		if(currentCurrent>maxCurrent){
+		if((currentCurrent>maxCurrentTele && ISTELEOPERATED) || (currentCurrent>maxCurrentAuto && ISAUTO) ){
 			if(pCurrentTimer->Get() == 0){
 				pCurrentTimer->Start();
 			}else if(pCurrentTimer->Get() > maxCurrentTime){
+				printf("talon %d has been shutdown", cand);
 				this->Disable();
 				pCurrentTimer->Stop();
 				pCurrentTimer->Reset();

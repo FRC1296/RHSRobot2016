@@ -28,7 +28,8 @@ private:
 
 	Timer* pCurrentTimer;
 	Task* pTask;
-	const float maxCurrent = 60.0;
+	const float maxCurrentTele = 60.0;
+	const float maxCurrentAuto = 60.0;
 	const float maxCurrentTime = 0.5;
 	int cand;
 	float lastCurrent=0;

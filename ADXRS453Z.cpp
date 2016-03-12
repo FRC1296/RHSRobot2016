@@ -7,7 +7,7 @@
 #include <cstdarg>
 
 ADXRS453Z::ADXRS453Z() {
-	spi = new SPI(SPI::kOnboardCS1);
+	spi = new SPI(SPI::kOnboardCS0);
 	spi->SetClockRate(4000000); //4 MHz (rRIO max, gyro can go high)
 	spi->SetClockActiveHigh();
 	spi->SetChipSelectActiveLow();
@@ -105,7 +105,7 @@ void ADXRS453Z::SetAngle(float angle){
 	accumulated_angle = angle;
 }
 double ADXRS453Z::PIDGet() {
-	return -GetAngle()/60;
+	return GetAngle()/45;
 }
 
 float ADXRS453Z::Offset() {

@@ -92,15 +92,15 @@ Drivetrain::Drivetrain() :
 	pTask = new Task(DRIVETRAIN_TASKNAME, &Drivetrain::StartTask, this);
 	wpi_assert(pTask);
 
-	pSearchPIDOutput = new PIDSearchOutput(pLeftOneMotor,
-			pRightOneMotor, bUnderServoControl);
+	//pSearchPIDOutput = new PIDSearchOutput(pLeftOneMotor,
+	//		pRightOneMotor, bUnderServoControl);
 	pTurnPIDOutput = new PIDSearchOutput(pLeftOneMotor,
-			pRightOneMotor, bUnderServoControl);
-	wpi_assert(pSearchPIDOutput);
+			pRightOneMotor, false);
+	//wpi_assert(pSearchPIDOutput);
 	//pSearchPID = new PIDController(.075, 0.001, .025,pCamera, pSearchPIDOutput, .05f);
-	pTurnPID = new PIDController(.12, 0.0, .05, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
+	pTurnPID = new PIDController(1.5, 0.0, 1, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
 	//pSearchPID = new PIDController(.18,0,.7, pCamera, pSearchPIDOutput, .05f);
-	wpi_assert(pSearchPID);
+	//wpi_assert(pSearchPID);
 
 }
 
@@ -112,8 +112,8 @@ Drivetrain::~Drivetrain()			//Destructor
 	delete pLeftTwoMotor;
 	delete pRightTwoMotor;
 	delete pGyro;
-	delete pSearchPID;
-	delete pSearchPIDOutput;
+	//delete pSearchPID;
+	//delete pSearchPIDOutput;
 	delete pTurnPID;
 	delete pTurnPIDOutput;
 }
@@ -124,10 +124,11 @@ void Drivetrain::OnStateChange()			//Handles state changes
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
 				bUnderServoControl = true;
-				pLeftOneMotor->SetControlMode(CANTalon::kSpeed);
-		 		pRightOneMotor->SetControlMode(CANTalon::kSpeed);
+				pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
+				pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
 		 		pLeftOneMotor->Set(0.0);
 		 		pRightOneMotor->Set(0.0);
+		 		ZeroGyro();
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
@@ -358,7 +359,7 @@ void Drivetrain::StartStraightDrive(float speed, float time, float distance)
 	pAutoTimer->Reset();
 	pAutoTimer->Start();
 	//DO NOT RESET THE GYRO EVER. only zeroing.
-	pGyro->Zero();		//DO NOT RESET THE GYRO EVER. only zeroing.
+	//pGyro->Zero();		//DO NOT RESET THE GYRO EVER. only zeroing.
 	pLeftOneMotor->SetEncPosition(0);
 	while(pRightOneMotor->GetEncPosition()!=0){
 		pRightOneMotor->SetEncPosition(0);
@@ -388,13 +389,14 @@ void Drivetrain::IterateStraightDrive(void)
 		 			}
 		 			else
 		 			{
+		 				while(pLeftOneMotor->GetOutputVoltage()!=0){
+		 					RunCheezyDrive(true, 0.0, 0.0, false);
+		 				}
 		 				printf("reached limit travled %d , needed %d \n", pRightOneMotor->GetEncPosition(), (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)));
 		 				bDrivingStraight = false;
 		 				bMeasuredMove = false;
-		 				fNextLeft = 0.0;
-		 				fNextRight = 0.0;
-		 				pLeftOneMotor->Set(0);
-		 				pRightOneMotor->Set(0);
+
+
 		 				break;
 		 			}
 		 		}
@@ -403,10 +405,7 @@ void Drivetrain::IterateStraightDrive(void)
 		 			printf("not auto or timed out \n");
 		 			bDrivingStraight = false;
 		 			bMeasuredMove = false;
-		 			fNextLeft = 0.0;
-		 			fNextRight = 0.0;
-	 				pLeftOneMotor->Set(0);
-	 				pRightOneMotor->Set(0);
+		 			RunCheezyDrive(true, 0.0, 0.0, false);
 		 			break;
 		 		}
 	}
@@ -447,8 +446,8 @@ void Drivetrain::Search(){
 		return;
 	}
 
-	pSearchPID->SetSetpoint(0);
-	pSearchPID->Enable();
+	//pSearchPID->SetSetpoint(0);
+	//pSearchPID->Enable();
 
 	while(t->Get() < 1){
 		/*
@@ -483,7 +482,7 @@ void Drivetrain::Search(){
 	}
 
 	delete t;
-	pSearchPID->Disable();
+	//pSearchPID->Disable();
 
 	//float fCentroid = 0;
 	//bool bBlockFound=false;
@@ -513,71 +512,31 @@ void Drivetrain::StartTurn(float angle, float time)
 			pGyro->SetAngle(pGyro->GetAngle()+360);
 		}
 	}
+
 	fTurnAngle = angle;
-	pTurnPID->SetSetpoint(fTurnAngle/60.0);
 	//pGyro->Zero();
 	fTurnTime = time;
 	bDrivingStraight = false;
 	bTurning = true;
+	printf("setpoint %lf \n", fTurnAngle/45.0);
+	pTurnPID->SetSetpoint(fTurnAngle/45.0);
 	pTurnPID->Enable();
-	printf("setpoint %lf \n", fTurnAngle/60.0);
 
 }
 
 void Drivetrain::IterateTurn(void)
 {
-	float motorValue;
-	float degreesLeft;
-
 	if ((pAutoTimer->Get() < fTurnTime) && ISAUTO)
 	{
-		float gyroAngle = pGyro->GetAngle();
-
-		//if you don't disable this during non-auto, it will keep trying to turn during teleop. Not fun.
-		degreesLeft = fTurnAngle - gyroAngle;
-		printf("turnangle %f , gyro angle %f \n", fTurnAngle/60.0, gyroAngle);
-		SmartDashboard::PutNumber("Angle Error", degreesLeft);
-		printf("setpoint %lf , error %lf \n", fTurnAngle/60.0, pTurnPID->GetAvgError());
-		if ((degreesLeft < angleError) && (degreesLeft > -angleError)
-				&& pGyro->GetRate()<5 && pGyro->GetRate()>-5)
-		{
-			bTurning = false;
-			motorValue = 0.0;
-			pTurnPID->Disable();
-			pLeftOneMotor->Set(0);
-			pRightOneMotor->Set(0);
-			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
-		}
-		else
-		{
-			motorValue = degreesLeft * -turnAngleSpeedMultiplyer;
-			ABLIMIT(motorValue, turnSpeedLimit);
-		}
-
-
-
+		RunCheezyDrive(false, 0.0, 0.0, false);
 	}
 	else
 	{
 		bTurning = false;
-		motorValue = 0.0;
+		//RunCheezyDrive(true, 0.0, 0.0, false);
 		pTurnPID->Disable();
-		pLeftOneMotor->Set(0);
-		pRightOneMotor->Set(0);
 		SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 	}
-/*
-	if(bUnderServoControl)
-	{
-		pLeftOneMotor->Set(motorValue * FULLSPEED_FROMTALONS);
-		pRightOneMotor->Set(motorValue * FULLSPEED_FROMTALONS);
-	}
-	else
-	{
-		pLeftOneMotor->Set(motorValue);
-		pRightOneMotor->Set(motorValue);
-	}*/
-
 
 }
 
@@ -585,7 +544,7 @@ void Drivetrain::StraightDrive(float speed, float time) {
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 	pAutoTimer->Reset();
 	//DO NOT RESET THE GYRO EVER. only zeroing.
-	pGyro->Zero();
+	fTurnAngle = pGyro->GetAngle();
 
 	while ((pAutoTimer->Get() < time)
 			&& ISAUTO)
@@ -627,49 +586,9 @@ void Drivetrain::RedSense(){
 }
 
 void Drivetrain::StraightDriveLoop(float speed) {
-	float adjustment = 0;
+printf("off ang %f", pGyro->GetAngle()-fTurnAngle);
+	RunCheezyDrive(true, -(pGyro->GetAngle()-fTurnAngle)/45, speed, false);
 
-	adjustment = pGyro->GetAngle() * -recoverStrength;
-	//adjustment = (-pRightMotor->GetSpeed() - pLeftMotor->GetSpeed())/40;
-	SmartDashboard::PutNumber("Adjustment", adjustment);
-	//glorified arcade drive
-	if (speed > 0.0)
-	{
-		/* if headed in positive direction
-		 * +angle requires more power on the fNextRight to fix
-		 * -angle, fNextLeft
-		 */
-		fNextLeft = (-1.0 - adjustment) * speed;
-		fNextRight = (1.0 - adjustment) * speed;
-	}
-	else if (speed < 0.0)
-	{
-		/* if headed in negative direction
-		 * +angle requires more power on the fNextLeft to fix
-		 * -angle, fNextRight
-		 */
-		fNextLeft = (-1.0 + adjustment) * speed;
-		fNextRight = (1.0 + adjustment) * speed;
-	}
-	else
-	{
-		fNextLeft = 0.0;
-		fNextRight = 0.0;
-	}
-
-	ABLIMIT(fNextLeft, 1.0);
-	ABLIMIT(fNextRight, 1.0);
-
-	if(bUnderServoControl)
-	{
-		pLeftOneMotor->Set(fNextLeft * FULLSPEED_FROMTALONS);
-		pRightOneMotor->Set(fNextRight * FULLSPEED_FROMTALONS);
-	}
-	else
-	{
-		pLeftOneMotor->Set(fNextLeft);
-		pRightOneMotor->Set(fNextRight);
-	}
 }
 
 bool Drivetrain::GetGyroAngle()
