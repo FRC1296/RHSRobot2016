@@ -11,7 +11,6 @@
 Shooter::Shooter() : ComponentBase(SHOOTER_TASKNAME, SHOOTER_QUEUE, SHOOTER_PRIORITY){
 
 	shooters = new ShooterSolenoid(CAN_PCM);
-	jaw = new JawSolenoid(CAN_PCM);
 
 	pCompressor = new Compressor();
 	pCompressor->Start();
@@ -48,14 +47,10 @@ void Shooter::Shoot(){
 	int pos = Arm::GetEncTarget();
 	if(pos > bottomEncoderPos){
 
-		Wait(clawOpenDelay);
-		jaw->Open();
-		Wait(preShootDelay);
+		Wait(shootDelay);
 		shooters->Open();
-		Wait(postShootDelay);
+		Wait(clawDelay);
 		shooters->Close();
-		Wait(clawCloseDelay);
-		jaw->Close();
 		ClearMessages(); // this is so that the shoot command isnt send twice
 	}
 
