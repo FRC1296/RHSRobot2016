@@ -14,8 +14,8 @@
 
 //Robot Params
 const char* const ROBOT_NAME =		"RhsRobot2016";	//Formal name
-const char* const ROBOT_NICKNAME =  "Tiny";			//Nickname
-const char* const ROBOT_VERSION =	"0.1";			//Version
+const char* const ROBOT_NICKNAME =  "Mittens";		//Nickname
+const char* const ROBOT_VERSION =	"1.1";			//Version
 
 //Robot Mode Macros - used to tell what mode the robot is in
 #define ISAUTO			RobotBase::getInstance().IsAutonomous()
@@ -92,14 +92,10 @@ const int CAN_DRIVETRAIN_RIGHTONE_MOTOR = 3;
 const int CAN_DRIVETRAIN_RIGHTTWO_MOTOR = 4;
 
 const int CAN_ARM_INTAKE_MOTOR = 5;
-const int CAN_ARM_CENTER_MOTOR = 6;
+const int CAN_HANGER_MOTOR = 6;
 const int CAN_ARM_LEVER_MOTOR = 7;
-
 const int CAN_TAIL_MOTOR = 8;
 
-const int CAN_SPARE_MOTOR = 9;
-
-const int CAN_HANGER_MOTOR = 10;
 
 //Relay Channels - Assigns names to Relay ports 1-8 on the Roborio
 //EXAMPLE: const int RLY_COMPRESSOR = 1;
@@ -115,7 +111,10 @@ const int SOL_SHOOTER_1 = 0;
 const int SOL_SHOOTER_2 = 1;
 const int SOL_SHOOTER_3 = 2;
 const int SOL_SHOOTER_4 = 3;
-const int SOL_SHOOTER_CLAW = 4;
+const int SOL_JAWCLOSE_1 = 4;
+const int SOL_JAWCLOSE_2 = 5;
+const int SOL_JAWOPEN_1 = 6;
+const int SOL_JAWOPEN_2 = 7;
 
 //I2C - Assigns names to I2C ports 1-2 on the Roborio
 //EXAMPLE: const int IO2C_AUTO_ACCEL = 1;
