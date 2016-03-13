@@ -28,15 +28,12 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pArmLeverMotor->SetIzone(TALON_IZONE);
 	pArmLeverMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pArmLeverMotor->SetControlMode(CANTalon::kPercentVbus);
-
-	pArmCenterMotor = new CANTalon(CAN_ARM_CENTER_MOTOR);
-	pArmCenterMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
+	pArmLeverMotor->Disable();  //TKB till we fix the arm clearance
 
 	pArmIntakeMotor = new CANTalon(CAN_ARM_INTAKE_MOTOR);
 	pArmIntakeMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 
 	wpi_assert(pArmLeverMotor->IsAlive());
-	wpi_assert(pArmCenterMotor->IsAlive());
 	wpi_assert(pArmIntakeMotor->IsAlive());
 
 
@@ -50,7 +47,6 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 Arm::~Arm() {
 	delete pTask;
 	delete pArmLeverMotor;
-	delete pArmCenterMotor;
 	delete pArmIntakeMotor;
 	delete pArmPID;
 	delete pInstance;
@@ -63,7 +59,6 @@ void Arm::Run(){
 
 	printf("output error %f \n", pArmPID->GetAvgError());
 	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetEncPosition());
-	SmartDashboard::PutNumber("center current", pArmCenterMotor->GetOutputCurrent());
 
 	switch(localMessage.command) {
 	case COMMAND_ARM_FAR:
@@ -95,7 +90,6 @@ void Arm::Run(){
 
 	// For intake rollers
 	if(!bIsIntaking){
-		pArmCenterMotor->Set(0);
 		if(pArmPID->GetSetpoint() == farEncoderPos || pArmPID->GetSetpoint() == closeEncoderPos){
 			pArmIntakeMotor->Set(0);
 		}else{
@@ -108,10 +102,7 @@ void Arm::Run(){
 	}
 
 	// For shooting timing
-	if(pShootTimer->Get()>centerDelay){
-		pArmCenterMotor->Set(0);
-	}
-	if(pShootTimer->Get()>shootDelay+clawDelay){
+	if(pShootTimer->Get()>shootDelay){
 		//claw->Set(false);
 		pShootTimer->Stop();
 		pShootTimer->Reset();
@@ -135,7 +126,6 @@ void Arm::Far(){
 
 void Arm::IntakeShoot(){
 	//claw->Set(true);
-	pArmCenterMotor->Set(fIntakeOutSpeed);
 	pShootTimer->Start();
 }
 int Arm::GetPulseWidthPosition(){
@@ -149,7 +139,6 @@ int Arm::GetEncTarget(){
 void Arm::Intake(bool direction){
 	if(direction){ // intaking
 		pArmIntakeMotor->Set(fIntakeInSpeed);
-		pArmCenterMotor->Set(fCenterSpeed);
 
 		pArmPID->SetSetpoint(intakeEncoderPos);
 	}else{ // throwing up
@@ -160,14 +149,7 @@ void Arm::Intake(bool direction){
 
 void Arm::AutoIntake(){
 	Intake(true);
-	Timer* timeout = new Timer();
-	timeout->Start();
-	while(pArmCenterMotor->GetOutputCurrent()<fMaxCenterCurrent && timeout->Get()<fAutoIntakeTimeout){
-		Wait(.0005);
-	}
-	delete timeout;
 	pArmIntakeMotor->Set(0);
-	pArmCenterMotor->Set(0);
 	pArmPID->SetSetpoint(bottomEncoderPos);
 	SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 }

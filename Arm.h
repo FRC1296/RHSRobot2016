@@ -15,10 +15,7 @@ const int closeEncoderPos = 0;
 const int farEncoderPos = 0; //1166
 const int bottomEncoderPos = -2600;
 const int intakeEncoderPos = -3400; // -2670
-const float shootDelay = 2.0f;
-const float clawDelay = .3f;
-const float centerDelay = .2f;
-
+const float shootDelay = 3.0f;  // how long t0 wait before lowering arm
 
 class Arm : public ComponentBase
 {
@@ -37,7 +34,6 @@ public:
 
 private:
 	CanArmTalon* pArmLeverMotor;
-	CANTalon* pArmCenterMotor;
 	CANTalon* pArmIntakeMotor;
 	PIDController* pArmPID;
 	static Arm* pInstance;
@@ -48,10 +44,7 @@ private:
 
 	const float fIntakeInSpeed 		= 0.4f;
 	const float fIntakeOutSpeed 	= -1.0f;
-	const float fCenterSpeed 		= -0.6f;
-	const float fMaxCenterCurrent 	= 100.0f;
 	const float fIntakeIdleSpeed 	= 0.25f;
-	const float fCenterOutSpeed 	= 0.1f;
 
 	const float fAutoIntakeTimeout 	= 5.0f;
 	const float fAutoThrowupTime	= 0.5f;
