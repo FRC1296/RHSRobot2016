@@ -49,16 +49,19 @@ void Shooter::Shoot(){
 	if(pos > bottomEncoderPos){
 
 		Wait(clawOpenDelay);
+		printf("jaw open\n");
 		jaw->Open();
 		Wait(preShootDelay);
+		printf("shooter open\n");
 		shooters->Open();
 		Wait(postShootDelay);
+		printf("shooter close\n");
 		shooters->Close();
 		Wait(clawCloseDelay);
+		printf("jaw close\n");
 		jaw->Close();
-		ClearMessages(); // this is so that the shoot command isnt send twice
+		ClearMessages(); // this is so that the shoot command is not send twice
 	}
-
 }
 
 void Shooter::OnStateChange(){

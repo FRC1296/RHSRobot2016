@@ -84,8 +84,8 @@ Add more as needed.
  \endverbatim
  */
 
-const int CAN_PCM = 10;
-const int CAN_PDB = 0;
+const int CAN_PCM = 0;
+const int CAN_PDB = 19;
 const int CAN_DRIVETRAIN_LEFTONE_MOTOR = 1;
 const int CAN_DRIVETRAIN_LEFTTWO_MOTOR = 2;
 const int CAN_DRIVETRAIN_RIGHTONE_MOTOR = 3;

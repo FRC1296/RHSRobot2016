@@ -21,8 +21,8 @@ public:
 private:
 	const uint8_t uMask = (0x1 << SOL_JAWCLOSE_1) | (0x1 << SOL_JAWCLOSE_2) |
 		(0x1 << SOL_JAWOPEN_1) | (0x1 << SOL_JAWOPEN_2);
-	const uint8_t uCloseValue = 0x30;
-	const uint8_t uOpenValue = 0xC0;
+	const uint8_t uCloseValue = (0x1 << SOL_JAWCLOSE_1) | (0x1 << SOL_JAWCLOSE_2);
+	const uint8_t uOpenValue = (0x1 << SOL_JAWOPEN_1) | (0x1 << SOL_JAWOPEN_2);
 };
 
 #endif /* SRC_JAWSOLENOID_H_ */

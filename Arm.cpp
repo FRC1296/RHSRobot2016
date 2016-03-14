@@ -22,20 +22,17 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pArmLeverMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
 	pArmPID = new PIDController(.0015,0,0,pArmLeverMotor, pArmLeverMotor, .05);
 
-	//claw = new Solenoid(SOL_SHOOTER_CLAW);
-
 	pArmLeverMotor->SetInverted(true);
 	pArmLeverMotor->SetIzone(TALON_IZONE);
 	pArmLeverMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pArmLeverMotor->SetControlMode(CANTalon::kPercentVbus);
-	pArmLeverMotor->Disable();  //TKB till we fix the arm clearance
+	pArmLeverMotor->Disable();
 
 	pArmIntakeMotor = new CANTalon(CAN_ARM_INTAKE_MOTOR);
 	pArmIntakeMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 
 	wpi_assert(pArmLeverMotor->IsAlive());
 	wpi_assert(pArmIntakeMotor->IsAlive());
-
 
 	pTask = new Task(ARM_TASKNAME, &Arm::StartTask, this);
 	wpi_assert(pTask);
@@ -57,7 +54,7 @@ Arm::~Arm() {
 void Arm::Run(){
 	bIsIntaking = false;
 
-	printf("output error %f \n", pArmPID->GetAvgError());
+	//printf("output error %f \n", pArmPID->GetAvgError());
 	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetEncPosition());
 
 	switch(localMessage.command) {

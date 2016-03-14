@@ -45,10 +45,10 @@ void RhsRobot::Init() {
 	Controller_1 = new Joystick(0);
 	drivetrain = new Drivetrain();
 	autonomous = new Autonomous();
-	//arm = new Arm();
+	arm = new Arm();
 	tail = new Tail();
-	//shooter = new Shooter();
-	//hanger = new Hanger();
+	shooter = new Shooter();
+	hanger = new Hanger();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
@@ -76,6 +76,7 @@ void RhsRobot::Init() {
 	{
 		nextComponent = ComponentSet.insert(nextComponent, shooter);
 	}
+
 	if(hanger)
 	{
 		nextComponent = ComponentSet.insert(nextComponent, hanger);

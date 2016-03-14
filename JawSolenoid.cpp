@@ -15,9 +15,9 @@ JawSolenoid::~JawSolenoid() {
 }
 
 void JawSolenoid::Close(){
-	this->Set(uCloseValue, uMask, 0);
+	Set(uCloseValue, uMask, 0);
 }
 
 void JawSolenoid::Open(){
-	this->Set(uOpenValue, uMask, 0);
+	Set(uOpenValue, uMask, 0);
 }

@@ -20,10 +20,12 @@ void ShooterSolenoid::Close(){
 }
 
 void ShooterSolenoid::Open(){
-if(Arm::GetEncTarget() == farEncoderPos){
-	this->Set(shootValue, farMask, 0);
-}else if(Arm::GetEncTarget() == closeEncoderPos){
-	this->Set(shootValue, closeMask, 0);
-}
-
+	if(Arm::GetEncTarget() == farEncoderPos){
+		Set(shootValue, farMask, 0);
+	}else if(Arm::GetEncTarget() == closeEncoderPos){
+		Set(shootValue, closeMask, 0);
+	}else
+	{
+		// error
+	}
 }
