@@ -87,7 +87,7 @@ Drivetrain::Drivetrain() :
 
 	pCheezy = new CheezyLoop();
 
-	pRedSensor = new DigitalInput(DIO_DRIVETRAIN_RED_SENSOR);
+	pLaserReturn = new DigitalInput(DIO_DRIVETRAIN_RED_SENSOR);
 
 	pTask = new Task(DRIVETRAIN_TASKNAME, &Drivetrain::StartTask, this);
 	wpi_assert(pTask);
@@ -574,7 +574,7 @@ void Drivetrain::ZeroGyro(){
 }
 
 void Drivetrain::RedSense(){
-	if(pRedSensor->Get()){
+	if(pLaserReturn->Get()){
 		bRedSensing = false;
 		if(ISAUTO){
 			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);

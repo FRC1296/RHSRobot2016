@@ -43,6 +43,9 @@ private:
 	Timer* pShootTimer;
 	//Solenoid* claw;
 	Relay* pLED;
+	Relay* pSpare1;
+	Relay* pSpare2;
+	Relay* pSpare3;
 
 	const float fIntakeInSpeed 		= -1.0f;
 	const float fIntakeOutSpeed 	= 1.0f;

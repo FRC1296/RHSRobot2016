@@ -15,7 +15,10 @@ Arm* Arm::pInstance;
 Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pShootTimer = new Timer();
 
-	 pLED = new Relay(1,Relay::kBothDirections);
+	pLED = new Relay(0,Relay::kBothDirections);
+	pSpare1 = new Relay(1,Relay::kBothDirections);
+	pSpare2 = new Relay(2,Relay::kBothDirections);
+	pSpare3 = new Relay(3,Relay::kBothDirections);
 
 	pArmLeverMotor = new CanArmTalon(CAN_ARM_LEVER_MOTOR);
 	pArmLeverMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
@@ -26,7 +29,6 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pArmLeverMotor->SetIzone(TALON_IZONE);
 	pArmLeverMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pArmLeverMotor->SetControlMode(CANTalon::kPercentVbus);
-	//pArmLeverMotor->Disable();
 
 	pArmIntakeMotor = new CANTalon(CAN_ARM_INTAKE_MOTOR);
 	pArmIntakeMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
@@ -91,18 +93,47 @@ void Arm::Run(){
 		}
 */
 		break;
+
 	case COMMAND_AUTONOMOUS_INTAKE:
 		AutoIntake();
 		break;
+
 	case COMMAND_AUTONOMOUS_THROWUP:
 		Throwup();
 		break;
+
 	case COMMAND_AUTONOMOUS_SHOOT:
 		AutoPos();
 		break;
+
 	case COMMAND_ARM_SHOOT:
 		IntakeShoot();
 		break;
+
+	case COMMAND_ARM_LEDOFF:
+		pLED->Set(Relay::kOff);
+		pSpare1->Set(Relay::kOff);
+		pSpare2->Set(Relay::kOff);
+		pSpare3->Set(Relay::kOff);
+		printf("LED off\n");
+		break;
+
+	case COMMAND_ARM_LEDWHITE:
+		pLED->Set(Relay::kForward);
+		pSpare1->Set(Relay::kForward);
+		pSpare2->Set(Relay::kForward);
+		pSpare3->Set(Relay::kForward);
+		printf("LED white\n");
+		break;
+
+	case COMMAND_ARM_LEDCOLOR:
+		pLED->Set(Relay::kReverse);
+		pSpare1->Set(Relay::kReverse);
+		pSpare2->Set(Relay::kReverse);
+		pSpare3->Set(Relay::kReverse);
+		printf("LED color\n");
+		break;
+
 	default:
 		bIntakePressedLastFrame = false;
 		break;

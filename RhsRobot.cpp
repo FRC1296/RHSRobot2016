@@ -170,8 +170,21 @@ void RhsRobot::Run() {
 			arm->SendMessage(&robotMessage);
 		}
 
-
-
+		if((iLoop % 256) == 0)
+		{
+				robotMessage.command = COMMAND_ARM_LEDWHITE;
+				arm->SendMessage(&robotMessage);
+		}
+		else if((iLoop % 256) == 64)
+		{
+				robotMessage.command = COMMAND_ARM_LEDCOLOR;
+				arm->SendMessage(&robotMessage);
+		}
+		else if((iLoop % 256) == 128)
+		{
+				robotMessage.command = COMMAND_ARM_LEDOFF;
+				arm->SendMessage(&robotMessage);
+		}
 	}
 
 	if(tail){

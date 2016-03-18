@@ -91,7 +91,7 @@ private:
 	PIDController* pTurnPID;
 	//PIDSearchOutput* pSearchPIDOutput;
 	PIDSearchOutput* pTurnPIDOutput;
-	DigitalInput* pRedSensor;
+	DigitalInput* pLaserReturn;
 
 	float fStraightDriveDistance = 0.0;
 
