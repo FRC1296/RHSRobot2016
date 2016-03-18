@@ -18,7 +18,7 @@ void CanArmTalon::PIDWrite(float p){ // -1, 1
 	//double additive = cos((this->GetEncPosition()+zeroRadian)*countsToRadians)*maxAdditive;
 	//double power = p+additive;
 	double power = p;
-	ABLIMIT(power,0.4);
+	ABLIMIT(power,0.6);
 	this->Set(power);
 }
 

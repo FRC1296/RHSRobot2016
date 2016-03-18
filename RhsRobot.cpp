@@ -44,7 +44,7 @@ void RhsRobot::Init() {
 	 */
 	Controller_1 = new Joystick(0);
 	drivetrain = new Drivetrain();
-	autonomous = new Autonomous();
+	//autonomous = new Autonomous();
 	arm = new Arm();
 	tail = new Tail();
 	shooter = new Shooter();
@@ -144,13 +144,20 @@ void RhsRobot::Run() {
 				robotMessage.command = COMMAND_TAIL_LOWER;
 				tail->SendMessage(&robotMessage);
 			}
-		}else if(ARM_CLOSE){
+			/*}else if(ARM_CLOSE){
 			robotMessage.command = COMMAND_ARM_CLOSE;
 			arm->SendMessage(&robotMessage);
 			if(tail){
 				robotMessage.command = COMMAND_TAIL_LOWER;
 				tail->SendMessage(&robotMessage);
-			}
+			}*/
+		}
+	else if(ARM_MOVE_INTAKE){
+			robotMessage.command = COMMAND_ARM_MOVE_INTAKE;
+			arm->SendMessage(&robotMessage);
+		}else if(ARM_MOVE_RIDE){
+			robotMessage.command = COMMAND_ARM_MOVE_RIDE;
+			arm->SendMessage(&robotMessage);
 		}
 
 		if(ARM_INTAKE_IN){

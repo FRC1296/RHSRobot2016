@@ -20,13 +20,13 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pArmLeverMotor = new CanArmTalon(CAN_ARM_LEVER_MOTOR);
 	pArmLeverMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 	pArmLeverMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
-	pArmPID = new PIDController(.0015,0,0,pArmLeverMotor, pArmLeverMotor, .05);
+	pArmPID = new PIDController(.0010,0,0,pArmLeverMotor, pArmLeverMotor, .05);
 
 	pArmLeverMotor->SetInverted(true);
 	pArmLeverMotor->SetIzone(TALON_IZONE);
 	pArmLeverMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pArmLeverMotor->SetControlMode(CANTalon::kPercentVbus);
-	pArmLeverMotor->Disable();
+	//pArmLeverMotor->Disable();
 
 	pArmIntakeMotor = new CANTalon(CAN_ARM_INTAKE_MOTOR);
 	pArmIntakeMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
@@ -52,21 +52,44 @@ Arm::~Arm() {
 }
 
 void Arm::Run(){
-	bIsIntaking = false;
 
 	//printf("output error %f \n", pArmPID->GetAvgError());
 	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetEncPosition());
 
+	if(localMessage.command != COMMAND_AUTONOMOUS_INTAKE){
+
+	}
+
+	//bIsIntaking = false;
 	switch(localMessage.command) {
 	case COMMAND_ARM_FAR:
 		Far();
 		break;
+	case COMMAND_ARM_MOVE_INTAKE:
+		pArmPID->SetSetpoint(intakeEncoderPos);
+	break;
+	case COMMAND_ARM_MOVE_RIDE:
+		pArmPID->SetSetpoint(bottomEncoderPos);
+	break;
 	case COMMAND_ARM_CLOSE:
 		Close();
 		break;
 	case COMMAND_ARM_INTAKE:
-		bIsIntaking = true;
+		//bIsIntaking = true;
 		Intake(localMessage.params.armParams.direction);
+
+		if(!bIntakePressedLastFrame){
+			bIsIntaking = !bIsIntaking;
+			bIntakePressedLastFrame = true;
+			//Intake(localMessage.params.armParams.direction);
+		}
+		/*
+		if(!localMessage.params.armParams.direction){
+			//Intake(localMessage.params.armParams.direction);
+			bIsIntaking = false;
+			bIntakePressedLastFrame = false;
+		}
+*/
 		break;
 	case COMMAND_AUTONOMOUS_INTAKE:
 		AutoIntake();
@@ -81,8 +104,10 @@ void Arm::Run(){
 		IntakeShoot();
 		break;
 	default:
+		bIntakePressedLastFrame = false;
 		break;
 	}
+
 
 
 	// For intake rollers
@@ -92,7 +117,8 @@ void Arm::Run(){
 		}else{
 			pArmIntakeMotor->Set(fIntakeIdleSpeed);
 		}
-		if(pArmPID->GetSetpoint() == intakeEncoderPos){
+
+		if(pArmPID->GetSetpoint() == intakeEncoderPos && !bIntakePressedLastFrame){
 			pArmPID->SetSetpoint(bottomEncoderPos);
 		}
 
@@ -103,6 +129,7 @@ void Arm::Run(){
 		//claw->Set(false);
 		pShootTimer->Stop();
 		pShootTimer->Reset();
+		pArmPID->SetSetpoint(afterShootEncoderPos);
 	}
 
 	if(pArmPID->GetSetpoint()==farEncoderPos){
@@ -135,9 +162,12 @@ int Arm::GetEncTarget(){
 
 void Arm::Intake(bool direction){
 	if(direction){ // intaking
+		if(pArmPID->GetSetpoint()<=bottomEncoderPos){
+			pArmPID->SetSetpoint(intakeEncoderPos);
+		}
 		pArmIntakeMotor->Set(fIntakeInSpeed);
 
-		pArmPID->SetSetpoint(intakeEncoderPos);
+		//pArmPID->SetSetpoint(intakeEncoderPos);
 	}else{ // throwing up
 		pArmIntakeMotor->Set(fIntakeOutSpeed);
 	}

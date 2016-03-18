@@ -11,10 +11,11 @@
 #include <ComponentBase.h>
 #include <CanArmTalon.h>
 
-const int closeEncoderPos = 0;
-const int farEncoderPos = 0; //1166
-const int bottomEncoderPos = -2600;
-const int intakeEncoderPos = -3400; // -2670
+const int closeEncoderPos = -743;
+const int farEncoderPos = -743; //1166
+const int bottomEncoderPos = -2700;
+const int intakeEncoderPos = -3000; // -2670
+const int afterShootEncoderPos = -1870;
 const float shootDelay = 3.0f;  // how long t0 wait before lowering arm
 
 class Arm : public ComponentBase
@@ -38,13 +39,14 @@ private:
 	PIDController* pArmPID;
 	static Arm* pInstance;
 	bool bIsIntaking = false;
+	bool bIntakePressedLastFrame = false;
 	Timer* pShootTimer;
 	//Solenoid* claw;
 	Relay* pLED;
 
-	const float fIntakeInSpeed 		= 0.4f;
-	const float fIntakeOutSpeed 	= -1.0f;
-	const float fIntakeIdleSpeed 	= 0.25f;
+	const float fIntakeInSpeed 		= -1.0f;
+	const float fIntakeOutSpeed 	= 1.0f;
+	const float fIntakeIdleSpeed 	= 0.0f;
 
 	const float fAutoIntakeTimeout 	= 5.0f;
 	const float fAutoThrowupTime	= 0.5f;
