@@ -13,9 +13,9 @@
 #include "ShooterSolenoid.h"
 #include "JawSolenoid.h"
 
-const float clawOpenDelay = 0.5;
-const float preShootDelay = 1.0;
-const float postShootDelay = 1.0;
+const float clawOpenDelay = 0.0;
+const float preShootDelay = 1.5;
+const float postShootDelay = 0.5;
 const float clawCloseDelay = 0.5;
 
 class Shooter : public ComponentBase{

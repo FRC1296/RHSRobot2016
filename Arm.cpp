@@ -15,10 +15,7 @@ Arm* Arm::pInstance;
 Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 	pShootTimer = new Timer();
 
-	pLED = new Relay(0,Relay::kBothDirections);
-	pSpare1 = new Relay(1,Relay::kBothDirections);
-	pSpare2 = new Relay(2,Relay::kBothDirections);
-	pSpare3 = new Relay(3,Relay::kBothDirections);
+	pLED = new Relay(1,Relay::kBothDirections);
 
 	pArmLeverMotor = new CanArmTalon(CAN_ARM_LEVER_MOTOR);
 	pArmLeverMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
@@ -112,25 +109,16 @@ void Arm::Run(){
 
 	case COMMAND_ARM_LEDOFF:
 		pLED->Set(Relay::kOff);
-		pSpare1->Set(Relay::kOff);
-		pSpare2->Set(Relay::kOff);
-		pSpare3->Set(Relay::kOff);
 		printf("LED off\n");
 		break;
 
 	case COMMAND_ARM_LEDWHITE:
 		pLED->Set(Relay::kForward);
-		pSpare1->Set(Relay::kForward);
-		pSpare2->Set(Relay::kForward);
-		pSpare3->Set(Relay::kForward);
 		printf("LED white\n");
 		break;
 
 	case COMMAND_ARM_LEDCOLOR:
 		pLED->Set(Relay::kReverse);
-		pSpare1->Set(Relay::kReverse);
-		pSpare2->Set(Relay::kReverse);
-		pSpare3->Set(Relay::kReverse);
 		printf("LED color\n");
 		break;
 

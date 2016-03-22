@@ -45,7 +45,7 @@ Drivetrain::Drivetrain() :
 	pLeftOneMotor->ConfigEncoderCodesPerRev(TALON_COUNTSPERREV);
 	pLeftOneMotor->SelectProfileSlot(0);
 	//pLeftMotor->SetPID(TALON_PTERM, TALON_ITERM, TALON_DTERM, TALON_FTERM);		// PIDF
-	pLeftOneMotor->SetPID(.25, TALON_ITERM, .8, .3);
+	pLeftOneMotor->SetPID(.35, TALON_ITERM, .0, .3);
 	pLeftOneMotor->SetIzone(TALON_IZONE);
 	pLeftOneMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pLeftOneMotor->SetInverted(false);
@@ -61,7 +61,7 @@ Drivetrain::Drivetrain() :
 	pRightOneMotor->ConfigEncoderCodesPerRev(TALON_COUNTSPERREV);
 	pRightOneMotor->SelectProfileSlot(0);
 	//pRightMotor->SetPID(TALON_PTERM, TALON_ITERM, TALON_DTERM, TALON_FTERM);
-	pRightOneMotor->SetPID(.25, TALON_ITERM, .8, .3);// PIDF
+	pRightOneMotor->SetPID(.35, TALON_ITERM, .0, .3);// PIDF
 	pRightOneMotor->SetIzone(TALON_IZONE);
 	pRightOneMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
 	pRightOneMotor->SetInverted(false);
@@ -181,6 +181,8 @@ void Drivetrain::Run() {
  	SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
 	SmartDashboard::PutNumber("Gyro", pGyro->GetAngle());
 
+	SmartDashboard::PutBoolean("Red Sensor", pLaserReturn->Get());
+
 	float avgAmp = 0;
 	avgAmp+=pLeftOneMotor->GetOutputCurrent();
 	avgAmp+=pLeftTwoMotor->GetOutputCurrent();
@@ -261,9 +263,10 @@ void Drivetrain::Run() {
 		if(localMessage.params.cheezyDrive.bQuickturn){
 			bRedSensing = false;
 		}
+		if(!bRedSensing){
 		RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
 				localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
-
+		}
 		break;
 	case COMMAND_DRIVETRAIN_MSTRAIGHT:
  		bMeasuredMove = true;
@@ -319,6 +322,8 @@ void Drivetrain::Run() {
 		//Search();
 		break;
 	case COMMAND_DRIVETRAIN_REDSENSE:
+		pAutoTimer->Reset();
+		pAutoTimer->Start();
 		bRedSensing = true;
 		break;
 	case COMMAND_SYSTEM_MSGTIMEOUT:
@@ -376,11 +381,15 @@ void Drivetrain::IterateStraightDrive(void)
 {
 	if(bMeasuredMove)
 	{
+		pLeftOneMotor->SetControlMode(CANTalon::kSpeed);
+		pRightOneMotor->SetControlMode(CANTalon::kSpeed);
 		while(true){
 				if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
 		 		{
 		 			SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
 		 			SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
+		 			SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
+		 			SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
 
 		 			if(pRightOneMotor->GetEncPosition() < (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT))
 		 					&& pRightOneMotor->GetEncPosition() > -(int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)))
@@ -409,6 +418,8 @@ void Drivetrain::IterateStraightDrive(void)
 		 			break;
 		 		}
 	}
+		pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
+		pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
 		SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 	}
 	else
@@ -574,20 +585,37 @@ void Drivetrain::ZeroGyro(){
 }
 
 void Drivetrain::RedSense(){
-	if(pLaserReturn->Get()){
+	if(!pLaserReturn->Get()){
 		bRedSensing = false;
+		pLeftOneMotor->Set(0);
+		pRightOneMotor->Set(0);
+		RunCheezyDrive(false, 0.0, 0.0, false);
 		if(ISAUTO){
 			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 		}
 	}else{
-		RunCheezyDrive(true, 0.1, 0.0, true);
+		int time = pAutoTimer->Get()*2;
+		if(time%2==0){
+			pLeftOneMotor->Set(0.0);
+			pRightOneMotor->Set(.3f);
+		}else{
+			pLeftOneMotor->Set(0.22f);
+			pRightOneMotor->Set(0.0);
+		}
+
+		RunCheezyDrive(false, 0.0, 0.0, false);
 	}
 
 }
 
 void Drivetrain::StraightDriveLoop(float speed) {
 printf("off ang %f", pGyro->GetAngle()-fTurnAngle);
-	RunCheezyDrive(true, -(pGyro->GetAngle()-fTurnAngle)/45, speed, false);
+//+(pGyro->GetAngle()-fTurnAngle)
+pLeftOneMotor->Set(-speed * FULLSPEED_FROMTALONS);
+pRightOneMotor->Set(speed * FULLSPEED_FROMTALONS);
+
+
+	//RunCheezyDrive(true, -(pGyro->GetAngle()-fTurnAngle)/45, speed, false);
 
 }
 
@@ -698,7 +726,7 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     struct DrivetrainOutput Output;
     struct DrivetrainStatus Status;
 
-    Goal.steering = -fWheel;   // not sure why
+    Goal.steering = (bQuickturn?-pow(fWheel,3):-fWheel);   // not sure why
     Goal.throttle = fThrottle;
     Goal.quickturn = bQuickturn;
     Goal.control_loop_driving = false;
