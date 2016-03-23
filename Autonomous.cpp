@@ -300,8 +300,7 @@ bool Autonomous::Shoot(){
 }
 
 bool Autonomous::Lower(){
-	Message.command = COMMAND_ARM_INTAKE;
-	Message.params.armParams.direction = true;
+	Message.command = COMMAND_ARM_MOVE_RIDE;
 	return(CommandNoResponse(ARM_QUEUE));
 }
 

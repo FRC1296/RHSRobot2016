@@ -11,8 +11,8 @@
 #include <ComponentBase.h>
 #include <CanArmTalon.h>
 
-const int closeEncoderPos = -325;
-const int farEncoderPos = -325; //1166
+const int closeEncoderPos = -1296;  // - -325
+const int farEncoderPos = -1296; // -325
 const int bottomEncoderPos = -2650;
 const int intakeEncoderPos = -2900; // -2670
 const int afterShootEncoderPos = -1870;

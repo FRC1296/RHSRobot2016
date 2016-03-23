@@ -113,27 +113,29 @@ void RhsRobot::Run() {
 
 	if (drivetrain)
 	{
-		//robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
-		//	robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
-		//	robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
-		//drivetrain->SendMessage(&robotMessage);
-
+#if 0
+		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_TANK;
+		//robotMessage.params.tankDrive.left = TANK_DRIVE_LEFT;
+		//robotMessage.params.tankDrive.right = TANK_DRIVE_RIGHT;
+		robotMessage.params.tankDrive.left = 0.75;
+		robotMessage.params.tankDrive.right = 0.75;
+		drivetrain->SendMessage(&robotMessage);
+#endif
 		robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
 		 			robotMessage.params.cheezyDrive.wheel = CHEEZY_DRIVE_WHEEL;
 		 			robotMessage.params.cheezyDrive.throttle = CHEEZY_DRIVE_THROTTLE;
 		 			robotMessage.params.cheezyDrive.bQuickturn = CHEEZY_DRIVE_QUICKTURN;
+		drivetrain->SendMessage(&robotMessage);
 
-		 			// TODO:  what button engages quick turn mode?
-		 		drivetrain->SendMessage(&robotMessage);
+		if(DRIVE_ZERO_GYRO){
+			drivetrain->ZeroGyro();
+		}
 
-		 		if(DRIVE_ZERO_GYRO){
-		 			drivetrain->ZeroGyro();
-		 		}
+		if(DRIVE_RED){
+			robotMessage.command = COMMAND_DRIVETRAIN_REDSENSE;
+			drivetrain->SendMessage(&robotMessage);
+		}
 
-		 		if(DRIVE_RED){
-		 			robotMessage.command = COMMAND_DRIVETRAIN_REDSENSE;
-		 			drivetrain->SendMessage(&robotMessage);
-		 		}
 	}
 
 	if(arm){

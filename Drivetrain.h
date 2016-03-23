@@ -21,14 +21,22 @@
 #include <DriveTalon.h>
 
 // constants used to tune TALONS
-const float FULLSPEED_FROMTALONS = 	300.00;	//2800					// measured on the robot
-const float TALON_PTERM = 			0.15;
-const float TALON_ITERM = 			0.0;
-const float TALON_DTERM = 			0.0;
-const float TALON_FTERM = 			(1023.0/FULLSPEED_FROMTALONS);		// full scale divided by measured max speed
-const float TALON_MAXRAMP =			60;									// 200ms
+
+// measured 546 left and 534 right on the ground,
+// 641 left and 562 right on blocks on 21 March 2016
+
+const float FULLSPEED_FROMTALONS = 	500.00;	// measured on the robot in RPMs
+const float TALON_FTERM_L = 		0.21;	// From CTRE manual, section 12.4
+const float TALON_PTERM_L = 		(TALON_FTERM_L / 5.0);
+const float TALON_ITERM_L = 		(TALON_PTERM_L / 10.0);
+const float TALON_DTERM_L = 		(TALON_PTERM_L / 5.0);
+const float TALON_FTERM_R = 		0.24;	// From CTRE manual, section 12.4
+const float TALON_PTERM_R = 		(TALON_FTERM_R / 5.0);
+const float TALON_ITERM_R = 		(TALON_PTERM_R / 10.0);
+const float TALON_DTERM_R = 		(TALON_PTERM_R / 5.0);
+const float TALON_MAXRAMP =			60;		// 200ms
 const float TALON_IZONE	=			128;
-const float TALON_COUNTSPERREV =	1024;								// from CTRE docs
+const float TALON_COUNTSPERREV =	1024;	// from CTRE docs
 const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);
 const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / (double)TALON_COUNTSPERREV);
 
@@ -91,6 +99,7 @@ private:
 	PIDController* pTurnPID;
 	//PIDSearchOutput* pSearchPIDOutput;
 	PIDSearchOutput* pTurnPIDOutput;
+	PIDSearchOutput* pSearchPIDOutput;
 	DigitalInput* pLaserReturn;
 
 	float fStraightDriveDistance = 0.0;
@@ -130,7 +139,8 @@ private:
 	const float fSearchMotorSpeed = .055f;
 	const float fSearchTimeout = 10; //in seconds
 
-	float fMaxVel = 0;
+	float fMaxVelLeft;
+	float fMaxVelRight;
 	//diameter*pi/encoder_resolution : 1.875 * 3.14 / 256
 
 	void OnStateChange();

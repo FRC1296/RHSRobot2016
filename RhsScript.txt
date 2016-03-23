@@ -1,16 +1,15 @@
-# sample commands
-#MODE <block number>
-#DEBUG <debug level>
-#MESSAGE message text to end of line
-#BEGIN
-#END
-#DELAY <seconds>
-#MOVE <left speed> <right speed>
-#MMOVE <speed> <distance:feet>
-#TURN <degrees> <timeout>
-#STRAIGHT <speed> <duration>
-#----------------------------------------------------------------
+#  this script goes under the low bar and shoots into high goal
+#  from the batter and returns
 BEGIN
-TURN 90 5.0
-#MMOVE 0.1 140.0
+# lower the arm, raise the tail and go under the low bar
+LOWER
+TAILDOWN
+MMOVE 0.4 220.0
+# turn towards the tower
+TURN -120 1.0
+#MMOVE -0.4 115
+# turn towards the low goal
+#TURN 0 1.0
+#MMOVE -0.4 210.0
+# score the boulder TBD
 END
