@@ -142,10 +142,12 @@ void RhsRobot::Run() {
 		if(ARM_FAR){
 			robotMessage.command = COMMAND_ARM_FAR;
 			arm->SendMessage(&robotMessage);
-			if(tail){
-				robotMessage.command = COMMAND_TAIL_LOWER;
-				tail->SendMessage(&robotMessage);
-			}
+
+			//  TKB - not required for batter shot
+			//if(tail){
+			//	robotMessage.command = COMMAND_TAIL_LOWER;
+			//	tail->SendMessage(&robotMessage);
+			//}
 			/*}else if(ARM_CLOSE){
 			robotMessage.command = COMMAND_ARM_CLOSE;
 			arm->SendMessage(&robotMessage);
@@ -189,11 +191,12 @@ void RhsRobot::Run() {
 
 	if(shooter){
 		if(SHOOTER_SHOOT){
-			if(arm){
+			if(arm)
+			{
 				robotMessage.command = COMMAND_ARM_SHOOT;
 				arm->SendMessage(&robotMessage);
-			robotMessage.command = COMMAND_SHOOTER_SHOOT;
-			shooter->SendMessage(&robotMessage);
+				robotMessage.command = COMMAND_SHOOTER_SHOOT;
+				shooter->SendMessage(&robotMessage);
 			}
 		}
 	}

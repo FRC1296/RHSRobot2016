@@ -26,6 +26,6 @@ void ShooterSolenoid::Open(){
 		Set(shootValue, closeMask, 0);
 	}else
 	{
-		// error
+		printf("Error: invalid shooting position\n");
 	}
 }

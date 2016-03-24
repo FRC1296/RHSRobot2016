@@ -148,7 +148,7 @@ void Arm::Run(){
 		//claw->Set(false);
 		pShootTimer->Stop();
 		pShootTimer->Reset();
-		pArmPID->SetSetpoint(afterShootEncoderPos);
+		pArmPID->SetSetpoint(bottomEncoderPos);
 	}
 
 	if(pArmPID->GetSetpoint()==farEncoderPos){
@@ -169,6 +169,7 @@ void Arm::Far(){
 
 void Arm::IntakeShoot(){
 	//claw->Set(true);
+	Far();
 	pShootTimer->Start();
 }
 int Arm::GetPulseWidthPosition(){

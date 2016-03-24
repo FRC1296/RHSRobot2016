@@ -304,6 +304,11 @@ bool Autonomous::Lower(){
 	return(CommandNoResponse(ARM_QUEUE));
 }
 
+bool Autonomous::Raise(){
+	Message.command = COMMAND_ARM_FAR;
+	return(CommandNoResponse(ARM_QUEUE));
+}
+
 bool Autonomous::TailDown(){
 	Message.command = COMMAND_TAIL_LOWER;
 	return(CommandNoResponse(TAIL_QUEUE));

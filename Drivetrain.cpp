@@ -92,11 +92,12 @@ Drivetrain::Drivetrain() :
 	pTask = new Task(DRIVETRAIN_TASKNAME, &Drivetrain::StartTask, this);
 	wpi_assert(pTask);
 
-	pSearchPIDOutput = new PIDSearchOutput(pLeftOneMotor,
-			pRightOneMotor, bUnderServoControl);
+	pTurnPIDOutput = new PIDSearchOutput(pLeftOneMotor,
+			pRightOneMotor, true);
 	//wpi_assert(pSearchPIDOutput);
 	//pSearchPID = new PIDController(.075, 0.001, .025, pCamera, pSearchPIDOutput, .05f);
-	pTurnPID = new PIDController(1.5, 0.0, 1, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
+	pTurnPID = new PIDController(2.86, 0.0, 0.0, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
+	pTurnPID->SetTolerance(2.0);
 	//pSearchPID = new PIDController(.18,0,.7, pCamera, pSearchPIDOutput, .05f);
 	//wpi_assert(pSearchPID);
 
@@ -298,6 +299,9 @@ void Drivetrain::Run() {
 	case COMMAND_DRIVETRAIN_TURN:
 		bDrivingStraight = false;
 		StartTurn(localMessage.params.autonomous.turnAngle,localMessage.params.autonomous.timeout);
+
+		// contribute to cheezy Kalman filter
+
 		if(localMessage.params.autonomous.turnAngle > 0.0)
 		{
 			RunCheezyDrive(false, 0.5, 0.0, false);
@@ -371,7 +375,10 @@ void Drivetrain::StartStraightDrive (float speed, float time, float distance)
 	//DO NOT RESET THE GYRO EVER. only zeroing.
 	//pGyro->Zero();		//DO NOT RESET THE GYRO EVER. only zeroing.
 	pLeftOneMotor->SetEncPosition(0);
-	pRightOneMotor->SetEncPosition(0);
+	while(pRightOneMotor->GetEncPosition()!=0){
+		pRightOneMotor->SetEncPosition(0);
+	}
+
 
 	fStraightDriveSpeed = speed;
 	fStraightDriveTime = time;
@@ -539,7 +546,7 @@ void Drivetrain::StartTurn(float angle, float time)
 
 void Drivetrain::IterateTurn(void)
 {
-	if ((pAutoTimer->Get() < fTurnTime) && ISAUTO)
+	if ((pTurnPID->OnTarget() == false) && (pAutoTimer->Get() < fTurnTime) && ISAUTO)
 	{
 		RunCheezyDrive(false, 0.0, 0.0, false);	// contribute to cheezy drive Kalman filter
 	}
@@ -596,6 +603,7 @@ void Drivetrain::RedSense(){
 			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 		}
 	}else{
+
 		int time = pAutoTimer->Get()*2;
 		if(time%2==0){
 			pLeftOneMotor->Set(0.0);
@@ -617,10 +625,8 @@ void Drivetrain::StraightDriveLoop(float speed)
 	if(iLoop++ % 20 == 0)
 		printf("off ang %f", pGyro->GetAngle()- fTurnAngle);
 
-	//+(pGyro->GetAngle()-fTurnAngle)
-
-	pLeftOneMotor->Set(-speed * FULLSPEED_FROMTALONS);
-	pRightOneMotor->Set(speed * FULLSPEED_FROMTALONS);
+	pLeftOneMotor->Set(-(speed-(pGyro->GetAngle()-fTurnAngle)/45) * FULLSPEED_FROMTALONS);
+	pRightOneMotor->Set((speed+(pGyro->GetAngle()-fTurnAngle)/45) * FULLSPEED_FROMTALONS);
 
 	//RunCheezyDrive(true, -(pGyro->GetAngle()-fTurnAngle)/45, speed, false);
 

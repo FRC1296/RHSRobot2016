@@ -73,6 +73,7 @@ private:
 	bool Throwup();
 	bool Shoot();
 	bool Lower();
+	bool Raise();
 	bool TailDown();
 	bool TailUp();
 	bool RedSense();

@@ -37,6 +37,7 @@ const char *szTokens[] = {
 		"THROWUP",
 		"SHOOT",
 		"LOWER",
+		"RAISE",
 		"TAILDOWN",
 		"TAILUP",
 		"REDSENSE",
@@ -252,6 +253,16 @@ bool Autonomous::Evaluate(std::string rStatement) {
 
 	case AUTO_TOKEN_LOWER:
 		if(!Lower())
+		{
+			rStatus.append("lower error");
+		}
+		else
+		{
+			rStatus.append("lowering");
+		}
+		break;
+	case AUTO_TOKEN_RAISE:
+		if(!Raise())
 		{
 			rStatus.append("lower error");
 		}

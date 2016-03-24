@@ -46,21 +46,18 @@ void Shooter::Run(){
 
 void Shooter::Shoot(){
 	int pos = Arm::GetEncTarget();
-	if(pos > bottomEncoderPos){
 
+	if(pos > bottomEncoderPos)
+	{
 		Wait(clawOpenDelay);
-		printf("jaw open\n");
 		jaw->Open();
 		Wait(preShootDelay);
-		printf("shooter open\n");
 		shooters->Open();
 		Wait(postShootDelay);
-		printf("shooter close\n");
 		shooters->Close();
 		Wait(clawCloseDelay);
-		printf("jaw close\n");
 		jaw->Close();
-		ClearMessages(); // this is so that the shoot command is not send twice
+		ClearMessages(); // make sure shoot command is not processed twice
 	}
 }
 
