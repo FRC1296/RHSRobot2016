@@ -139,6 +139,11 @@ void RhsRobot::Run() {
 	}
 
 	if(arm){
+		if(ARM_ENABLE){
+			robotMessage.command = COMMAND_ARM_ENABLE;
+			arm->SendMessage(&robotMessage);
+		}
+
 		if(ARM_FAR){
 			robotMessage.command = COMMAND_ARM_FAR;
 			arm->SendMessage(&robotMessage);

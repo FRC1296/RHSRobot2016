@@ -209,6 +209,7 @@ const int POV_STILL = -1;
 #define DRIVE_RED				(Controller_1->GetRawButton(L310_BUTTON_Y))
 #define HANGER_HANG					(Controller_1->GetRawButton(L310_BUTTON_A))
 #define DRIVE_ZERO_GYRO				(Controller_1->GetRawButton(L310_BUTTON_B))
+#define ARM_ENABLE				(Controller_1->GetRawButton(L310_BUTTON_X))
 
 #endif // USE_L310_FOR_CONTROLLER_1
 

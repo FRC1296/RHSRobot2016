@@ -75,20 +75,13 @@ void Arm::Run(){
 		break;
 	case COMMAND_ARM_INTAKE:
 		//bIsIntaking = true;
-		Intake(localMessage.params.armParams.direction);
+		//Intake(localMessage.params.armParams.direction);
 
 		if(!bIntakePressedLastFrame){
 			bIsIntaking = !bIsIntaking;
 			bIntakePressedLastFrame = true;
-			//Intake(localMessage.params.armParams.direction);
+			Intake(localMessage.params.armParams.direction);
 		}
-		/*
-		if(!localMessage.params.armParams.direction){
-			//Intake(localMessage.params.armParams.direction);
-			bIsIntaking = false;
-			bIntakePressedLastFrame = false;
-		}
-*/
 		break;
 
 	case COMMAND_AUTONOMOUS_INTAKE:
@@ -103,23 +96,27 @@ void Arm::Run(){
 		AutoPos();
 		break;
 
+	case COMMAND_ARM_ENABLE:
+		SmartDashboard::PutBoolean("ARM CURRENT", true);
+		pArmLeverMotor->Enable();
+		break;
 	case COMMAND_ARM_SHOOT:
 		IntakeShoot();
 		break;
 
 	case COMMAND_ARM_LEDOFF:
 		pLED->Set(Relay::kOff);
-		printf("LED off\n");
+		//printf("LED off\n");
 		break;
 
 	case COMMAND_ARM_LEDWHITE:
 		pLED->Set(Relay::kForward);
-		printf("LED white\n");
+		//printf("LED white\n");
 		break;
 
 	case COMMAND_ARM_LEDCOLOR:
 		pLED->Set(Relay::kReverse);
-		printf("LED color\n");
+		//printf("LED color\n");
 		break;
 
 	default:

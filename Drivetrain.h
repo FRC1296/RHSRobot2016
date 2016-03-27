@@ -143,6 +143,8 @@ private:
 	float fMaxVelRight;
 	//diameter*pi/encoder_resolution : 1.875 * 3.14 / 256
 
+	float fAccum = 0;
+
 	void OnStateChange();
 	void Run();
 	void ArcadeDrive(float, float);

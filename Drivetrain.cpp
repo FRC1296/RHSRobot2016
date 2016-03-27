@@ -397,15 +397,16 @@ void Drivetrain::IterateStraightDrive(void)
 		{
 			if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
 			{
-				SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
-				SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
-				SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
-				SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
+				//SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
+				//SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
+				//SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
+				//SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
 
 				if(pRightOneMotor->GetEncPosition() < (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT))
 						&& pRightOneMotor->GetEncPosition() > -(int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)))
 				{
 					StraightDriveLoop(fStraightDriveSpeed);
+					Wait(.005);
 				}
 				else
 				{
@@ -620,14 +621,15 @@ void Drivetrain::RedSense(){
 
 void Drivetrain::StraightDriveLoop(float speed)
 {
-	static int iLoop = 0;
 
-	if(iLoop++ % 20 == 0)
-		printf("off ang %f", pGyro->GetAngle()- fTurnAngle);
+	float offset = (pGyro->GetAngle()-fTurnAngle)/45;
+	pLeftOneMotor->Set(-(speed-(offset+fAccum)) * FULLSPEED_FROMTALONS);
+	pRightOneMotor->Set((speed+(offset+fAccum)) * FULLSPEED_FROMTALONS);
 
-	pLeftOneMotor->Set(-(speed-(pGyro->GetAngle()-fTurnAngle)/45) * FULLSPEED_FROMTALONS);
-	pRightOneMotor->Set((speed+(pGyro->GetAngle()-fTurnAngle)/45) * FULLSPEED_FROMTALONS);
-
+#if 0
+	fAccum += offset;
+	fAccum /= 2;
+#endif
 	//RunCheezyDrive(true, -(pGyro->GetAngle()-fTurnAngle)/45, speed, false);
 
 }

@@ -21,6 +21,10 @@ private:
 	const double countsToRadians = 3.14159265/2/4096;
 	const double zeroRadian = -1096;
 	const double maxAdditive = .2; // max idle value to add at 0 degrees
+	const float maxArmCurrent = 10;
+	const float timeout = .5;
+
+	Timer* pBurnTimer;
 };
 
 #endif /* SRC_CANARMTALON_H_ */
