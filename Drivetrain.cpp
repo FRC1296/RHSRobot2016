@@ -23,6 +23,7 @@
 
 #include "Drivetrain.h"			//For the local header file
 #include "RobotParams.h"
+#include "Arm.h"
 
 
 using namespace std;
@@ -34,11 +35,17 @@ Drivetrain::Drivetrain() :
 	fMaxVelLeft = 0;
 	fMaxVelRight = 0;
 
+	pRunTimer = new Timer();
+	pRunTimer->Start();
+
 	pLeftOneMotor = new DriveTalon(CAN_DRIVETRAIN_LEFTONE_MOTOR);
 	pRightOneMotor = new DriveTalon(CAN_DRIVETRAIN_RIGHTONE_MOTOR);
 	pLeftTwoMotor = new CANTalon(CAN_DRIVETRAIN_LEFTTWO_MOTOR);
 	pRightTwoMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTTWO_MOTOR);
 	wpi_assert(pLeftOneMotor && pRightOneMotor && pLeftTwoMotor && pRightTwoMotor);
+
+	pAPixy = new AnalogPixy(0,4,0);
+	pFrontPixy = new AnalogPixy(1,3,0);
 
 	//pCamera = new PixyCam();
 	//wpi_assert(pCamera);
@@ -78,7 +85,7 @@ Drivetrain::Drivetrain() :
 	wpi_assert(pRightTwoMotor->IsAlive());
 	bUnderServoControl = false;
 
-	pGyro = new ADXRS453Z;
+	pGyro = new PoofGyro(SPI::kOnboardCS3);
 	wpi_assert(pGyro);
 
 	pAutoTimer = new Timer();
@@ -96,7 +103,7 @@ Drivetrain::Drivetrain() :
 			pRightOneMotor, true);
 	//wpi_assert(pSearchPIDOutput);
 	//pSearchPID = new PIDController(.075, 0.001, .025, pCamera, pSearchPIDOutput, .05f);
-	pTurnPID = new PIDController(2.86, 0.0, 0.0, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
+	pTurnPID = new PIDController(3, 0.0, 0.7, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
 	pTurnPID->SetTolerance(2.0);
 	//pSearchPID = new PIDController(.18,0,.7, pCamera, pSearchPIDOutput, .05f);
 	//wpi_assert(pSearchPID);
@@ -124,6 +131,7 @@ void Drivetrain::OnStateChange()			//Handles state changes
 
 	switch(localMessage.command) {
 		case COMMAND_ROBOT_STATE_AUTONOMOUS: // we use tank drive in auto, talons close the loop
+			bSearching = false;
 			bUnderServoControl = true;
 			pLeftOneMotor->SetControlMode(CANTalon::kSpeed);
 			pRightOneMotor->SetControlMode(CANTalon::kSpeed);
@@ -175,6 +183,7 @@ void Drivetrain::Run() {
 
  	SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
  	SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
+ 	SmartDashboard::PutNumber("pixycam", pAPixy->Get());
 
  	SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
  	SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
@@ -264,20 +273,39 @@ void Drivetrain::Run() {
 
 		if(localMessage.params.cheezyDrive.throttle < 0.1 && localMessage.params.cheezyDrive.throttle > -0.1){
 
+			bSearchLastFrame = false;
 			pLeftOneMotor->ResetCurrentTimeout();
 			pRightOneMotor->ResetCurrentTimeout();
+			if(bSearching&&pAPixy->Get()!=5&&(pAPixy->Get()>=.02||pAPixy->Get()<=-.02)){
+				if((int)(pRunTimer->Get()*2)%2){
+					pLeftOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1));
+					pRightOneMotor->Set(0);
+				}else{
+					pLeftOneMotor->Set(0);
+					pRightOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1));
+				}
+
+			}else{
+				if(!bRedSensing){
+				RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
+						localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
+				}
+			}
+
+
 		}else{
 			bRedSensing = false;
+			if(!bRedSensing){
+			RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
+					localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
+			}
 		}
 
 		if(localMessage.params.cheezyDrive.bQuickturn){
 			bRedSensing = false;
 		}
 
-		if(!bRedSensing){
-		RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
-				localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
-		}
+
 		break;
 
 	case COMMAND_DRIVETRAIN_MSTRAIGHT:
@@ -326,10 +354,20 @@ void Drivetrain::Run() {
 		fBatteryVoltage = localMessage.params.system.fBattery;
 		break;
 
-	case COMMAND_AUTONOMOUS_SEARCH:
-		//Search();
+	case COMMAND_AUTONOMOUS_SEARCHGOAL:
+		bSearching = localMessage.params.armParams.direction;
+		if(ISAUTO){
+			printf("is auto\n");
+			bSearching = true;
+			Search();
+			bSearching = false;
+		}
+
 		break;
 
+	case COMMAND_AUTONOMOUS_SEARCHBALL:
+			BallSearch();
+		break;
 	case COMMAND_DRIVETRAIN_REDSENSE:
 		pAutoTimer->Reset();
 		pAutoTimer->Start();
@@ -337,9 +375,11 @@ void Drivetrain::Run() {
 		break;
 
 	case COMMAND_SYSTEM_MSGTIMEOUT:
+		bSearchLastFrame = false;
 		break;
 
 	default:
+
 		break;
 	}
 
@@ -383,7 +423,7 @@ void Drivetrain::StartStraightDrive (float speed, float time, float distance)
 	fStraightDriveSpeed = speed;
 	fStraightDriveTime = time;
 	bDrivingStraight = true;
-	fStraightDriveDistance = (distance-.928)/7.22;  //TODO need to calculate the stop distance more carefully
+	fStraightDriveDistance = (distance-.928)/7.22/1024*TALON_COUNTSPERREV;  //TODO need to calculate the stop distance more carefully
 	bTurning = false;
 
 	IterateStraightDrive();
@@ -397,15 +437,16 @@ void Drivetrain::IterateStraightDrive(void)
 		{
 			if ((pAutoTimer->Get() < fStraightDriveTime) && ISAUTO)
 			{
-				SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
-				SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
-				SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
-				SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
+				//SmartDashboard::PutNumber("travelenc", pRightOneMotor->GetEncPosition());
+				//SmartDashboard::PutNumber("distenc", fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT));
+				//SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
+				//SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
 
 				if(pRightOneMotor->GetEncPosition() < (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT))
 						&& pRightOneMotor->GetEncPosition() > -(int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)))
 				{
 					StraightDriveLoop(fStraightDriveSpeed);
+					Wait(.005);
 				}
 				else
 				{
@@ -446,74 +487,56 @@ void Drivetrain::IterateStraightDrive(void)
 	}
 }
 
+void Drivetrain::BallSearch(){
+	Timer* timer = new Timer();
+	while(timer->Get()>.5){
+		if(pFrontPixy->Get()==5){
+			printf("Cant see the ball\n");
+			// Cant see ball
+			break;
+		}
+		if(Arm::GetIntakeCurrent()>3){
+			RunCheezyDrive(true,0,0,false);
+			timer->Start();
+		}else{
+			RunCheezyDrive(true,pFrontPixy->Get()*3,.3,false);
+			timer->Stop();
+			timer->Reset();
+		}
+
+	}
+	delete timer;
+}
+
 void Drivetrain::Search(){
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
-	printf("Started searching\n");
-	Timer* t = new Timer();
-	float fCentroid = 0;
-	bool bBlockFound=false;
-	//bBlockFound = pCamera->GetCentroid(fCentroid);
-	printf("bSearch loop\n");
-	printf("%s %f \n",(bBlockFound ? "true":"false"),fCentroid);
-
-	if(!bBlockFound){
-		command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
-		printf("no block found\n");
-		if(ISAUTO){
-		SendCommandResponse(command);
-		}
-		return;
-	}
-
-	//pSearchPID->SetSetpoint(0);
-	//pSearchPID->Enable();
-
-	while(t->Get() < 1){
-		/*
-		if(!bBlockFound){
-			command = COMMAND_AUTONOMOUS_RESPONSE_ERROR;
-			printf("block disappeared\n");
-			if(ISAUTO){
-			SendCommandResponse(command);
-			}
+	float timer = pRunTimer->Get();
+	while(true){
+		if(!ISAUTO){
 			return;
 		}
-
-			fLeftQ = fSearchMotorSpeed*pow(fCentroid,3);
-			fRightQ = -fSearchMotorSpeed*pow(fCentroid,3);
-
-		if(bUnderServoControl)
-		{
-			pLeftMotor->SetSetpoint(fLeftQ * FULLSPEED_FROMTALONS);
-			pRightMotor->SetSetpoint(-fRightQ * FULLSPEED_FROMTALONS);
-		}
-		else
-		{
-			pLeftMotor->SetSetpoint(fLeftQ);
-			pRightMotor->SetSetpoint(-fRightQ);
+	if(pAPixy->Get()!=5&&(pAPixy->Get()>=.02||pAPixy->Get()<=-.02)&&(pRunTimer->Get()-timer)<.25){
+		timer = pRunTimer->Get();
+		if((int)(pRunTimer->Get()*2)%2){
+			pLeftOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1)*FULLSPEED_FROMTALONS);
+			pRightOneMotor->Set(0);
+		}else{
+			pLeftOneMotor->Set(0);
+			pRightOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1)*FULLSPEED_FROMTALONS);
 		}
 
+	}else{
+		pLeftOneMotor->Set(0);
+		pRightOneMotor->Set(0);
+		if((pRunTimer->Get()-timer)<.25){
+			break;
+		}
 
-*/
-
-		Wait(.0001);
-		//bBlockFound = pCamera->GetCentroid(fCentroid);
 	}
-
-	delete t;
-	//pSearchPID->Disable();
-
-	//float fCentroid = 0;
-	//bool bBlockFound=false;
-	//bBlockFound = pCamera->GetCentroid(fCentroid);
-	//StartTurn(fCentroid*37.5,2);
-printf("done\n");
-	pLeftOneMotor->Set(0);
-	pRightOneMotor->Set(0);
+	}
 	if(ISAUTO){
 		SendCommandResponse(command);
 	}
-
 }
 
 //void Drivetrain::
@@ -620,14 +643,15 @@ void Drivetrain::RedSense(){
 
 void Drivetrain::StraightDriveLoop(float speed)
 {
-	static int iLoop = 0;
 
-	if(iLoop++ % 20 == 0)
-		printf("off ang %f", pGyro->GetAngle()- fTurnAngle);
+	float offset = (pGyro->GetAngle()-fTurnAngle)/45;
+	pLeftOneMotor->Set(-(speed-(offset+fAccum)) * FULLSPEED_FROMTALONS);
+	pRightOneMotor->Set((speed+(offset+fAccum)) * FULLSPEED_FROMTALONS);
 
-	pLeftOneMotor->Set(-(speed-(pGyro->GetAngle()-fTurnAngle)/45) * FULLSPEED_FROMTALONS);
-	pRightOneMotor->Set((speed+(pGyro->GetAngle()-fTurnAngle)/45) * FULLSPEED_FROMTALONS);
-
+#if 0
+	fAccum += offset;
+	fAccum /= 2;
+#endif
 	//RunCheezyDrive(true, -(pGyro->GetAngle()-fTurnAngle)/45, speed, false);
 
 }
@@ -739,7 +763,8 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     struct DrivetrainOutput Output;
     struct DrivetrainStatus Status;
 
-    Goal.steering = (bQuickturn?-pow(fWheel,3):-fWheel);   // not sure why
+
+    Goal.steering = ((bSearching)&&pAPixy->Get()!=5?pAPixy->Get()*(abs(pLeftOneMotor->GetSpeed())>150?.75:2):(bQuickturn?-pow(fWheel,3):-fWheel));   // not sure why
     Goal.throttle = fThrottle;
     Goal.quickturn = bQuickturn;
     Goal.control_loop_driving = false;

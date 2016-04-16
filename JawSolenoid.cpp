@@ -8,16 +8,16 @@
 #include <JawSolenoid.h>
 
 JawSolenoid::JawSolenoid(int canid) : SolenoidBase(canid){
-
+this->canid = canid;
 }
 
 JawSolenoid::~JawSolenoid() {
 }
 
 void JawSolenoid::Close(){
-	Set(uCloseValue, uMask, 0);
+	Set(uCloseValue, uMask, canid);
 }
 
 void JawSolenoid::Open(){
-	Set(uOpenValue, uMask, 0);
+	Set(uOpenValue, uMask, canid);
 }

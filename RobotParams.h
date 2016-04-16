@@ -84,7 +84,8 @@ Add more as needed.
  \endverbatim
  */
 
-const int CAN_PCM = 0;
+const int CAN_PCM_SHOOTER = 0;
+const int CAN_PCM_JAW = 1;
 const int CAN_PDB = 19;
 const int CAN_DRIVETRAIN_LEFTONE_MOTOR = 1;
 const int CAN_DRIVETRAIN_LEFTTWO_MOTOR = 2;
@@ -111,10 +112,10 @@ const int SOL_SHOOTER_1 = 0;
 const int SOL_SHOOTER_2 = 1;
 const int SOL_SHOOTER_3 = 2;
 const int SOL_SHOOTER_4 = 3;
-const int SOL_JAWCLOSE_1 = 4;
-const int SOL_JAWCLOSE_2 = 5;
-const int SOL_JAWOPEN_1 = 6;
-const int SOL_JAWOPEN_2 = 7;
+const int SOL_JAWCLOSE_1 = 2;
+const int SOL_JAWCLOSE_2 = 3;
+const int SOL_JAWOPEN_1 = 0;
+const int SOL_JAWOPEN_2 = 1;
 
 //I2C - Assigns names to I2C ports 1-2 on the Roborio
 //EXAMPLE: const int IO2C_AUTO_ACCEL = 1;
@@ -207,8 +208,12 @@ const int POV_STILL = -1;
 #define ARM_MOVE_INTAKE				(Controller_1->GetPOV(0)==180)
 #define ARM_MOVE_RIDE				(Controller_1->GetPOV(0)==270)
 #define DRIVE_RED				(Controller_1->GetRawButton(L310_BUTTON_Y))
+#define DRIVE_SEARCHBALL				(Controller_1->GetRawButton(L310_BUTTON_Y))
+#define DRIVE_SEARCHON				(Controller_1->GetRawButton(L310_BUTTON_START))
+#define DRIVE_SEARCHOFF				(Controller_1->GetRawButton(L310_BUTTON_BACK))
 #define HANGER_HANG					(Controller_1->GetRawButton(L310_BUTTON_A))
 #define DRIVE_ZERO_GYRO				(Controller_1->GetRawButton(L310_BUTTON_B))
+#define ARM_ENABLE				(Controller_1->GetRawButton(L310_BUTTON_X))
 
 #endif // USE_L310_FOR_CONTROLLER_1
 

@@ -19,7 +19,7 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 
 	pArmLeverMotor = new CanArmTalon(CAN_ARM_LEVER_MOTOR);
 	pArmLeverMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
-	pArmLeverMotor->SetFeedbackDevice(CANTalon::QuadEncoder);
+	pArmLeverMotor->SetFeedbackDevice(CANTalon::CtreMagEncoder_Absolute);
 	pArmPID = new PIDController(.0010,0,0,pArmLeverMotor, pArmLeverMotor, .05);
 
 	pArmLeverMotor->SetInverted(true);
@@ -53,7 +53,7 @@ Arm::~Arm() {
 void Arm::Run(){
 
 	//printf("output error %f \n", pArmPID->GetAvgError());
-	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetEncPosition());
+	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetPulseWidthPosition());
 
 	if(localMessage.command != COMMAND_AUTONOMOUS_INTAKE){
 
@@ -75,20 +75,13 @@ void Arm::Run(){
 		break;
 	case COMMAND_ARM_INTAKE:
 		//bIsIntaking = true;
-		Intake(localMessage.params.armParams.direction);
+		//Intake(localMessage.params.armParams.direction);
 
 		if(!bIntakePressedLastFrame){
 			bIsIntaking = !bIsIntaking;
 			bIntakePressedLastFrame = true;
-			//Intake(localMessage.params.armParams.direction);
+			Intake(localMessage.params.armParams.direction);
 		}
-		/*
-		if(!localMessage.params.armParams.direction){
-			//Intake(localMessage.params.armParams.direction);
-			bIsIntaking = false;
-			bIntakePressedLastFrame = false;
-		}
-*/
 		break;
 
 	case COMMAND_AUTONOMOUS_INTAKE:
@@ -103,23 +96,27 @@ void Arm::Run(){
 		AutoPos();
 		break;
 
+	case COMMAND_ARM_ENABLE:
+		SmartDashboard::PutBoolean("ARM CURRENT", true);
+		pArmLeverMotor->Enable();
+		break;
 	case COMMAND_ARM_SHOOT:
 		IntakeShoot();
 		break;
 
 	case COMMAND_ARM_LEDOFF:
 		pLED->Set(Relay::kOff);
-		printf("LED off\n");
+		//printf("LED off\n");
 		break;
 
 	case COMMAND_ARM_LEDWHITE:
 		pLED->Set(Relay::kForward);
-		printf("LED white\n");
+		//printf("LED white\n");
 		break;
 
 	case COMMAND_ARM_LEDCOLOR:
 		pLED->Set(Relay::kReverse);
-		printf("LED color\n");
+		//printf("LED color\n");
 		break;
 
 	default:
@@ -175,8 +172,18 @@ void Arm::IntakeShoot(){
 int Arm::GetPulseWidthPosition(){
 	return pInstance->pArmLeverMotor->GetPulseWidthPosition();
 }
+int Arm::GetEncPosition(){
+	return pInstance->pArmLeverMotor->GetEncPosition();
+}
 int Arm::GetEncTarget(){
 	return pInstance->pArmPID->GetSetpoint();
+}
+
+double Arm::GetIntakeCurrent(){
+	return pInstance->pArmIntakeMotor->GetOutputCurrent();
+}
+void Arm::StopIntake(){
+	pInstance->bIsIntaking = false;
 }
 // do we want to let the drivers run the intake and decide when to lower the arm?
 
@@ -218,7 +225,7 @@ void Arm::OnStateChange(){
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
 		pArmPID->Enable();
-		pArmPID->SetSetpoint(bottomEncoderPos);
+		pArmPID->SetSetpoint(GetEncPosition());
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
