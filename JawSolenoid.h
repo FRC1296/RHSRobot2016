@@ -23,6 +23,7 @@ private:
 		(0x1 << SOL_JAWOPEN_1) | (0x1 << SOL_JAWOPEN_2);
 	const uint8_t uCloseValue = (0x1 << SOL_JAWCLOSE_1) | (0x1 << SOL_JAWCLOSE_2);
 	const uint8_t uOpenValue = (0x1 << SOL_JAWOPEN_1) | (0x1 << SOL_JAWOPEN_2);
+	int canid;
 };
 
 #endif /* SRC_JAWSOLENOID_H_ */

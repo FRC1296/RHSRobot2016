@@ -14,11 +14,12 @@
 #include <ComponentBase.h>			//For ComponentBase class
 #include <pthread.h>
 
-#include "ADXRS453Z.h"
+#include "PoofGyro.h"
 #include "PixyCam.h"
 #include "PIDSearchOutput.h"
 #include "../cheezy/frc1296.h"
 #include <DriveTalon.h>
+#include "AnalogPixy.h"
 
 // constants used to tune TALONS
 
@@ -36,7 +37,7 @@ const float TALON_ITERM_R = 		(TALON_PTERM_R / 10.0);
 const float TALON_DTERM_R = 		(TALON_PTERM_R / 5.0);
 const float TALON_MAXRAMP =			60;		// 200ms
 const float TALON_IZONE	=			128;
-const float TALON_COUNTSPERREV =	1024;	// from CTRE docs
+const float TALON_COUNTSPERREV =	360;	// from CTRE docs
 const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);
 const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / (double)TALON_COUNTSPERREV);
 
@@ -91,9 +92,12 @@ private:
 	CANTalon* pLeftTwoMotor;
 	DriveTalon* pRightOneMotor;
 	CANTalon* pRightTwoMotor;
-	ADXRS453Z *pGyro;
+	PoofGyro *pGyro;
 	//PixyCam *pCamera;
+	AnalogPixy* pAPixy;
+	AnalogPixy* pFrontPixy;
 	Timer *pAutoTimer;
+	Timer* pRunTimer;
 	CheezyLoop *pCheezy;
 	//PIDController* pSearchPID;
 	PIDController* pTurnPID;
@@ -119,6 +123,8 @@ private:
 	bool bUnderServoControl = false;
 	bool bMeasuredMove = false;
 	bool bRedSensing = false;
+	bool bSearching = false;
+	bool bSearchLastFrame = false;
 
 	///how strong direction recovery is in straight drive, higher = stronger
 	const float recoverStrength = .03;
@@ -143,6 +149,8 @@ private:
 	float fMaxVelRight;
 	//diameter*pi/encoder_resolution : 1.875 * 3.14 / 256
 
+	float fAccum = 0;
+
 	void OnStateChange();
 	void Run();
 	void ArcadeDrive(float, float);
@@ -151,6 +159,7 @@ private:
 	void RunCheezyDrive(bool, float, float, bool);
 	void Search();
 	void RedSense();
+	void BallSearch();
 
 	void StartStraightDrive(float, float, float);
 	void IterateStraightDrive(void);

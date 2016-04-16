@@ -131,14 +131,25 @@ void RhsRobot::Run() {
 			drivetrain->ZeroGyro();
 		}
 
-		if(DRIVE_RED){
-			robotMessage.command = COMMAND_DRIVETRAIN_REDSENSE;
+		if(DRIVE_SEARCHON){
+			robotMessage.command = COMMAND_AUTONOMOUS_SEARCHGOAL;
+			robotMessage.params.armParams.direction = true;
+			drivetrain->SendMessage(&robotMessage);
+		}
+		if(DRIVE_SEARCHOFF){
+			robotMessage.command = COMMAND_AUTONOMOUS_SEARCHGOAL;
+			robotMessage.params.armParams.direction = false;
 			drivetrain->SendMessage(&robotMessage);
 		}
 
 	}
 
 	if(arm){
+		if(ARM_ENABLE){
+			robotMessage.command = COMMAND_ARM_ENABLE;
+			arm->SendMessage(&robotMessage);
+		}
+
 		if(ARM_FAR){
 			robotMessage.command = COMMAND_ARM_FAR;
 			arm->SendMessage(&robotMessage);

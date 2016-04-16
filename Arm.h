@@ -11,12 +11,12 @@
 #include <ComponentBase.h>
 #include <CanArmTalon.h>
 
-const int closeEncoderPos = -1350;  // - -325
-const int farEncoderPos = -1350; // -325
-const int bottomEncoderPos = -2650;
-const int intakeEncoderPos = -2900; // -2670
-const int afterShootEncoderPos = -1870;
-const float shootDelay = 3.0f;  // how long t0 wait before lowering arm
+const int closeEncoderPos = 602;  //
+const int farEncoderPos = 2200; // -2116
+const int bottomEncoderPos = 260;
+const int intakeEncoderPos = 0; // 60
+const int afterShootEncoderPos = 810;
+const float shootDelay = 2.7f;  // how long t0 wait before lowering arm
 
 class Arm : public ComponentBase
 {
@@ -31,7 +31,10 @@ public:
 		return(NULL);
 	}
 	static int GetPulseWidthPosition();
+	static int GetEncPosition();
 	static int GetEncTarget();
+	static double GetIntakeCurrent();
+	static void StopIntake();
 
 private:
 	CanArmTalon* pArmLeverMotor;
