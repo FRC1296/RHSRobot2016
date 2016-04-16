@@ -9,21 +9,21 @@
 #include <Arm.h>
 
 ShooterSolenoid::ShooterSolenoid(int canid) : SolenoidBase(canid){
-this->canid = canid;
+
 }
 
 ShooterSolenoid::~ShooterSolenoid() {
 }
 
 void ShooterSolenoid::Close(){
-	this->Set(0, farMask, canid);
+	this->Set(0, farMask, 0);
 }
 
 void ShooterSolenoid::Open(){
-	if(Arm::GetEncTarget()== farEncoderPos){
-		Set(shootValue, farMask, canid);
+	if(Arm::GetEncTarget() == farEncoderPos){
+		Set(shootValue, farMask, 0);
 	}else if(Arm::GetEncTarget() == closeEncoderPos){
-		Set(shootValue, closeMask, canid);
+		Set(shootValue, closeMask, 0);
 	}else
 	{
 		printf("Error: invalid shooting position\n");

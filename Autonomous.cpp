@@ -278,7 +278,7 @@ bool Autonomous::Straight(char *pCurrLinePos) {
 
 bool Autonomous::Search(){
 	printf("auto search\n");
-	Message.command = COMMAND_AUTONOMOUS_SEARCHGOAL;
+	Message.command = COMMAND_AUTONOMOUS_SEARCH;
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 

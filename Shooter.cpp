@@ -10,12 +10,11 @@
 #include "Arm.h"
 Shooter::Shooter() : ComponentBase(SHOOTER_TASKNAME, SHOOTER_QUEUE, SHOOTER_PRIORITY){
 
-	shooters = new ShooterSolenoid(CAN_PCM_SHOOTER);
-	jaw = new JawSolenoid(CAN_PCM_JAW);
+	shooters = new ShooterSolenoid(CAN_PCM);
+	jaw = new JawSolenoid(CAN_PCM);
 
-	pCompressor = new Relay(0, Relay::kForwardOnly);
-	pCompressor->Set(Relay::kOn);// switch 5
-	pSwitch = new DigitalInput(5);
+	pCompressor = new Compressor();
+	pCompressor->Start();
 
 	pTask = new Task(SHOOTER_TASKNAME, &Shooter::StartTask, this);
 	wpi_assert(pTask);
@@ -29,7 +28,6 @@ Shooter::~Shooter() {
 }
 
 void Shooter::Run(){
-	pCompressor->Set(pSwitch->Get()==false?Relay::kOn:Relay::kOff);
 
 	switch(localMessage.command) {
 	case COMMAND_SHOOTER_SHOOT:
