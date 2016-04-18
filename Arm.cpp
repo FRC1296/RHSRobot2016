@@ -1,5 +1,4 @@
 /*
- * Arm.cpp
  *
  *  Created on: Feb 16, 2016
  *      Author: Jacob
@@ -146,6 +145,13 @@ void Arm::Run(){
 		pShootTimer->Stop();
 		pShootTimer->Reset();
 		pArmPID->SetSetpoint(bottomEncoderPos);
+		pArmIntakeMotor->Set(fIntakeIdleSpeed);
+	}
+	else if(pShootTimer->Get()>rotateBackStop){
+		pArmIntakeMotor->Set(fIntakeIdleSpeed);
+	}
+	else if(pShootTimer->Get()>rotateBackStart){
+		pArmIntakeMotor->Set(fIntakeOutShootingSpeed);
 	}
 
 	if(pArmPID->GetSetpoint()==farEncoderPos){

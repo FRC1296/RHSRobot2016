@@ -141,7 +141,6 @@ void RhsRobot::Run() {
 			robotMessage.params.armParams.direction = false;
 			drivetrain->SendMessage(&robotMessage);
 		}
-
 	}
 
 	if(arm){

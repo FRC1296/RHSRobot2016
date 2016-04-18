@@ -44,7 +44,7 @@ Drivetrain::Drivetrain() :
 	pRightTwoMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTTWO_MOTOR);
 	wpi_assert(pLeftOneMotor && pRightOneMotor && pLeftTwoMotor && pRightTwoMotor);
 
-	pAPixy = new AnalogPixy(0,4,0);
+	pAPixy = new AnalogPixy(0,4,-0.05);  //positive corrects to the right
 	pFrontPixy = new AnalogPixy(1,3,0);
 
 	//pCamera = new PixyCam();
@@ -57,7 +57,7 @@ Drivetrain::Drivetrain() :
 	pLeftOneMotor->SetPID(TALON_PTERM_L, TALON_ITERM_L, TALON_DTERM_L, TALON_FTERM_L);		// PIDF
 	pLeftOneMotor->SetIzone(TALON_IZONE);
 	pLeftOneMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
-	pLeftOneMotor->SetInverted(false);
+	pLeftOneMotor->SetInverted(true);
 	pLeftOneMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 	pLeftOneMotor->SetControlMode(CANTalon::kPercentVbus);
 
@@ -72,7 +72,7 @@ Drivetrain::Drivetrain() :
 	pRightOneMotor->SetPID(TALON_PTERM_R, TALON_ITERM_R, TALON_DTERM_R, TALON_FTERM_R);
 	pRightOneMotor->SetIzone(TALON_IZONE);
 	pRightOneMotor->SetCloseLoopRampRate(TALON_MAXRAMP);
-	pRightOneMotor->SetInverted(false);
+	pRightOneMotor->SetInverted(true);
 	pRightOneMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 	pRightOneMotor->SetControlMode(CANTalon::kPercentVbus);
 
@@ -276,13 +276,17 @@ void Drivetrain::Run() {
 			bSearchLastFrame = false;
 			pLeftOneMotor->ResetCurrentTimeout();
 			pRightOneMotor->ResetCurrentTimeout();
-			if(bSearching&&pAPixy->Get()!=5&&(pAPixy->Get()>=.02||pAPixy->Get()<=-.02)){
-				if((int)(pRunTimer->Get()*2)%2){
-					pLeftOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1));
+
+// TKB was 0.02
+
+			if(bSearching && (pAPixy->Get() != 5) && ((pAPixy->Get() >= .025) || (pAPixy->Get()<= -.025))){
+				if((int)(pRunTimer->Get() * 2) % 2){
+					pLeftOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .6 * (pAPixy->Get() < 0 ? -1 : 1));
 					pRightOneMotor->Set(0);
 				}else{
 					pLeftOneMotor->Set(0);
-					pRightOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1));
+					pRightOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .6 * (pAPixy->Get() < 0 ? -1 : 1));
+					pRightOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .5 * (pAPixy->Get() < 0 ? -1 : 1));
 				}
 
 			}else{
@@ -295,6 +299,7 @@ void Drivetrain::Run() {
 
 		}else{
 			bRedSensing = false;
+
 			if(!bRedSensing){
 			RunCheezyDrive(true, localMessage.params.cheezyDrive.wheel,
 					localMessage.params.cheezyDrive.throttle, localMessage.params.cheezyDrive.bQuickturn);
@@ -362,7 +367,6 @@ void Drivetrain::Run() {
 			Search();
 			bSearching = false;
 		}
-
 		break;
 
 	case COMMAND_AUTONOMOUS_SEARCHBALL:
@@ -382,7 +386,6 @@ void Drivetrain::Run() {
 
 		break;
 	}
-
 
 	if(bTurning)
 	{
@@ -511,28 +514,29 @@ void Drivetrain::BallSearch(){
 void Drivetrain::Search(){
 	MessageCommand command = COMMAND_AUTONOMOUS_RESPONSE_OK;
 	float timer = pRunTimer->Get();
+
 	while(true){
 		if(!ISAUTO){
 			return;
 		}
-	if(pAPixy->Get()!=5&&(pAPixy->Get()>=.02||pAPixy->Get()<=-.02)&&(pRunTimer->Get()-timer)<.25){
-		timer = pRunTimer->Get();
-		if((int)(pRunTimer->Get()*2)%2){
-			pLeftOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1)*FULLSPEED_FROMTALONS);
-			pRightOneMotor->Set(0);
+		if(pAPixy->Get()!=5&&(pAPixy->Get()>=.02||pAPixy->Get()<=-.02)&&(pRunTimer->Get()-timer)<.25){
+			timer = pRunTimer->Get();
+			if((int)(pRunTimer->Get()*2)%2){
+				pLeftOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1)*FULLSPEED_FROMTALONS);
+				pRightOneMotor->Set(0);
+			}else{
+				pLeftOneMotor->Set(0);
+				pRightOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1)*FULLSPEED_FROMTALONS);
+			}
+
 		}else{
 			pLeftOneMotor->Set(0);
-			pRightOneMotor->Set(pow(fabs(pAPixy->Get()),1.0/3.0)*.6*(pAPixy->Get()<0?-1:1)*FULLSPEED_FROMTALONS);
-		}
+			pRightOneMotor->Set(0);
+			if((pRunTimer->Get()-timer)<.25){
+				break;
+			}
 
-	}else{
-		pLeftOneMotor->Set(0);
-		pRightOneMotor->Set(0);
-		if((pRunTimer->Get()-timer)<.25){
-			break;
 		}
-
-	}
 	}
 	if(ISAUTO){
 		SendCommandResponse(command);

@@ -14,9 +14,13 @@
 const int closeEncoderPos = 602;  //
 const int farEncoderPos = 2200; // -2116
 const int bottomEncoderPos = 260;
-const int intakeEncoderPos = 0; // 60
+const int intakeEncoderPos = -50; // 60
 const int afterShootEncoderPos = 810;
 const float shootDelay = 2.7f;  // how long t0 wait before lowering arm
+
+const float rotateBackStart = 0.05;  // wait and rotate the intake
+const float rotateBackStop =  0.075;  // but just for 1/4 of a second
+
 
 class Arm : public ComponentBase
 {
@@ -50,6 +54,7 @@ private:
 	const float fIntakeInSpeed 		= -1.0f;
 	const float fIntakeOutSpeed 	= 1.0f;
 	const float fIntakeIdleSpeed 	= 0.0f;
+	const float fIntakeOutShootingSpeed = 0.50;  // to let ball settle
 
 	const float fAutoIntakeTimeout 	= 5.0f;
 	const float fAutoThrowupTime	= 0.5f;

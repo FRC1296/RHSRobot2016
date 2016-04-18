@@ -14,7 +14,7 @@
 #include "JawSolenoid.h"
 
 const float clawOpenDelay = 0.5;
-const float preShootDelay = 0.9;
+const float preShootDelay = 1.0;
 const float postShootDelay = 0.5;
 const float clawCloseDelay = 0.5;
 
