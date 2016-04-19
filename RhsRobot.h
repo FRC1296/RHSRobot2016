@@ -15,6 +15,7 @@
 #include <Tail.h>
 #include <Shooter.h>
 #include <Hanger.h>
+#include "ShooterSequence.h"
 
 class RhsRobot : public RhsRobotBase
 {
@@ -30,6 +31,7 @@ private:
 	Tail* tail;
 	Shooter* shooter;
 	Hanger* hanger;
+	ShooterSequence* shootSeq;
 
 	std::vector <ComponentBase *> ComponentSet;
 	

@@ -11,15 +11,12 @@
 #include <ComponentBase.h>
 #include <CanArmTalon.h>
 
-const int closeEncoderPos = 602;  //
-const int farEncoderPos = 2200; // -2116
+const int closeEncoderPos = 1500;  //
+const int farEncoderPos = 2200; // -2116 actual position
 const int bottomEncoderPos = 260;
-const int intakeEncoderPos = -50; // 60
+const int intakeEncoderPos = -50; // 60 actual position
 const int afterShootEncoderPos = 810;
-const float shootDelay = 2.7f;  // how long t0 wait before lowering arm
 
-const float rotateBackStart = 0.05;  // wait and rotate the intake
-const float rotateBackStop =  0.075;  // but just for 1/4 of a second
 
 
 class Arm : public ComponentBase

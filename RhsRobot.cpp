@@ -21,6 +21,7 @@ RhsRobot::RhsRobot() {
 	tail = NULL;
 	shooter = NULL;
 	hanger = NULL;
+	shootSeq = NULL;
 
 	iLoop = 0;
 }
@@ -49,6 +50,7 @@ void RhsRobot::Init() {
 	tail = new Tail();
 	shooter = new Shooter();
 	hanger = new Hanger();
+	shootSeq = new ShooterSequence();
 
 	std::vector<ComponentBase *>::iterator nextComponent = ComponentSet.begin();
 
@@ -165,6 +167,9 @@ void RhsRobot::Run() {
 				robotMessage.command = COMMAND_TAIL_LOWER;
 				tail->SendMessage(&robotMessage);
 			}*/
+		}else if(ARM_CLOSE){
+			robotMessage.command = COMMAND_ARM_CLOSE;
+			arm->SendMessage(&robotMessage);
 		}
 	else if(ARM_MOVE_INTAKE){
 			robotMessage.command = COMMAND_ARM_MOVE_INTAKE;
@@ -203,10 +208,8 @@ void RhsRobot::Run() {
 		if(SHOOTER_SHOOT){
 			if(arm)
 			{
-				robotMessage.command = COMMAND_ARM_SHOOT;
-				arm->SendMessage(&robotMessage);
-				robotMessage.command = COMMAND_SHOOTER_SHOOT;
-				shooter->SendMessage(&robotMessage);
+				shootSeq->StartSequence();
+
 			}
 		}
 	}

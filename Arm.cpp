@@ -69,7 +69,14 @@ void Arm::Run(){
 	case COMMAND_ARM_MOVE_RIDE:
 		pArmPID->SetSetpoint(bottomEncoderPos);
 	break;
+	case COMMAND_ARM_INTAKE_STOP:
+		bIsIntaking = false;
+		break;
+	case COMMAND_ARM_INTAKE_OUT:
+		Intake(false);
+		break;
 	case COMMAND_ARM_CLOSE:
+		printf("close shot\n");
 		Close();
 		break;
 	case COMMAND_ARM_INTAKE:
@@ -139,20 +146,6 @@ void Arm::Run(){
 
 	}
 
-	// For shooting timing
-	if(pShootTimer->Get()>shootDelay){
-		//claw->Set(false);
-		pShootTimer->Stop();
-		pShootTimer->Reset();
-		pArmPID->SetSetpoint(bottomEncoderPos);
-		pArmIntakeMotor->Set(fIntakeIdleSpeed);
-	}
-	else if(pShootTimer->Get()>rotateBackStop){
-		pArmIntakeMotor->Set(fIntakeIdleSpeed);
-	}
-	else if(pShootTimer->Get()>rotateBackStart){
-		pArmIntakeMotor->Set(fIntakeOutShootingSpeed);
-	}
 
 	if(pArmPID->GetSetpoint()==farEncoderPos){
 		pLED->Set(Relay::kForward);

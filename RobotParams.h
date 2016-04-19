@@ -54,7 +54,7 @@ const char* const ARM_TASKNAME			= "tArm";
 const char* const TAIL_TASKNAME			= "tTail";
 const char* const SHOOTER_TASKNAME		= "tShooter";
 const char* const HANGER_TASKNAME		= "tHanger";
-
+const char* const SHOOTER_SEQ_TASKNAME	= "tShooterSeq";
 //TODO change these variables throughout the code to PIPE or whatever instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
 //NOTE: 2015 - we use pipes instead of queues
@@ -204,7 +204,7 @@ const int POV_STILL = -1;
 #define TAIL_UP						(Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT))
 #define	SHOOTER_SHOOT				(Controller_1->GetRawButton(L310_BUTTON_A))
 #define ARM_FAR						(Controller_1->GetPOV(0)==0)
-//#define ARM_CLOSE					(Controller_1->GetPOV(0)==270)
+#define ARM_CLOSE					(Controller_1->GetPOV(0)==90)
 #define ARM_MOVE_INTAKE				(Controller_1->GetPOV(0)==180)
 #define ARM_MOVE_RIDE				(Controller_1->GetPOV(0)==270)
 #define DRIVE_RED				(Controller_1->GetRawButton(L310_BUTTON_Y))

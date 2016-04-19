@@ -18,7 +18,7 @@ public:
 
 private:
 	const uint8_t farMask = (0x1 << SOL_SHOOTER_1) | (0x1 << SOL_SHOOTER_2) | (0x1 << SOL_SHOOTER_3) | (0x1 << SOL_SHOOTER_4);
-	const uint8_t closeMask = (0x1 << SOL_SHOOTER_1) | (0x1 << SOL_SHOOTER_3);
+	const uint8_t closeMask = (0x1 << SOL_SHOOTER_1) | (0x1 << SOL_SHOOTER_4) | (0x1 << SOL_SHOOTER_2);
 	const uint8_t shootValue = 0xf;
 	int canid;
 };

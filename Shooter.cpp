@@ -35,6 +35,19 @@ void Shooter::Run(){
 	case COMMAND_SHOOTER_SHOOT:
 			Shoot();
 		break;
+	case COMMAND_SHOOTER_SHOOTER_OPEN:
+		shooters->Open();
+		break;
+	case COMMAND_SHOOTER_SHOOTER_CLOSE:
+		shooters->Close();
+		break;
+	case COMMAND_SHOOTER_JAW_OPEN:
+		jaw->Open();
+		break;
+	case COMMAND_SHOOTER_JAW_CLOSE:
+		jaw->Close();
+		break;
+
 	case COMMAND_AUTONOMOUS_SHOOT:
 			Shoot();
 			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
