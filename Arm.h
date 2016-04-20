@@ -14,7 +14,7 @@
 const int closeEncoderPos = 1500;  //
 const int farEncoderPos = 2200; // -2116 actual position
 const int bottomEncoderPos = 260;
-const int intakeEncoderPos = -50; // 60 actual position
+const int intakeEncoderPos = -150; // -53 actual position
 const int afterShootEncoderPos = 810;
 
 

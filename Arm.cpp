@@ -130,8 +130,6 @@ void Arm::Run(){
 		break;
 	}
 
-
-
 	// For intake rollers
 	if(!bIsIntaking){
 		if(pArmPID->GetSetpoint() == farEncoderPos || pArmPID->GetSetpoint() == closeEncoderPos){
@@ -140,12 +138,11 @@ void Arm::Run(){
 			pArmIntakeMotor->Set(fIntakeIdleSpeed);
 		}
 
-		if(pArmPID->GetSetpoint() == intakeEncoderPos && !bIntakePressedLastFrame){
+		if(pArmPID->GetSetpoint() == intakeEncoderPos && bIntakePressedLastFrame){
 			pArmPID->SetSetpoint(bottomEncoderPos);
 		}
 
 	}
-
 
 	if(pArmPID->GetSetpoint()==farEncoderPos){
 		pLED->Set(Relay::kForward);

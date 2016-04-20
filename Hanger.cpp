@@ -11,8 +11,8 @@ Hanger::Hanger() : ComponentBase(HANGER_TASKNAME, HANGER_QUEUE, HANGER_PRIORITY)
 	pHangerMotor = new CANTalon(CAN_HANGER_MOTOR);
 	pHangerMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 	pHangerMotor->SetControlMode(CANTalon::kPercentVbus);
-	currentState = NOT_DEPLOYED;
-
+	//currentState = NOT_DEPLOYED; // This is what it should start with
+	currentState = RAISING; //
 	pHangTimer = new Timer();
 
 	pTask = new Task(HANGER_TASKNAME, &Hanger::StartTask, this);
@@ -57,7 +57,7 @@ void Hanger::Run(){
 
 void Hanger::Hang(){
 	if(DriverStation::GetInstance().GetMatchTime()-fTeleopTime+fActivateTimeLeft<0){
-		return;
+		//return; // TODO test this
 	}
 
 	switch(currentState){
