@@ -17,6 +17,7 @@
 #include <fstream>
 #include <string>
 #include <math.h>
+#include "ShooterSequence.h"
 
 //Robot
 #include <RobotParams.h>
@@ -296,7 +297,12 @@ bool Autonomous::Shoot(){
 	Message.command = COMMAND_AUTONOMOUS_SHOOT;
 	CommandResponse(ARM_QUEUE);
 	Message.command = COMMAND_AUTONOMOUS_SHOOT;
-	return(CommandResponse(SHOOTER_QUEUE));
+	CommandResponse(DRIVETRAIN_QUEUE);
+	printf("getting instance\n");
+	ShooterSequence ss = ShooterSequence();
+	ss.Run();
+	printf("got instance\n");
+	return true;
 }
 
 bool Autonomous::Lower(){

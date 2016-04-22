@@ -22,7 +22,7 @@ PIDSearchOutput::~PIDSearchOutput() {
 }
 
 void PIDSearchOutput::PIDWrite(float output){
-	ABLIMIT(output,.5f);
+	ABLIMIT(output,.2f);
 	if(bUnderServoControl)
 	{
 		pLeftOneMotor->Set(-output * FULLSPEED_FROMTALONS);

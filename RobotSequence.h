@@ -27,6 +27,9 @@ public:
 	}
 	void StartSequence();
 	void SendMessage(const char* szQueueName, RobotMessage* message);
+	static RobotSequence* GetInstance(){
+		return pInstance;
+	}
 private:
 	static RobotSequence* pInstance;
 

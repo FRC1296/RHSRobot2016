@@ -85,7 +85,7 @@ Drivetrain::Drivetrain() :
 	wpi_assert(pRightTwoMotor->IsAlive());
 	bUnderServoControl = false;
 
-	pGyro = new PoofGyro(SPI::kOnboardCS3);
+	pGyro = new ADXRS453Z();
 	wpi_assert(pGyro);
 
 	pAutoTimer = new Timer();
@@ -103,7 +103,7 @@ Drivetrain::Drivetrain() :
 			pRightOneMotor, true);
 	//wpi_assert(pSearchPIDOutput);
 	//pSearchPID = new PIDController(.075, 0.001, .025, pCamera, pSearchPIDOutput, .05f);
-	pTurnPID = new PIDController(3, 0.0, 0.7, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
+	pTurnPID = new PIDController(.4, 0.0, 0.1, pGyro, pTurnPIDOutput, .05f);// .1 0 .1
 	pTurnPID->SetTolerance(2.0);
 	//pSearchPID = new PIDController(.18,0,.7, pCamera, pSearchPIDOutput, .05f);
 	//wpi_assert(pSearchPID);
@@ -280,14 +280,7 @@ void Drivetrain::Run() {
 // TKB was 0.02
 
 			if(bSearching && (pAPixy->Get() != 5) && ((pAPixy->Get() >= .025) || (pAPixy->Get()<= -.025))){
-				if((int)(pRunTimer->Get() * 2) % 2){
-					pLeftOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .6 * (pAPixy->Get() < 0 ? -1 : 1));
-					pRightOneMotor->Set(0);
-				}else{
-					pLeftOneMotor->Set(0);
-					pRightOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .6 * (pAPixy->Get() < 0 ? -1 : 1));
-					pRightOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .5 * (pAPixy->Get() < 0 ? -1 : 1));
-				}
+				Aim();
 
 			}else{
 				if(!bRedSensing){
@@ -368,7 +361,25 @@ void Drivetrain::Run() {
 			bSearching = false;
 		}
 		break;
+	case COMMAND_AUTONOMOUS_SHOOT:
+		Wait(.25);
+		while((pAPixy->Get() != 5) && ((pAPixy->Get() >= .025) || (pAPixy->Get()<= -.025))){
+			Aim();
+		}
+		Wait(.1);
+		while((pAPixy->Get() != 5) && ((pAPixy->Get() >= .025) || (pAPixy->Get()<= -.025))){
+			Aim();
+		}
+		pLeftOneMotor->Set(0);
+		pRightOneMotor->Set(0);
+		if(!pAPixy->IsConnected()){
 
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_ERROR);
+		}else{
+			SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+		}
+
+		break;
 	case COMMAND_AUTONOMOUS_SEARCHBALL:
 			BallSearch();
 		break;
@@ -394,6 +405,26 @@ void Drivetrain::Run() {
 
 	if(bRedSensing){
 		RedSense();
+	}
+}
+
+void Drivetrain::Aim(){
+	if (ISAUTO) {
+		if((int)(pRunTimer->Get() * 2) % 2) {
+			pLeftOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .6 * (pAPixy->Get() < 0 ? -1 : 1)*FULLSPEED_FROMTALONS);
+			pRightOneMotor->Set(0);
+		} else {
+			pLeftOneMotor->Set(0);
+			pRightOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .5 * (pAPixy->Get() < 0 ? -1 : 1)*FULLSPEED_FROMTALONS);
+		}
+	} else {
+		if((int)(pRunTimer->Get() * 2) % 2) {
+			pLeftOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .6 * (pAPixy->Get() < 0 ? -1 : 1));
+			pRightOneMotor->Set(0);
+		} else {
+			pLeftOneMotor->Set(0);
+			pRightOneMotor->Set(pow(fabs(pAPixy->Get()), 1.0/3.0) * .5 * (pAPixy->Get() < 0 ? -1 : 1));
+		}
 	}
 }
 
@@ -426,7 +457,8 @@ void Drivetrain::StartStraightDrive (float speed, float time, float distance)
 	fStraightDriveSpeed = speed;
 	fStraightDriveTime = time;
 	bDrivingStraight = true;
-	fStraightDriveDistance = (distance-.928)/7.22/1024*TALON_COUNTSPERREV;  //TODO need to calculate the stop distance more carefully
+	//fStraightDriveDistance = (distance-.928)/7.22*1024/TALON_COUNTSPERREV;  //TODO need to calculate the stop distance more carefully
+	fStraightDriveDistance = (distance/12)/(REVSPERFOOT/TALON_COUNTSPERREV)*4;
 	bTurning = false;
 
 	IterateStraightDrive();
@@ -445,8 +477,8 @@ void Drivetrain::IterateStraightDrive(void)
 				//SmartDashboard::PutNumber("velocity Right", pRightOneMotor->GetSpeed());
 				//SmartDashboard::PutNumber("velocity Left", pLeftOneMotor->GetSpeed());
 
-				if(pRightOneMotor->GetEncPosition() < (int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT))
-						&& pRightOneMotor->GetEncPosition() > -(int)(fStraightDriveDistance * (TALON_COUNTSPERREV * REVSPERFOOT)))
+				if(pRightOneMotor->GetEncPosition() < fStraightDriveDistance
+						&& pRightOneMotor->GetEncPosition() > -fStraightDriveDistance)
 				{
 					StraightDriveLoop(fStraightDriveSpeed);
 					Wait(.005);
@@ -567,14 +599,21 @@ void Drivetrain::StartTurn(float angle, float time)
 	bTurning = true;
 	printf("setpoint %lf \n", fTurnAngle/45.0);
 	pTurnPID->SetSetpoint(fTurnAngle/45.0);
-	pTurnPID->Enable();
+	//pTurnPID->Enable();
 
 }
 
 void Drivetrain::IterateTurn(void)
 {
-	if ((pTurnPID->OnTarget() == false) && (pAutoTimer->Get() < fTurnTime) && ISAUTO)
+	if((pGyro->GetAngle()-fTurnAngle>=1||pGyro->GetAngle()-fTurnAngle<=-1) && (pAutoTimer->Get() < fTurnTime) && ISAUTO)
 	{
+			if((int)(pRunTimer->Get() * 2.5) % 2) {
+				pLeftOneMotor->Set(pow(fabs((pGyro->GetAngle()-fTurnAngle)/30), 1.0/3.0) * .6 * (pGyro->GetAngle()-fTurnAngle < 0 ? -1 : 1)*FULLSPEED_FROMTALONS);
+				pRightOneMotor->Set(0);
+			} else {
+				pLeftOneMotor->Set(0);
+				pRightOneMotor->Set(pow(fabs((pGyro->GetAngle()-fTurnAngle)/30), 1.0/3.0) * .5 * (pGyro->GetAngle()-fTurnAngle < 0 ? -1 : 1)*FULLSPEED_FROMTALONS);
+			}
 		RunCheezyDrive(false, 0.0, 0.0, false);	// contribute to cheezy drive Kalman filter
 	}
 	else

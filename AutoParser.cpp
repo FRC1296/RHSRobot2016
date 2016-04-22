@@ -241,6 +241,7 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		break;
 
 	case AUTO_TOKEN_SHOOT:
+		printf("shooting\n");
 		if(!Shoot())
 		{
 			rStatus.append("shoot error");

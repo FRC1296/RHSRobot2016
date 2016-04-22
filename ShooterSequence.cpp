@@ -9,6 +9,7 @@
 #include "Arm.h"
 
 ShooterSequence::ShooterSequence() : RobotSequence(SHOOTER_SEQ_TASKNAME){
+
 }
 
 ShooterSequence::~ShooterSequence() {

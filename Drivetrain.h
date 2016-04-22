@@ -16,6 +16,7 @@
 
 #include "PoofGyro.h"
 #include "PixyCam.h"
+#include "ADXRS453Z.h"
 #include "PIDSearchOutput.h"
 #include "../cheezy/frc1296.h"
 #include <DriveTalon.h>
@@ -26,7 +27,7 @@
 // measured 546 left and 534 right on the ground,
 // 641 left and 562 right on blocks on 21 March 2016
 
-const float FULLSPEED_FROMTALONS = 	500.00;	// measured on the robot in RPMs
+const float FULLSPEED_FROMTALONS = 	1422.22;	// measured on the robot in RPMs
 const float TALON_FTERM_L = 		0.21;	// From CTRE manual, section 12.4
 const float TALON_PTERM_L = 		(TALON_FTERM_L / 5.0);
 const float TALON_ITERM_L = 		(TALON_PTERM_L / 10.0);
@@ -92,7 +93,7 @@ private:
 	CANTalon* pLeftTwoMotor;
 	DriveTalon* pRightOneMotor;
 	CANTalon* pRightTwoMotor;
-	PoofGyro *pGyro;
+	ADXRS453Z *pGyro;
 	//PixyCam *pCamera;
 	AnalogPixy* pAPixy;
 	AnalogPixy* pFrontPixy;
@@ -160,6 +161,7 @@ private:
 	void Search();
 	void RedSense();
 	void BallSearch();
+	void Aim();
 
 	void StartStraightDrive(float, float, float);
 	void IterateStraightDrive(void);
