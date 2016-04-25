@@ -34,8 +34,9 @@ Arm::Arm() : ComponentBase(ARM_TASKNAME, ARM_QUEUE, ARM_PRIORITY){
 
 	pTask = new Task(ARM_TASKNAME, &Arm::StartTask, this);
 	wpi_assert(pTask);
-	pArmLeverMotor->SetEncPosition(0);
-	pArmPID->SetSetpoint(bottomEncoderPos);
+	//TKB pArmLeverMotor->SetEncPosition(0);
+	//TKB pArmPID->SetSetpoint(bottomEncoderPos);
+	pArmPID->SetSetpoint(pArmLeverMotor->GetPulseWidthPosition());
 	//Far();
 }
 
@@ -54,10 +55,6 @@ void Arm::Run(){
 	//printf("output error %f \n", pArmPID->GetAvgError());
 	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetPulseWidthPosition());
 
-	if(localMessage.command != COMMAND_AUTONOMOUS_INTAKE){
-
-	}
-
 	//bIsIntaking = false;
 	switch(localMessage.command) {
 	case COMMAND_ARM_FAR:
@@ -69,6 +66,14 @@ void Arm::Run(){
 	case COMMAND_ARM_MOVE_RIDE:
 		pArmPID->SetSetpoint(bottomEncoderPos);
 	break;
+	case COMMAND_ARM_AUTO_MOVE_RIDE:
+		Wait(.1);
+		pArmPID->SetSetpoint(bottomEncoderPos);
+		break;
+
+	case COMMAND_ARM_MOVE_AFTERSHOOT:
+		pArmPID->SetSetpoint(afterShootEncoderPos);
+		break;
 	case COMMAND_ARM_INTAKE_STOP:
 		bIsIntaking = false;
 		break;
@@ -92,6 +97,11 @@ void Arm::Run(){
 
 	case COMMAND_AUTONOMOUS_INTAKE:
 		AutoIntake();
+		break;
+
+	case COMMAND_AUTONOMOUS_MOVEINTAKE:
+		pArmPID->SetSetpoint(intakeEncoderPos);
+		bIsIntaking = true;
 		break;
 
 	case COMMAND_AUTONOMOUS_THROWUP:
@@ -198,10 +208,10 @@ void Arm::Intake(bool direction){
 }
 
 void Arm::AutoIntake(){
-	Intake(true);
-	pArmIntakeMotor->Set(0);
-	pArmPID->SetSetpoint(bottomEncoderPos);
-	SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
+	pArmPID->SetSetpoint(intakeEncoderPos);
+	pArmIntakeMotor->Set(fIntakeInSpeed);
+	bIsIntaking = true;
+	//SendCommandResponse(COMMAND_AUTONOMOUS_RESPONSE_OK);
 }
 
 void Arm::Throwup(){
@@ -220,8 +230,8 @@ void Arm::AutoPos(){
 void Arm::OnStateChange(){
 	switch(localMessage.command) {
 	case COMMAND_ROBOT_STATE_AUTONOMOUS:
+		pArmPID->SetSetpoint(pArmLeverMotor->GetPulseWidthPosition());
 		pArmPID->Enable();
-		pArmPID->SetSetpoint(GetEncPosition());
 		break;
 
 	case COMMAND_ROBOT_STATE_TEST:
@@ -229,8 +239,8 @@ void Arm::OnStateChange(){
 		break;
 
 	case COMMAND_ROBOT_STATE_TELEOPERATED:
-		pArmPID->Enable();
 		pArmPID->SetSetpoint(bottomEncoderPos);
+		pArmPID->Enable();
 		break;
 
 	case COMMAND_ROBOT_STATE_DISABLED:

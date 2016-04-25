@@ -242,6 +242,43 @@ bool Autonomous::MeasuredMove(char *pCurrLinePos) {
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 
+bool Autonomous::MeasuredMoveToLine(char *pCurrLinePos) {
+
+	char *pToken;
+	float fDistance;
+	float fSpeed;
+
+	// parse remainder of line to get length to move
+
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+		return (false);
+	}
+
+	fSpeed = atof(pToken);
+
+	pToken = strtok_r(pCurrLinePos, szDelimiters, &pCurrLinePos);
+
+	if(pToken == NULL)
+	{
+		SmartDashboard::PutString("Auto Status","EARLY DEATH!");
+		return (false);
+	}
+
+	fDistance = atof(pToken);
+
+	// send the message to the drive train
+
+	Message.command = COMMAND_DRIVETRAIN_MLINE;
+	Message.params.autonomous.driveSpeed = fSpeed;
+	Message.params.autonomous.driveDistance = fDistance;
+
+	return (CommandResponse(DRIVETRAIN_QUEUE));
+}
+
 bool Autonomous::Straight(char *pCurrLinePos) {
 	char *pToken;
 	float fSpeed;
@@ -283,9 +320,21 @@ bool Autonomous::Search(){
 	return (CommandResponse(DRIVETRAIN_QUEUE));
 }
 
+bool Autonomous::SetAngle(){
+	Message.command = COMMAND_DRIVETRAIN_SETANGLE;
+	return (CommandNoResponse(DRIVETRAIN_QUEUE));
+}
+
 bool Autonomous::Intake(){
 	Message.command = COMMAND_AUTONOMOUS_INTAKE;
-	return (CommandResponse(ARM_QUEUE));
+	return (CommandNoResponse(ARM_QUEUE));
+}
+
+bool Autonomous::Ride(){
+	Message.command = COMMAND_ARM_MOVE_RIDE;
+	CommandNoResponse(ARM_QUEUE);
+	Message.command = COMMAND_ARM_INTAKE_STOP;
+	return (CommandNoResponse(ARM_QUEUE));
 }
 
 bool Autonomous::Throwup(){
@@ -305,8 +354,19 @@ bool Autonomous::Shoot(){
 	return true;
 }
 
+bool Autonomous::Short(){
+	ShooterSequence ss = ShooterSequence();
+	ss.Run();
+	return true;
+}
+
+bool Autonomous::Aim(){
+	Message.command = COMMAND_AUTONOMOUS_SHOOT;
+	return 	CommandResponse(DRIVETRAIN_QUEUE);
+}
+
 bool Autonomous::Lower(){
-	Message.command = COMMAND_ARM_MOVE_RIDE;
+	Message.command = COMMAND_ARM_AUTO_MOVE_RIDE;
 	return(CommandNoResponse(ARM_QUEUE));
 }
 

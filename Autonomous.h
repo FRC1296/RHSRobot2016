@@ -66,10 +66,12 @@ private:
 	bool Move(char *);
 	bool Stop(char *);
 	bool MeasuredMove(char *);
+	bool MeasuredMoveToLine(char *);
 	bool Turn(char *);
 	bool Straight(char *);
 	bool Search();
 	bool Intake();
+	bool Ride();
 	bool Throwup();
 	bool Shoot();
 	bool Lower();
@@ -77,6 +79,10 @@ private:
 	bool TailDown();
 	bool TailUp();
 	bool RedSense();
+	bool Short();
+	bool Aim();
+	bool SetAngle();
+
 
 	bool CommandResponse(const char *szQueueName);
 	bool CommandNoResponse(const char *szQueueName);

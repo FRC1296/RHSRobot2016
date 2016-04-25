@@ -36,10 +36,7 @@ void ShooterSequence::Run(){
 	SendMessage(SHOOTER_QUEUE, &robotMessage);
 	printf("sent message\n");
 	printf("waiting\n");
-	Wait(preShootDelay);	// Wait for jaw to open
 
-	robotMessage.command = COMMAND_SHOOTER_SHOOTER_OPEN;
-	SendMessage(SHOOTER_QUEUE, &robotMessage);
 
 	robotMessage.command = COMMAND_ARM_INTAKE_OUT;
 	SendMessage(ARM_QUEUE, &robotMessage);
@@ -49,12 +46,19 @@ void ShooterSequence::Run(){
 	robotMessage.command = COMMAND_ARM_INTAKE_STOP;
 	SendMessage(ARM_QUEUE, &robotMessage);
 	printf("waiting\n");
+
+	Wait(preShootDelay);	// Wait for jaw to open
+
+	robotMessage.command = COMMAND_SHOOTER_SHOOTER_OPEN;
+	SendMessage(SHOOTER_QUEUE, &robotMessage);
+
+
 	Wait(postShootDelay);	// Wait for ball to shoot
 
 	robotMessage.command = COMMAND_SHOOTER_SHOOTER_CLOSE;
 	SendMessage(SHOOTER_QUEUE, &robotMessage);
 	printf("waiting l\n");
-	Wait(clawCloseDelay);	// Wait for shooters to close
+	//Wait(clawCloseDelay);	// Wait for shooters to close
 
 	robotMessage.command = COMMAND_SHOOTER_JAW_CLOSE;
 	SendMessage(SHOOTER_QUEUE, &robotMessage);

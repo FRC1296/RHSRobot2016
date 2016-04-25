@@ -30,12 +30,19 @@ const char *szTokens[] = {
 		"DELAY",			//!<(seconds)
 		"MOVE",				//!<(left speed) (right speed)
 		"MMOVE",			//!<(speed) (distance:inches) (timeout)
+		"MLINE",			//!<(speed) (distance:inches) (timeout)
 		"TURN",				//!<(degrees) (timeout)
 		"STRAIGHT",			//!<(speed) (duration)
 		"SEARCH",
+		"AIM",
 		"INTAKE",
+		"STOPINTAKE",
+		"RIDE",
+		"LOWEST",
+		"AFTERSHOOT",
 		"THROWUP",
 		"SHOOT",
+		"SETANGLE",
 		"LOWER",
 		"RAISE",
 		"TAILDOWN",
@@ -45,6 +52,9 @@ const char *szTokens[] = {
 		"STARTDRIVEFWD",	//!<(drive speed)
 		"STARTDRIVEBCK",	//!<(drive speed)
 		"STOPDRIVE",
+		"SHORT",
+		"JAWOPEN",
+		"JAWCLOSE",
 		"NOP" };
 //TODO: add START and FINISH, which send messages to all components
 // (Begin and End are doing this now, but they shouldn't)
@@ -185,6 +195,17 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		}
 		break;
 
+	case AUTO_TOKEN_MLINE:
+		if (!MeasuredMoveToLine(pCurrLinePos))
+		{
+			rStatus.append("move line error");
+		}
+		else
+		{
+			rStatus.append("move line");
+		}
+		break;
+
 	case AUTO_TOKEN_TURN:
 		if (!Turn(pCurrLinePos))
 		{
@@ -217,6 +238,16 @@ bool Autonomous::Evaluate(std::string rStatement) {
 			rStatus.append("search");
 		}
 		break;
+	case AUTO_TOKEN_AIM:
+		if (!Aim())
+		{
+			rStatus.append("aim error");
+		}
+		else
+		{
+			rStatus.append("aiming");
+		}
+		break;
 
 	case AUTO_TOKEN_INTAKE:
 		if(!Intake())
@@ -227,6 +258,30 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		{
 			rStatus.append("intaking");
 		}
+		break;
+
+	case AUTO_TOKEN_INTAKESTOP:
+		Message.command = COMMAND_ARM_INTAKE_STOP;
+		CommandNoResponse(ARM_QUEUE);
+		break;
+
+	case AUTO_TOKEN_RIDE:
+		if(!Ride())
+		{
+			rStatus.append("ride error");
+		}
+		else
+		{
+			rStatus.append("ride");
+		}
+		break;
+	case AUTO_TOKEN_AFTERSHOOT:
+		Message.command = COMMAND_ARM_MOVE_AFTERSHOOT;
+		CommandNoResponse(ARM_QUEUE);
+		break;
+	case AUTO_TOKEN_LOWERINTAKE:
+		Message.command = COMMAND_AUTONOMOUS_MOVEINTAKE;
+		CommandNoResponse(ARM_QUEUE);
 		break;
 
 	case AUTO_TOKEN_THROWUP:
@@ -249,6 +304,16 @@ bool Autonomous::Evaluate(std::string rStatement) {
 		else
 		{
 			rStatus.append("shooting");
+		}
+		break;
+	case AUTO_TOKEN_SETANGLE:
+		if(!SetAngle())
+		{
+			rStatus.append("angle set error");
+		}
+		else
+		{
+			rStatus.append("setting angle");
 		}
 		break;
 
@@ -349,6 +414,27 @@ bool Autonomous::Evaluate(std::string rStatement) {
 	case AUTO_TOKEN_STOP_DRIVE:
 		Message.command = COMMAND_DRIVETRAIN_STOP;
 		CommandNoResponse(DRIVETRAIN_QUEUE);
+		break;
+
+	case AUTO_TOKEN_SHORT:
+		if(!Short())
+		{
+			rStatus.append("short error");
+		}
+		else
+		{
+			rStatus.append("short shot");
+		}
+		break;
+
+	case AUTO_TOKEN_JAWOPEN:
+		Message.command = COMMAND_SHOOTER_JAW_OPEN;
+		CommandNoResponse(SHOOTER_QUEUE);
+		break;
+
+	case AUTO_TOKEN_JAWCLOSE:
+		Message.command = COMMAND_SHOOTER_JAW_CLOSE;
+		CommandNoResponse(SHOOTER_QUEUE);
 		break;
 
 	default:

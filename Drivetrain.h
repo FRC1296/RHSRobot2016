@@ -101,9 +101,9 @@ private:
 	Timer* pRunTimer;
 	CheezyLoop *pCheezy;
 	//PIDController* pSearchPID;
-	PIDController* pTurnPID;
+	//PIDController* pTurnPID;
 	//PIDSearchOutput* pSearchPIDOutput;
-	PIDSearchOutput* pTurnPIDOutput;
+	//PIDSearchOutput* pTurnPIDOutput;
 	PIDSearchOutput* pSearchPIDOutput;
 	DigitalInput* pLaserReturn;
 
@@ -117,12 +117,14 @@ private:
 	float fStraightDriveTime = 0.0;
 	float fTurnAngle = 0.0;
 	float fTurnTime = 0.0;
+	float fTimer = 0;
 
 	float fBatteryVoltage = 12.0;
 	bool bDrivingStraight = false;
 	bool bTurning = false;
 	bool bUnderServoControl = false;
 	bool bMeasuredMove = false;
+	bool bMeasuredMoveToLine = false;
 	bool bRedSensing = false;
 	bool bSearching = false;
 	bool bSearchLastFrame = false;
@@ -162,6 +164,8 @@ private:
 	void RedSense();
 	void BallSearch();
 	void Aim();
+	void Aim(double);
+	void SetAngle();
 
 	void StartStraightDrive(float, float, float);
 	void IterateStraightDrive(void);
