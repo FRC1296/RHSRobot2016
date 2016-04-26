@@ -19,10 +19,9 @@ public:
 	void Close();
 
 private:
-	const uint8_t uMask = (0x1 << SOL_JAWCLOSE_1) | (0x1 << SOL_JAWCLOSE_2) |
-		(0x1 << SOL_JAWOPEN_1) | (0x1 << SOL_JAWOPEN_2);
-	const uint8_t uCloseValue = (0x1 << SOL_JAWCLOSE_1) | (0x1 << SOL_JAWCLOSE_2);
-	const uint8_t uOpenValue = (0x1 << SOL_JAWOPEN_1) | (0x1 << SOL_JAWOPEN_2);
+	const uint8_t uMask = (0x1 << SOL_JAWOPEN) | (0x1 << SOL_JAWCLOSE);
+	const uint8_t uCloseValue = (0x1 << SOL_JAWCLOSE);
+	const uint8_t uOpenValue = (0x1 << SOL_JAWOPEN);
 	int canid;
 };
 

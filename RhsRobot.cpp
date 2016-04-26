@@ -218,6 +218,11 @@ void RhsRobot::Run() {
 		if(HANGER_HANG){
 			robotMessage.command = COMMAND_HANGER_HANG;
 			hanger->SendMessage(&robotMessage);
+			robotMessage.command = COMMAND_DRIVETRAIN_DRIVE_CHEEZY;
+			 			robotMessage.params.cheezyDrive.wheel = 0;
+			 			robotMessage.params.cheezyDrive.throttle = .1;
+			 			robotMessage.params.cheezyDrive.bQuickturn = false;
+			drivetrain->SendMessage(&robotMessage);
 		}
 	}
 

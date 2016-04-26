@@ -9,6 +9,7 @@
 #define HANGER_H_
 #include "WPILib.h"
 #include <ComponentBase.h>
+#include "HangerSequence.h"
 
 class Hanger : public ComponentBase{
 public:
@@ -29,6 +30,8 @@ private:
 	};
 	CANTalon* pHangerMotor;
 	Timer* pHangTimer;
+	Solenoid* solenoid;
+	HangerSequence* hs;
 
 	HangerState currentState;
 
@@ -36,10 +39,8 @@ private:
 	void Run();
 	void Hang();
 
-	const float fPinoutTime = .1f;
-	const float fAirTime = 1.5f;
-	const float fRaiseSpeed = 1.0;
-	const float fPulloutSpeed = 1.0;
+	const float fAirTime = 3.5f;
+	const float fRaiseSpeed = -1.0;
 	const double fTeleopTime = 135.0;
 	const double fActivateTimeLeft = 20;
 

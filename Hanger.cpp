@@ -11,8 +11,12 @@ Hanger::Hanger() : ComponentBase(HANGER_TASKNAME, HANGER_QUEUE, HANGER_PRIORITY)
 	pHangerMotor = new CANTalon(CAN_HANGER_MOTOR);
 	pHangerMotor->ConfigNeutralMode(CANSpeedController::kNeutralMode_Brake);
 	pHangerMotor->SetControlMode(CANTalon::kPercentVbus);
+
+	hs = new HangerSequence();
+
+	solenoid = new Solenoid(CAN_PCM_JAW,SOL_HANGER);
 	//currentState = NOT_DEPLOYED; // This is what it should start with
-	currentState = RAISING; //
+	currentState = RAISING; // TODO change this back
 	pHangTimer = new Timer();
 
 	pTask = new Task(HANGER_TASKNAME, &Hanger::StartTask, this);
@@ -27,6 +31,13 @@ void Hanger::Run(){
 	case COMMAND_HANGER_HANG:
 		Hang();
 		break;
+	case COMMAND_HANGER_SOLENOID_ENABLE:
+		solenoid->Set(true);
+		break;
+	case COMMAND_HANGER_SOLENOID_DISABLE:
+		solenoid->Set(false);
+		break;
+
 	default:
 		if(currentState == RAISING){
 			pHangerMotor->Set(0);
@@ -39,8 +50,8 @@ void Hanger::Run(){
 		// do nothing
 		break;
 	case DEPLOYED_AND_WAITING:
-		if(pHangTimer->Get()>fPinoutTime){
-			pHangerMotor->Set(0);
+		if(!hs->IsRunning()){
+			pHangTimer->Start();
 		}
 		if(pHangTimer->Get()>fAirTime){
 			currentState = RAISING;
@@ -62,9 +73,10 @@ void Hanger::Hang(){
 
 	switch(currentState){
 	case NOT_DEPLOYED:
+		hs->StartSequence();
+		pHangTimer->Stop();
 		pHangTimer->Reset();
-		pHangTimer->Start();
-		pHangerMotor->Set(fPulloutSpeed);
+
 		currentState = DEPLOYED_AND_WAITING;
 		break;
 	case DEPLOYED_AND_WAITING:

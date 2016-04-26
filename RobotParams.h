@@ -55,6 +55,7 @@ const char* const TAIL_TASKNAME			= "tTail";
 const char* const SHOOTER_TASKNAME		= "tShooter";
 const char* const HANGER_TASKNAME		= "tHanger";
 const char* const SHOOTER_SEQ_TASKNAME	= "tShooterSeq";
+const char* const HANGER_SEQ_TASKNAME	= "tSHangerSeq";
 //TODO change these variables throughout the code to PIPE or whatever instead  of QUEUE
 //Queue Names - Used when you want to open the message queue for any task
 //NOTE: 2015 - we use pipes instead of queues
@@ -112,10 +113,9 @@ const int SOL_SHOOTER_1 = 0;
 const int SOL_SHOOTER_2 = 1;
 const int SOL_SHOOTER_3 = 2;
 const int SOL_SHOOTER_4 = 3;
-const int SOL_JAWCLOSE_1 = 2;
-const int SOL_JAWCLOSE_2 = 3;
-const int SOL_JAWOPEN_1 = 0;
-const int SOL_JAWOPEN_2 = 1;
+const int SOL_JAWCLOSE = 2;
+const int SOL_JAWOPEN = 1;
+const int SOL_HANGER = 0;
 
 //I2C - Assigns names to I2C ports 1-2 on the Roborio
 //EXAMPLE: const int IO2C_AUTO_ACCEL = 1;
