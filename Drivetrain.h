@@ -42,6 +42,8 @@ const float TALON_COUNTSPERREV =	360;	// from CTRE docs
 const float REVSPERFOOT = (3.141519 * 6.0 / 12.0);
 const double METERS_PER_COUNT = (REVSPERFOOT * 0.3048 / (double)TALON_COUNTSPERREV);
 
+const float fMinimumTurnSpeed = 0.3;
+
 class CheezyLoop {
 
  public:
@@ -49,6 +51,7 @@ class CheezyLoop {
  	CheezyLoop();
  	~CheezyLoop();
  	static void Run(CheezyLoop *);
+
 
  	bool bOutputEnabled;
 

@@ -11,12 +11,11 @@
 #include <ComponentBase.h>
 #include <CanArmTalon.h>
 
-const int closeEncoderPos = 1400;  //
-const int farEncoderPos = 2200; // -2116 actual position
-const int bottomEncoderPos = 160;
-const int intakeEncoderPos = -566; // -250 before chain slop adjustment // -153 actual position
-const int afterShootEncoderPos = 710;
-
+const int farEncoderPos = 3750;
+const int closeEncoderPos = (farEncoderPos - 1000);
+const int afterShootEncoderPos = (farEncoderPos - 1240);
+const int bottomEncoderPos = (farEncoderPos - 1400);
+const int intakeEncoderPos = (farEncoderPos - 2170);
 
 
 class Arm : public ComponentBase

@@ -377,28 +377,18 @@ void Drivetrain::Run() {
 		break;
 	case COMMAND_AUTONOMOUS_SHOOT:
 		{
+			Wait(.2);
+			fTimer = pRunTimer->Get();
 			double dfPixy = pAPixy->Get();
 
 			// if we see something but it is not close, try to aim
-
-			while((dfPixy != 5) && ((dfPixy > .025) || (dfPixy < -.025))){
+while(pRunTimer->Get()-fTimer <.2){
+			if((dfPixy != 5) && ((dfPixy > .025) || (dfPixy < -.025))){
 				Aim(dfPixy);
 				dfPixy = pAPixy->Get();
+				fTimer = pRunTimer->Get();
 			}
-
-			Wait(0.1);
-			pLeftOneMotor->Set(0);
-			pRightOneMotor->Set(0);
-			Wait(0.1);
-			dfPixy = pAPixy->Get();
-
-			// make sure we settled in a good place
-
-			while((dfPixy != 5) && ((dfPixy > .025) || (dfPixy < -.025))){
-				Aim(dfPixy);
-				dfPixy = pAPixy->Get();
-			}
-
+		}
 			pLeftOneMotor->Set(0);
 			pRightOneMotor->Set(0);
 
@@ -459,18 +449,25 @@ void Drivetrain::Aim(double dfPixy){
 //		pRightOneMotor->Set(pow(fabs(dfPixy), 1.0/3.0) * .64 * (dfPixy < 0 ? -1 : 1)*FULLSPEED_FROMTALONS);
 		double dfNextVel = dfPixy * 1.0;
 
-		if((dfNextVel > 0.0) && (dfNextVel < 0.25))
+		if((dfNextVel > 0.0) && (dfNextVel < fMinimumTurnSpeed))
 		{
-			dfNextVel = 0.25;
+			dfNextVel = fMinimumTurnSpeed;
 		}
-		else if((dfNextVel < 0.0) && (dfNextVel > -0.25))
+		else if((dfNextVel < 0.0) && (dfNextVel > -fMinimumTurnSpeed))
 		{
-			dfNextVel = -0.25;
+			dfNextVel = -fMinimumTurnSpeed;
 		}
 
-		//pLeftOneMotor->Set(dfNextVel * FULLSPEED_FROMTALONS);
-		pLeftOneMotor->Set(0);
-		pRightOneMotor->Set(dfNextVel * FULLSPEED_FROMTALONS);
+		if(dfPixy > 0.0)
+		{
+			pLeftOneMotor->Set(0);
+			pRightOneMotor->Set(dfNextVel * FULLSPEED_FROMTALONS);
+		}
+		else
+		{
+			pLeftOneMotor->Set(dfNextVel * FULLSPEED_FROMTALONS);
+			pRightOneMotor->Set(0);
+		}
 	} else {
 		if((int)(pRunTimer->Get() * 2) % 2) {
 			pLeftOneMotor->Set(pow(fabs(dfPixy), 1.0/3.0) * .6 * (dfPixy < 0 ? -1 : 1));
@@ -706,20 +703,27 @@ void Drivetrain::IterateTurn(void)
 	float fCurrentError = fCurrentAngle - fTurnAngle;
 	float fNextMotor = fCurrentError/180.0 * 1.0;
 
-	if((fNextMotor > 0.0) && (fNextMotor < 0.25))
+	if((fNextMotor > 0.0) && (fNextMotor < fMinimumTurnSpeed))
 	{
-		fNextMotor = 0.25;
+		fNextMotor = fMinimumTurnSpeed;
 	}
-	else if((fNextMotor < 0.0) && (fNextMotor > -0.25))
+	else if((fNextMotor < 0.0) && (fNextMotor > -fMinimumTurnSpeed))
 	{
-		fNextMotor = -0.25;
+		fNextMotor = -fMinimumTurnSpeed;
 	}
 
 	if(((fCurrentError >= 1.0) || (fCurrentError <= -1.0)) && (pAutoTimer->Get() < fTurnTime) && ISAUTO)
 	{
-		//pLeftOneMotor->Set(fNextMotor * FULLSPEED_FROMTALONS);
-		pLeftOneMotor->Set(0);
-		pRightOneMotor->Set(fNextMotor * FULLSPEED_FROMTALONS);
+		if(fCurrentError > 0.0)
+		{
+			pLeftOneMotor->Set(0);
+			pRightOneMotor->Set(fNextMotor * FULLSPEED_FROMTALONS);
+		}
+		else
+		{
+			pLeftOneMotor->Set(fNextMotor * FULLSPEED_FROMTALONS);
+			pRightOneMotor->Set(0);
+		}
 	}
 	else
 	{
