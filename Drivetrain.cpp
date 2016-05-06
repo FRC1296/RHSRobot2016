@@ -44,7 +44,7 @@ Drivetrain::Drivetrain() :
 	pRightTwoMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTTWO_MOTOR);
 	wpi_assert(pLeftOneMotor && pRightOneMotor && pLeftTwoMotor && pRightTwoMotor);
 
-	pAPixy = new AnalogPixy(0,4,-0.05);  //positive corrects to the right
+	pAPixy = new AnalogPixy(0,4,-0.055);  //positive makes robot shoot to the left
 	pFrontPixy = new AnalogPixy(1,3,0);
 
 	//pCamera = new PixyCam();
@@ -382,11 +382,15 @@ void Drivetrain::Run() {
 			double dfPixy = pAPixy->Get();
 
 			// if we see something but it is not close, try to aim
-while(pRunTimer->Get()-fTimer <.2){
+while(pRunTimer->Get()-fTimer <.5){
 			if((dfPixy != 5) && ((dfPixy > .025) || (dfPixy < -.025))){
 				Aim(dfPixy);
 				dfPixy = pAPixy->Get();
 				fTimer = pRunTimer->Get();
+			}else{
+				dfPixy = pAPixy->Get();
+				pLeftOneMotor->Set(0);
+				pRightOneMotor->Set(0);
 			}
 		}
 			pLeftOneMotor->Set(0);
@@ -917,8 +921,23 @@ void Drivetrain::RunCheezyDrive(bool bEnabled, float fWheel, float fThrottle, bo
     struct DrivetrainOutput Output;
     struct DrivetrainStatus Status;
 
+    if(bSearching && (pAPixy->Get() != 5) && (Arm::GetEncTarget() == farEncoderPos))
+    {
+    	Goal.steering = pAPixy->Get()*(abs(pLeftOneMotor->GetSpeed()) > 150 ? .75 : 2);
+    }
+    else
+    {
+    	if(bQuickturn)
+    	{
+    		Goal.steering = -pow(fWheel,3);
+    	}
+    	else
+    	{
+    		Goal.steering = -fWheel;
+    	}
+    }
 
-    Goal.steering = ((bSearching)&&pAPixy->Get()!=5?pAPixy->Get()*(abs(pLeftOneMotor->GetSpeed())>150?.75:2):(bQuickturn?-pow(fWheel,3):-fWheel));   // not sure why
+    //Goal.steering = ((bSearching)&&pAPixy->Get()!=5&&Arm::GetEncTarget()==farEncoderPos?pAPixy->Get()*(abs(pLeftOneMotor->GetSpeed())>150?.75:2):(bQuickturn?-pow(fWheel,3):-fWheel));   // not sure why
     Goal.throttle = fThrottle;
     Goal.quickturn = bQuickturn;
     Goal.control_loop_driving = false;

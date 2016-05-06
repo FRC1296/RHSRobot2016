@@ -24,7 +24,7 @@ bool AnalogPixy::IsConnected(){
 
 double AnalogPixy::Get(){
 if(IsConnected()){
-return (1-input->GetVoltage()/3.3*2-offset);
+return (1-input->GetVoltage()/3.3*2+offset);
 }
 return 5;
 }

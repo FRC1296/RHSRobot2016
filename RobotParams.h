@@ -86,7 +86,7 @@ Add more as needed.
  */
 
 const int CAN_PCM_SHOOTER = 0;
-const int CAN_PCM_JAW = 1;
+const int CAN_PCM_JAW = 0;
 const int CAN_PDB = 19;
 const int CAN_DRIVETRAIN_LEFTONE_MOTOR = 1;
 const int CAN_DRIVETRAIN_LEFTTWO_MOTOR = 2;
@@ -113,9 +113,9 @@ const int SOL_SHOOTER_1 = 0;
 const int SOL_SHOOTER_2 = 1;
 const int SOL_SHOOTER_3 = 2;
 const int SOL_SHOOTER_4 = 3;
-const int SOL_JAWCLOSE = 2;
-const int SOL_JAWOPEN = 1;
-const int SOL_HANGER = 0;
+const int SOL_JAWCLOSE = 5;
+const int SOL_JAWOPEN = 7;
+const int SOL_HANGER = 6;
 
 //I2C - Assigns names to I2C ports 1-2 on the Roborio
 //EXAMPLE: const int IO2C_AUTO_ACCEL = 1;

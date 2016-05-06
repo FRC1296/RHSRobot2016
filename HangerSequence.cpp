@@ -30,6 +30,6 @@ void HangerSequence::Run(){
 	SendMessage(ARM_QUEUE, &mc);
 	Wait(2.0);
 	mc.command = COMMAND_SHOOTER_JAW_OPEN;
-	SendMessage(ARM_QUEUE, &mc);
+	SendMessage(SHOOTER_QUEUE, &mc);
 	Wait(2.0);
 }

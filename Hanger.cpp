@@ -15,8 +15,8 @@ Hanger::Hanger() : ComponentBase(HANGER_TASKNAME, HANGER_QUEUE, HANGER_PRIORITY)
 	hs = new HangerSequence();
 
 	solenoid = new Solenoid(CAN_PCM_JAW,SOL_HANGER);
-	//currentState = NOT_DEPLOYED; // This is what it should start with
-	currentState = RAISING; // TODO change this back
+	currentState = NOT_DEPLOYED; // This is what it should start with
+	//currentState = RAISING; // TODO change this back
 	pHangTimer = new Timer();
 
 	pTask = new Task(HANGER_TASKNAME, &Hanger::StartTask, this);
