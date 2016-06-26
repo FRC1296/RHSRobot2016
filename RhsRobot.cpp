@@ -15,6 +15,7 @@
 
 RhsRobot::RhsRobot() {
 	Controller_1 = NULL;
+	Controller_2 = NULL;
 	drivetrain = NULL;
 	autonomous = NULL;
 	arm = NULL;
@@ -44,6 +45,7 @@ void RhsRobot::Init() {
 	 * 			drivetrain = new Drivetrain(); (in RhsRobot::Init())
 	 */
 	Controller_1 = new Joystick(0);
+	Controller_2 = new Joystick(1);
 	drivetrain = new Drivetrain();
 	autonomous = new Autonomous();
 	arm = new Arm();

@@ -53,6 +53,7 @@ Arm::~Arm() {
 void Arm::Run(){
 
 	//printf("output error %f \n", pArmPID->GetAvgError());
+
 	SmartDashboard::PutNumber("arm encoder", pArmLeverMotor->GetPulseWidthPosition());
 
 	//bIsIntaking = false;

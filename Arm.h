@@ -12,7 +12,7 @@
 #include <CanArmTalon.h>
 
 const int farEncoderPos = 751; //651
-const int closeEncoderPos = (farEncoderPos - 1284);
+const int closeEncoderPos = (farEncoderPos - 1000);
 const int afterShootEncoderPos = (farEncoderPos - 1345);
 const int bottomEncoderPos = (farEncoderPos - 1996);
 const int intakeEncoderPos = (farEncoderPos - 2364); // far-2264

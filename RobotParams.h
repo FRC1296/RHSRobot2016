@@ -86,7 +86,7 @@ Add more as needed.
  */
 
 const int CAN_PCM_SHOOTER = 0;
-const int CAN_PCM_JAW = 0;
+const int CAN_PCM_JAW = 17;
 const int CAN_PDB = 19;
 const int CAN_DRIVETRAIN_LEFTONE_MOTOR = 1;
 const int CAN_DRIVETRAIN_LEFTTWO_MOTOR = 2;
@@ -198,22 +198,22 @@ const int POV_STILL = -1;
 #define CHEEZY_DRIVE_QUICKTURN		(Controller_1->GetRawButton(L310_BUTTON_BUMPER_LEFT))
 #define ARCADE_DRIVE_X				(Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_X))
 #define ARCADE_DRIVE_Y				(-Controller_1->GetRawAxis(L310_THUMBSTICK_LEFT_Y))
-#define ARM_INTAKE_IN				(Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT))
-#define ARM_INTAKE_OUT				(Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)!=0)
-#define TAIL_DOWN					(Controller_1->GetRawButton(L310_BUTTON_THUMB_RIGHT))
-#define TAIL_UP						(Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT))
-#define	SHOOTER_SHOOT				(Controller_1->GetRawButton(L310_BUTTON_A))
-#define ARM_FAR						(Controller_1->GetPOV(0)==0)
-#define ARM_CLOSE					(Controller_1->GetPOV(0)==90)
-#define ARM_MOVE_INTAKE				(Controller_1->GetPOV(0)==180)
-#define ARM_MOVE_RIDE				(Controller_1->GetPOV(0)==270)
+#define ARM_INTAKE_IN				((Controller_1->GetRawButton(L310_BUTTON_BUMPER_RIGHT)) || (Controller_2->GetRawButton(L310_BUTTON_BUMPER_RIGHT)))
+#define ARM_INTAKE_OUT				((Controller_1->GetRawAxis(L310_TRIGGER_RIGHT)!=0) || (Controller_2->GetRawAxis(L310_TRIGGER_RIGHT)!=0))
+#define TAIL_DOWN					((Controller_1->GetRawButton(L310_BUTTON_THUMB_RIGHT)) || (Controller_2->GetRawButton(L310_BUTTON_THUMB_RIGHT)))
+#define TAIL_UP						((Controller_1->GetRawButton(L310_BUTTON_THUMB_LEFT)) || (Controller_2->GetRawButton(L310_BUTTON_THUMB_LEFT)))
+#define	SHOOTER_SHOOT				((Controller_1->GetRawButton(L310_BUTTON_A)) || (Controller_2->GetRawButton(L310_BUTTON_A)))
+#define ARM_FAR						((Controller_1->GetPOV(0)==0) || (Controller_2->GetPOV(0)==0))
+#define ARM_CLOSE					((Controller_1->GetPOV(0)==90) || (Controller_2->GetPOV(0)==90))
+#define ARM_MOVE_INTAKE				((Controller_1->GetPOV(0)==180) || (Controller_2->GetPOV(0)==180))
+#define ARM_MOVE_RIDE				((Controller_1->GetPOV(0)==270) || (Controller_2->GetPOV(0)==270))
 //#define DRIVE_RED				(Controller_1->GetRawButton(L310_BUTTON_Y))
 //#define DRIVE_SEARCHBALL				(Controller_1->GetRawButton(L310_BUTTON_Y))
-#define DRIVE_SEARCHON				(Controller_1->GetRawButton(L310_BUTTON_START))
-#define DRIVE_SEARCHOFF				(Controller_1->GetRawButton(L310_BUTTON_BACK))
-#define HANGER_HANG					(Controller_1->GetRawButton(L310_BUTTON_Y))
-#define DRIVE_ZERO_GYRO				(Controller_1->GetRawButton(L310_BUTTON_B))
-#define ARM_ENABLE				(Controller_1->GetRawButton(L310_BUTTON_X))
+#define DRIVE_SEARCHON				((Controller_1->GetRawButton(L310_BUTTON_START)) || (Controller_2->GetRawButton(L310_BUTTON_START)))
+#define DRIVE_SEARCHOFF				((Controller_1->GetRawButton(L310_BUTTON_BACK)) || (Controller_2->GetRawButton(L310_BUTTON_BACK)))
+#define HANGER_HANG					((Controller_1->GetRawButton(L310_BUTTON_Y)) || (Controller_2->GetRawButton(L310_BUTTON_Y)))
+#define DRIVE_ZERO_GYRO				((Controller_1->GetRawButton(L310_BUTTON_B)) || (Controller_2->GetRawButton(L310_BUTTON_B)))
+#define ARM_ENABLE					((Controller_1->GetRawButton(L310_BUTTON_X)) || (Controller_2->GetRawButton(L310_BUTTON_X)))
 
 #endif // USE_L310_FOR_CONTROLLER_1
 

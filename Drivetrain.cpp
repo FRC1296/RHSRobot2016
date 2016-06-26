@@ -44,7 +44,7 @@ Drivetrain::Drivetrain() :
 	pRightTwoMotor = new CANTalon(CAN_DRIVETRAIN_RIGHTTWO_MOTOR);
 	wpi_assert(pLeftOneMotor && pRightOneMotor && pLeftTwoMotor && pRightTwoMotor);
 
-	pAPixy = new AnalogPixy(0,4,-0.055);  //positive makes robot shoot to the left
+	pAPixy = new AnalogPixy(0,4, 0.0);  //positive makes robot shoot to the left
 	pFrontPixy = new AnalogPixy(1,3,0);
 
 	//pCamera = new PixyCam();
@@ -382,17 +382,18 @@ void Drivetrain::Run() {
 			double dfPixy = pAPixy->Get();
 
 			// if we see something but it is not close, try to aim
-while(pRunTimer->Get()-fTimer <.5){
-			if((dfPixy != 5) && ((dfPixy > .025) || (dfPixy < -.025))){
-				Aim(dfPixy);
-				dfPixy = pAPixy->Get();
-				fTimer = pRunTimer->Get();
-			}else{
-				dfPixy = pAPixy->Get();
-				pLeftOneMotor->Set(0);
-				pRightOneMotor->Set(0);
+			while((pRunTimer->Get()- fTimer) < 2.0){
+				if((dfPixy != 5) && ((dfPixy > .05) || (dfPixy < -.05))){
+					Aim(dfPixy);
+					dfPixy = pAPixy->Get();
+					fTimer = pRunTimer->Get();
+				}else{
+					dfPixy = pAPixy->Get();
+					pLeftOneMotor->Set(0);
+					pRightOneMotor->Set(0);
+				}
+				Wait(0.005);
 			}
-		}
 			pLeftOneMotor->Set(0);
 			pRightOneMotor->Set(0);
 
@@ -449,18 +450,7 @@ void Drivetrain::Aim(){
 
 void Drivetrain::Aim(double dfPixy){
 	if (ISAUTO) {
-//		pLeftOneMotor->Set(pow(fabs(dfPixy), 1.0/3.0) * .64 * (dfPixy < 0 ? -1 : 1)*FULLSPEED_FROMTALONS);
-//		pRightOneMotor->Set(pow(fabs(dfPixy), 1.0/3.0) * .64 * (dfPixy < 0 ? -1 : 1)*FULLSPEED_FROMTALONS);
-		double dfNextVel = dfPixy * 1.0;
-
-		if((dfNextVel > 0.0) && (dfNextVel < fMinimumTurnSpeed))
-		{
-			dfNextVel = fMinimumTurnSpeed;
-		}
-		else if((dfNextVel < 0.0) && (dfNextVel > -fMinimumTurnSpeed))
-		{
-			dfNextVel = -fMinimumTurnSpeed;
-		}
+		double dfNextVel = pow(fabs(dfPixy), 1.0/3.0) * .5 * (dfPixy < 0 ? -1 : 1);
 
 		if(dfPixy > 0.0)
 		{
@@ -473,12 +463,14 @@ void Drivetrain::Aim(double dfPixy){
 			pRightOneMotor->Set(0);
 		}
 	} else {
+		double dfMotor = pow(fabs(dfPixy), 1.0/3.0) * .5 * (dfPixy < 0 ? -1 : 1);
+
 		if((int)(pRunTimer->Get() * 2) % 2) {
-			pLeftOneMotor->Set(pow(fabs(dfPixy), 1.0/3.0) * .6 * (dfPixy < 0 ? -1 : 1));
+			pLeftOneMotor->Set(dfMotor);
 			pRightOneMotor->Set(0);
 		} else {
 			pLeftOneMotor->Set(0);
-			pRightOneMotor->Set(pow(fabs(dfPixy), 1.0/3.0) * .5 * (dfPixy < 0 ? -1 : 1));
+			pRightOneMotor->Set(dfMotor);
 		}
 	}
 }

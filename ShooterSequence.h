@@ -19,8 +19,8 @@ public:
 	void Run();
 private:
 	const float armDelay = 1.0f;
-	const float rotateBack = 0.025;  // wait and rotate the intake
-	const float preShootDelay = 0.7;
+	const float rotateBack = 0.2;  // wait and rotate the intake
+	const float preShootDelay = 1.0;
 	const float postShootDelay = 0.5;
 	const float clawCloseDelay = 0.5;
 };

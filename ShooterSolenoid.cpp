@@ -24,7 +24,6 @@ void ShooterSolenoid::Open(){
 		Set(shootValue, farMask, canid);
 	}else if(Arm::GetEncTarget() == closeEncoderPos){
 		Set(shootValue, closeMask, canid);
-		//Set(shootValue, farMask, canid);
 	}else
 	{
 		printf("Error: invalid shooting position\n");

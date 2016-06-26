@@ -25,6 +25,7 @@ public:
 
 private:
 	Joystick* Controller_1;
+	Joystick* Controller_2;
 	Drivetrain* drivetrain;
 	Autonomous* autonomous;
 	Arm* arm;
